@@ -46,10 +46,6 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [~] 0.1 — Create `shared.css` with the base design system (copied/adapted from
-      SwedishGames shared.js inline styles, extracted to standalone CSS file)
-      (started 2026-06-16: NOTE — SwedishGames repo not in session scope, building
-      design system fresh from PLAN.md spec: aurora bg, glass cards, Nordic palette)
 - [ ] 0.2 — Create `shared.js` with shared utilities (adapted from SwedishGames:
       Store, Speech, Sfx, auroraBackground, gameHeader, confetti, toast, base helpers).
       Namespace the localStorage key as `svenska_ci_v1` to avoid collision.
@@ -177,6 +173,15 @@
 
 ## Done
 (Completed chunks are moved here with a date and note.)
+
+- [x] 0.1 — `shared.css` created: Nordic palette CSS vars, animated aurora background
+      (4 blurred drifting blobs, prefers-reduced-motion aware), glass `.card`, mode
+      grid, game header, glossed-text styles, toast, subtle celebration pulse.
+      NOTE: SwedishGames repo (`sprtankd/SwedishLearningGames`) is not in this
+      session's GitHub scope, so the design system was built fresh from the visual
+      spec in PLAN.md rather than copied from SwedishGames source. Palette/aesthetic
+      (gold/green/blue/pink, aurora, glassmorphism) faithfully matches the spec.
+      (2026-06-16)
 
 ---
 
