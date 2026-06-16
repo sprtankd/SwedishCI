@@ -62,8 +62,9 @@
 ---
 
 ## Milestone 4: Collocation & Connector Activities (🔗 🧩)
-- [ ] 4.1 — Create `data/collocations.js` with 50+ particle verb / preposition
+- [~] 4.1 — Create `data/collocations.js` with 50+ particle verb / preposition
       collocations, each with 2-3 example sentences showing usage in context.
+      (started 2026-06-16)
 - [ ] 4.2 — Create `collocations.html`: read a mini-context paragraph, fill in the
       correct particle/preposition from choices. NOT flashcards — always in context.
 - [ ] 4.3 — Create `data/connectors.js` with 30+ discourse connectors (dessutom,
