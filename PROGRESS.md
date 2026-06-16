@@ -46,9 +46,9 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [ ] 0.5 — Create `data/stories-a2-high.js` with 5 stories at A2-high level
+- [~] 0.5 — Create `data/stories-a2-high.js` with 5 stories at A2-high level
       (~100-150 words each). Topics: job interview, visiting the doctor, apartment
-      hunting, taking the bus, swedish holidays.
+      hunting, taking the bus, swedish holidays. (started 2026-06-16)
 - [ ] 0.6 — Initial commit of scaffold: hub + data files + shared assets. Verify
       index.html opens cleanly with no console errors.
 
