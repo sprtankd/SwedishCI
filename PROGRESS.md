@@ -50,10 +50,6 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.5 — Implement word encounter tracking: when a reader reads a story, all glossary
-      words are marked as "encountered". Track encounter count per word across stories.
-      Words graduate: new (0) → met (1-2) → familiar (3-5) → known (6+).
-      (started 2026-06-16)
 - [ ] 1.6 — Add audio playback for story text: "read aloud" button that speaks the full
       story via TTS (Speech helper). Per-sentence playback on tap.
 - [ ] 1.7 — Polish reader UI: smooth transitions between stories, reading progress bar,
@@ -220,6 +216,21 @@
       every story in a level is done. Completion persistence (from 1.3) confirmed
       working across multi-story sessions via jsdom smoke test — counts and
       checkmarks update correctly after completing 2 stories in sequence, zero
+      console errors. (2026-06-16)
+- [x] 1.5 — Word encounter tracking implemented: moving from the reading view to the
+      questions view (`btn-to-questions` click) records one encounter for every
+      glossary word in that story via `Words.record(word, story.id)`. Re-reading a
+      story ("Läs igen") and finishing again adds further encounters (dedup'd
+      `contexts` per story id), so words graduate new→met(1-2)→familiar(3-5)→known(6+)
+      as designed. Gloss spans get an `.encountered` class once `Words.get(key).count
+      > 0` (already wired in 1.2, now actually populated). Verified via jsdom smoke
+      test (`test-encounters.js`): counts increment 1→2 across two completions of the
+      same story, `.encountered` class appears correctly on reopen, zero console
+      errors. Also verified the cross-page contract with `index.html`'s dashboard
+      (`test-hub-integration.js`): pre-seeded localStorage with words at met/
+      familiar/known counts plus `stats.readingSessions`, loaded the hub fresh, and
+      confirmed `renderStats()` correctly aggregates "Ord mötta" (3), "Kända ord" (1),
+      session count, and readiness label — all matched expected values with zero
       console errors. (2026-06-16)
 
 ---
