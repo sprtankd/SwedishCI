@@ -54,9 +54,6 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [~] 2.3 — Add "text type" indicators (informational, argumentative, instructional)
-      matching SFI D text categories.
-      (started 2026-06-16)
 - [ ] 2.4 — Create `data/news-b1plus.js` with 5 articles at B1+ level (~250-400 words).
       Topics: integration debate, climate policy, education reform, gender equality,
       digital society. Use more advanced connectors and abstract vocabulary.
@@ -344,6 +341,23 @@
       all pass with zero console errors. `node --check` and HTML tag-balance
       clean for both `news.html` and the updated `index.html`. Full existing
       reader.html regression suite re-run — still all pass. (2026-06-16)
+- [x] 2.3 — Text-type indicators added to `news.html`: a `TEXT_TYPES` map
+      (informational 📰 blue / argumentative 💬 pink / instructional 📋
+      green) covers the three genres SFI D reading exams test recognition
+      of, each with a short Swedish description exposed as a hover tooltip
+      (`title` attribute) so the labels double as a learning aid, not just
+      decoration. A `textTypeBadge()` helper renders the icon+label+color
+      badge and is used both on article-list cards and the article view's
+      meta row (replacing the old plain-text `textType` badge). All 5
+      current B1 articles are tagged "informational" since they're news
+      articles; "argumentative"/"instructional" examples will appear
+      naturally once 2.4's B1+ debate/opinion topics are written — verified
+      the other two badge variants render correctly now via a jsdom test
+      calling `textTypeBadge()` directly with fabricated values, so the UI
+      is confirmed working ahead of that content existing. `node --check`
+      and HTML tag-balance clean; full regression suite (10 reader.html +
+      4 news.html tests) re-run — all pass, zero console errors.
+      (2026-06-16)
 
 ---
 

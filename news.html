@@ -191,6 +191,38 @@ const LEVELS = [
 let currentLevel = Store.get("news.lastLevel", LEVELS[0].key);
 let currentArticle = null;
 
+// SFI D reading exams test recognition of different text genres. These three
+// categories cover the ones learners need to tell apart at that level.
+const TEXT_TYPES = {
+  informational: {
+    label: "Informativ",
+    icon: "📰",
+    color: "blue",
+    desc: "Berättar fakta och nyheter, t.ex. en nyhetsartikel eller rapport.",
+  },
+  argumentative: {
+    label: "Argumenterande",
+    icon: "💬",
+    color: "pink",
+    desc: "Driver en åsikt eller ett ställningstagande, t.ex. en debattartikel eller insändare.",
+  },
+  instructional: {
+    label: "Instruerande",
+    icon: "📋",
+    color: "green",
+    desc: "Visar hur man gör något, t.ex. en bruksanvisning eller regler.",
+  },
+};
+
+function textTypeBadge(textType) {
+  const info = TEXT_TYPES[textType] || { label: textType, icon: "", color: "" };
+  return el(
+    "span",
+    { class: "badge" + (info.color ? " " + info.color : ""), title: info.desc || "" },
+    [info.icon ? `${info.icon} ${info.label}` : info.label]
+  );
+}
+
 document.getElementById("header-slot").appendChild(
   gameHeader({
     title: "📰 News Reader",
@@ -262,6 +294,7 @@ function renderArticleList() {
         el("div", { class: "ac-title" }, [(done ? "✅ " : "") + article.title]),
         el("div", { class: "ac-title-en" }, [article.titleEn]),
         el("div", { class: "ac-meta" }, [
+          textTypeBadge(article.textType),
           el("span", { class: "badge" }, [article.theme]),
           el("span", { class: "badge" }, [`${article.wordCount} ord`]),
         ]),
@@ -279,8 +312,8 @@ function openArticle(article) {
 
   const metaHost = document.getElementById("article-meta");
   metaHost.innerHTML = "";
-  metaHost.appendChild(el("span", { class: "badge blue" }, [article.theme]));
-  metaHost.appendChild(el("span", { class: "badge" }, [article.textType]));
+  metaHost.appendChild(textTypeBadge(article.textType));
+  metaHost.appendChild(el("span", { class: "badge" }, [article.theme]));
   metaHost.appendChild(el("span", { class: "badge" }, [`${article.wordCount} ord`]));
 
   renderGlossedText(document.getElementById("article-lead"), article.lead, article.glossary, article.id);
