@@ -50,8 +50,8 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [ ] 1.1 — Create `reader.html` skeleton: header, story display area, question panel,
-      progress indicators. Wire up navigation from hub.
+- [~] 1.1 — Create `reader.html` skeleton: header, story display area, question panel,
+      progress indicators. Wire up navigation from hub. (started 2026-06-16)
 - [ ] 1.2 — Implement glossed text rendering: parse story text, make each word tappable,
       show English gloss + pronunciation on tap/hover. Use a tooltip or inline reveal.
 - [ ] 1.3 — Implement comprehension questions panel: show questions after reading,
