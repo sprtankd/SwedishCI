@@ -288,6 +288,9 @@ function renderArticleList() {
   }
   for (const article of articles) {
     const done = isArticleDone(article.id);
+    const attempts = Store.get(`news.progress.${article.id}.attempts`, 0);
+    const bestScore = Store.get(`news.progress.${article.id}.bestScore`, 0);
+    const newWords = Object.keys(article.glossary).filter((w) => Words.get(w).count === 0).length;
     const card = el(
       "div",
       { class: "card article-card", onclick: () => openArticle(article) },
@@ -298,6 +301,9 @@ function renderArticleList() {
           textTypeBadge(article.textType),
           el("span", { class: "badge" }, [article.theme]),
           el("span", { class: "badge" }, [`${article.wordCount} ord`]),
+          attempts > 0
+            ? el("span", { class: "badge gold" }, [`🏅 ${bestScore}%`])
+            : el("span", { class: "badge" }, [`🌱 ${newWords} nya ord`]),
         ]),
       ]
     );

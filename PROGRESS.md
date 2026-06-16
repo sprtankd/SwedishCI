@@ -54,8 +54,6 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [~] 2.5 — Polish news reader: article list view, difficulty indicator, completion
-      tracking, word encounter integration. (started 2026-06-16)
 
 ---
 
@@ -393,6 +391,28 @@
       that expectation to match the now-intended enabled state rather than
       changing app behavior. `node --check` and HTML tag-balance clean for
       `news.html`. (2026-06-16)
+- [x] 2.5 — Polished the news reader article list: completion tracking and
+      word-encounter integration were already wired up since 2.2/2.4
+      (`news.progress.<id>`, `recordArticleEncounters`), so the gap was that
+      none of it was visible on the list cards beyond a binary ✅ checkmark.
+      Added a 4th badge per card that swaps based on attempt state: articles
+      not yet attempted show a personalized difficulty indicator — `🌱 N nya
+      ord`, counting how many of *that article's* glossary words the learner
+      hasn't encountered anywhere yet (`Words.get(w).count === 0`) — which is
+      a more useful "how hard is this for me right now" signal than a static
+      CEFR label, since it's i+1-aware and reflects the learner's own
+      vocabulary growth across both B1 and B1+ content. Once an article has
+      at least one attempt, the badge swaps to `🏅 {bestScore}%` (gold),
+      surfacing completion quality instead of just completion. Verified via
+      a new jsdom test (`test-news-polish.js`): untouched cards show 4 badges
+      including a 🌱-prefixed new-words count; completing an article's
+      questions (regardless of pass/fail) swaps that card's badge to a
+      🏅-prefixed gold percentage and removes the new-words badge; a second,
+      still-untouched card continues to show a sane new-words count. Full
+      regression suite (10 reader.html + 7 news.html tests, 20 files total)
+      re-run — all pass, zero console errors. `node --check` and HTML
+      tag-balance clean. This completes Milestone 2 (News Reader).
+      (2026-06-16)
 
 ---
 
