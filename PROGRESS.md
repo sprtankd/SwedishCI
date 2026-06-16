@@ -46,10 +46,6 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [~] 0.2 — Create `shared.js` with shared utilities (adapted from SwedishGames:
-      Store, Speech, Sfx, auroraBackground, gameHeader, confetti, toast, base helpers).
-      Namespace the localStorage key as `svenska_ci_v1` to avoid collision.
-      (started 2026-06-16)
 - [ ] 0.3 — Create `index.html` hub page with hero section, progress dashboard
       (words encountered, reading sessions, streak), and mode cards grid. Initially
       all modes show as "Coming soon" except the first one.
@@ -183,6 +179,11 @@
       spec in PLAN.md rather than copied from SwedishGames source. Palette/aesthetic
       (gold/green/blue/pink, aurora, glassmorphism) faithfully matches the spec.
       (2026-06-16)
+- [x] 0.2 — `shared.js` created: Store (namespaced `svenska_ci_v1` localStorage),
+      Speech (Web Speech API sv-SE TTS), Sfx (WebAudio beeps), DOM helpers (el/qs/qsa),
+      auroraBackground(), gameHeader(), toast(), celebrate() (subtle pulse, no
+      confetti per PLAN.md adult-appropriate guidance), Words encounter tracker
+      (new/met/familiar/known), streakUpdate(). (2026-06-16)
 
 ---
 
