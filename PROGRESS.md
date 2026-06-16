@@ -58,7 +58,6 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [~] 3.6 — Polish: smooth transitions, progress tracking, mobile audio controls. (started 2026-06-16)
 
 ---
 
@@ -585,6 +584,32 @@
       re-run — all pass, zero console errors. `node --check` and HTML
       tag-balance clean. **Milestone 3 core listening content is now
       complete at both levels** (3.6 polish remains). (2026-06-16)
+- [x] 3.6 — Polish pass on `listening.html`. Audited existing infrastructure
+      first to avoid duplicating what earlier chunks already cover: view
+      transitions (`view-fade-in` keyframe on `.active` views, already
+      respects `prefers-reduced-motion`), the progress bar
+      (`.progress-fill`'s `transition: width 0.4s ease` from shared.css),
+      and gloss-word hover/encountered states (shared.css transitions) were
+      all already in place from 3.1; progress tracking already has three
+      layers (per-level done-counts on the level tabs, per-card ✅/best-
+      score/new-words badges, in-passage listen-progress bar) inherited from
+      3.1-3.5 with no obvious gap worth filling. Confirmed by checking
+      sibling modes (reader.html/news.html) that local pill-button classes
+      like `.level-tab`/`.q-option` never get hover/active transitions
+      anywhere in the app, so adding one only to listening.html would be an
+      inconsistency, not a fix — left alone. The one genuine, concrete gap
+      found: the `@media (max-width: 480px)` block (written in 3.1, before
+      3.4 added the `.listen-controls` third button and the `.speed-controls`
+      row) never accounted for either. Fixed by extending that block so on
+      narrow screens `.listen-controls` stacks its 3 buttons full-width
+      (`flex-direction: column` + `width: 100%`) and `.speed-controls`
+      centers its label/pills with each `.speed-btn` sized via `flex: 1` so
+      the 3 speed pills evenly fill the row instead of cramping or wrapping
+      awkwardly. **This completes Milestone 3 (Listening Lab) in full** —
+      A2 and B1 content, listen-first gating, speed/repeat controls, and
+      mobile polish all verified. Full regression suite (25 files) re-run —
+      all pass, zero console errors. `node --check` and HTML tag-balance
+      clean. (2026-06-16)
 
 ---
 
