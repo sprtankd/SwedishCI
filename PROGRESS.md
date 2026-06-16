@@ -54,8 +54,8 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [ ] 2.5 — Polish news reader: article list view, difficulty indicator, completion
-      tracking, word encounter integration.
+- [~] 2.5 — Polish news reader: article list view, difficulty indicator, completion
+      tracking, word encounter integration. (started 2026-06-16)
 
 ---
 
