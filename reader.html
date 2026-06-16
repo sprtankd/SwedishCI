@@ -227,6 +227,138 @@ function openStory(story) {
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
+/* ---------------- Comprehension questions ---------------- */
+let qState = { story: null, index: 0, score: 0, answered: false };
+
+function startQuestions(story) {
+  qState = { story, index: 0, score: 0, answered: false };
+  window.scrollTo({ top: 0, behavior: "instant" });
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const card = document.getElementById("questions-card");
+  card.innerHTML = "";
+  const { story, index } = qState;
+  const total = story.questions.length;
+  const q = story.questions[index];
+  qState.answered = false;
+
+  card.appendChild(
+    el("div", { class: "text-faint", style: "margin-bottom:10px;font-size:0.85rem;" }, [
+      `Fråga ${index + 1} av ${total}`,
+    ])
+  );
+  card.appendChild(
+    el("div", { class: "progress-track", style: "margin-bottom:18px;" }, [
+      el("div", { class: "progress-fill", style: `width:${(index / total) * 100}%` }),
+    ])
+  );
+
+  const block = el("div", { class: "q-block" }, [
+    el("h3", {}, [q.q]),
+    el("div", { class: "text-dim", style: "font-size:0.85rem;margin-top:-6px;" }, [q.qEn]),
+  ]);
+  const optionsHost = el("div", { class: "q-options" });
+  q.options.forEach((opt, i) => {
+    const optBtn = el("button", { class: "q-option" }, [opt]);
+    optBtn.addEventListener("click", () => selectAnswer(i, q, optionsHost, optBtn));
+    optionsHost.appendChild(optBtn);
+  });
+  block.appendChild(optionsHost);
+  card.appendChild(block);
+
+  const nextBtn = el(
+    "button",
+    { class: "btn btn-primary", id: "btn-next-question", disabled: "disabled" },
+    [index + 1 < total ? "Nästa fråga →" : "Se resultat →"]
+  );
+  nextBtn.addEventListener("click", () => {
+    if (!qState.answered) return;
+    qState.index += 1;
+    if (qState.index < total) {
+      renderQuestion();
+    } else {
+      finishQuestions();
+    }
+  });
+  card.appendChild(el("div", { style: "margin-top:18px;text-align:right;" }, [nextBtn]));
+}
+
+function selectAnswer(choiceIndex, q, optionsHost, chosenBtn) {
+  if (qState.answered) return;
+  qState.answered = true;
+  const correct = choiceIndex === q.correct;
+  if (correct) qState.score += 1;
+
+  Array.from(optionsHost.children).forEach((btn, i) => {
+    if (i === q.correct) btn.classList.add("correct");
+    if (i === choiceIndex && !correct) btn.classList.add("incorrect");
+  });
+  chosenBtn.classList.add("selected");
+  if (correct) Sfx.correct();
+  else Sfx.incorrect();
+
+  optionsHost.appendChild(
+    el("div", { class: correct ? "text-dim" : "badge pink", style: "margin-top:12px;font-size:0.85rem;" }, [
+      correct ? "✓ Rätt!" : `Rätt svar: ${q.options[q.correct]}`,
+    ])
+  );
+
+  document.getElementById("btn-next-question").removeAttribute("disabled");
+}
+
+function finishQuestions() {
+  const { story, score } = qState;
+  const total = story.questions.length;
+  const pct = Math.round((score / total) * 100);
+  const passed = pct >= 60;
+
+  const prevBest = Store.get(`reader.progress.${story.id}.bestScore`, 0);
+  Store.update(`reader.progress.${story.id}`, (entry) => {
+    entry = entry || { attempts: 0, bestScore: 0, completed: false };
+    entry.attempts += 1;
+    entry.lastScore = pct;
+    entry.bestScore = Math.max(entry.bestScore, pct);
+    entry.completed = entry.completed || passed;
+    return entry;
+  });
+  Store.update("stats.readingSessions", (n) => (n || 0) + 1, 0);
+
+  const card = document.getElementById("questions-card");
+  card.innerHTML = "";
+  const resultCard = el("div", { class: "text-center" }, [
+    el("div", { style: "font-size:2.4rem;" }, [passed ? "🎉" : "📖"]),
+    el("h2", {}, [`${score} / ${total} rätt`]),
+    el("div", { class: "text-dim" }, [
+      passed
+        ? "Bra jobbat! Du har förstått texten."
+        : "Läs gärna texten igen — du blir bättre för varje gång.",
+    ]),
+    pct > prevBest
+      ? el("div", { class: "badge gold", style: "margin-top:10px;" }, ["Nytt personligt bästa!"])
+      : null,
+  ]);
+  card.appendChild(resultCard);
+  if (passed) celebrate(card);
+
+  const actions = el("div", { class: "flex gap-12 justify-between", style: "margin-top:22px;" }, [
+    el("button", { class: "btn", onclick: () => { openStory(story); } }, ["← Läs igen"]),
+    el(
+      "button",
+      {
+        class: "btn btn-primary",
+        onclick: () => {
+          showView("view-list");
+          renderStoryList();
+        },
+      },
+      ["Till listan"]
+    ),
+  ]);
+  card.appendChild(actions);
+}
+
 /* ---------------- Glossed text rendering ----------------
    Only glossary-listed words/phrases become tappable (CI principle:
    gloss the unfamiliar, leave known words clean). Tap = translation +
@@ -339,9 +471,7 @@ document.getElementById("btn-back-to-list").addEventListener("click", () => {
 
 document.getElementById("btn-to-questions").addEventListener("click", () => {
   showView("view-questions");
-  const card = document.getElementById("questions-card");
-  card.innerHTML = "";
-  card.appendChild(el("div", { class: "placeholder-note" }, ["Frågepanelen byggs i nästa steg."]));
+  startQuestions(currentStory);
 });
 
 // Simple scroll-based reading progress indicator.

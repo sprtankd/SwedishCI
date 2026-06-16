@@ -50,8 +50,6 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.3 — Implement comprehension questions panel: show questions after reading,
-      multiple choice, score tracking, explanations on answer. (started 2026-06-16)
 - [ ] 1.4 — Implement story progression: level selector (A2-low / A2-high / B1 / B1+),
       story list within each level, completion tracking in localStorage.
 - [ ] 1.5 — Implement word encounter tracking: when a reader reads a story, all glossary
@@ -203,6 +201,20 @@
       browser download is blocked by network egress allowlist): loaded reader.html,
       clicked a story card, confirmed 8 gloss spans render with correct translations,
       tooltip show/hide on click and click-away, zero console errors. (2026-06-16)
+- [x] 1.3 — Comprehension question panel implemented: one question at a time with a
+      progress bar, multiple-choice options reveal correct/incorrect color + correct
+      answer on selection, score tally, results screen (pass threshold 60%) with
+      "Läs igen" / "Till listan" actions, completion + best-score persisted to
+      `reader.progress.<storyId>`, `stats.readingSessions` incremented. NOTE: story
+      data has no separate "explanation" field (PLAN.md's schema doesn't define one)
+      — revealing the correct option text serves as the explanation, which is
+      sufficient for these literal-fact comprehension questions. jsdom smoke test
+      caught and fixed a real bug: `Store.update(path, fn, {})` passed a truthy
+      empty-object fallback so the updater's `entry || {...defaults}` never
+      triggered, corrupting `attempts`/`bestScore` to NaN→null; fixed by omitting
+      the fallback arg so missing entries default through `undefined`. Verified
+      both pass (5/5, completed=true) and fail (0/5, completed=false) paths end to
+      end with zero console errors. (2026-06-16)
 
 ---
 
