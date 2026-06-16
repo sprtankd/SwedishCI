@@ -58,7 +58,6 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [~] 3.4 — Add speed controls (0.75x / 1.0x / 1.1x) and repeat controls. (started 2026-06-16)
 - [ ] 3.5 — Create `data/listening-b1.js` with 5 passages at B1 level. Longer,
       more complex topics.
 - [ ] 3.6 — Polish: smooth transitions, progress tracking, mobile audio controls.
@@ -516,6 +515,40 @@
       regression suite (23 files) re-run — all pass, zero console errors.
       `node --check` (on the extracted inline script) and HTML tag-balance
       both clean. (2026-06-16)
+- [x] 3.4 — Added speed and repeat controls to `listening.html`. A new
+      `SPEEDS` array (`0.75x` / `1.0x` / `1.1x`, matching PLAN.md's literal
+      labels) backs a pill-button row (`.speed-controls`/`.speed-btn`,
+      styled like the existing `.level-tab` pattern) rendered above the
+      progress bar; the selected `currentRate` persists across sessions via
+      `Store.set("listening.rate", ...)` and feeds every `Speech.say(...,
+      {rate: currentRate})` call in `playSentence`/`playPassage`, replacing
+      the old hardcoded `rate: 0.9`. NOTE: this is a deliberate small
+      behavior change — "normal" speed is now an honest 1.0x (matching its
+      label) rather than the slightly-slower 0.9 every mode used ad hoc
+      before explicit speed control existed; reader.html/news.html's
+      separate "read aloud" features are untouched, out of this chunk's
+      scope. Added a repeat-sentence control: a new `lastPlayedSentence`
+      tracker records whichever sentence span/text was most recently spoken
+      (whether via the whole-passage chain or an individual click), and a
+      new "🔂 Upprepa raden" button calls `repeatLastSentence()` to replay
+      just that one sentence at the current rate — useful during the
+      listen-first phase where the transcript (and thus per-sentence click-
+      to-replay) is hidden until after questions, so this is the *only* way
+      to re-hear one line without restarting the whole passage. Clicking it
+      before anything has played shows a `toast()` instead of erroring.
+      Both new pieces of state reset on `openPassage`/`reviewPassage` so a
+      newly opened passage doesn't inherit a stale sentence reference from
+      the previous one. Verified via a new `test-listening-speed.js`: 3
+      speed buttons render with 1.0x active by default, clicking 0.75x
+      updates the active button, persists to `listening.rate` in
+      localStorage, and is reflected in the actual `rate` set on the next
+      spoken utterance (captured via the harness's `speechSynthesis.speak`
+      stub, not `Speech.say` directly — confirmed once more that top-level
+      `const`-declared modules aren't reachable via `window` in this jsdom
+      harness); repeat-sentence is a no-op before any playback and replays
+      exactly one utterance at the selected rate afterward. Full regression
+      suite (24 files total) re-run — all pass, zero console errors.
+      `node --check` and HTML tag-balance clean. (2026-06-16)
 
 ---
 

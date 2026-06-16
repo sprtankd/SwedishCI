@@ -69,6 +69,32 @@
     flex-wrap: wrap;
     margin-bottom: 14px;
   }
+  .speed-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .speed-label {
+    color: var(--text-faint);
+    font-size: 0.82rem;
+  }
+  .speed-btn {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .speed-btn.active {
+    background: linear-gradient(135deg, var(--blue), var(--green));
+    color: #06121a;
+    border-color: transparent;
+  }
   .listen-hint {
     color: var(--text-faint);
     font-size: 0.85rem;
@@ -145,6 +171,10 @@
       <div class="listen-controls">
         <button class="btn btn-primary" id="btn-play-pause">▶️ Lyssna</button>
         <button class="btn" id="btn-replay">🔁 Lyssna igen</button>
+        <button class="btn" id="btn-repeat-sentence">🔂 Upprepa raden</button>
+      </div>
+      <div class="speed-controls" id="speed-controls">
+        <span class="speed-label">Hastighet:</span>
       </div>
       <div class="progress-track" style="margin-bottom:18px;">
         <div class="progress-fill" id="listen-progress-fill" style="width:0%"></div>
@@ -187,6 +217,35 @@ let currentPassage = null;
 let transcriptRevealed = false;
 let transcriptUnlocked = false;
 let hasListenedFully = false;
+let lastPlayedSentence = null;
+
+const SPEEDS = [
+  { key: "slow", rate: 0.75, label: "🐢 0.75x" },
+  { key: "normal", rate: 1.0, label: "▶ 1.0x" },
+  { key: "fast", rate: 1.1, label: "🐇 1.1x" },
+];
+let currentRate = Store.get("listening.rate", 1.0);
+
+function renderSpeedControls() {
+  const host = document.getElementById("speed-controls");
+  Array.from(host.querySelectorAll(".speed-btn")).forEach((b) => b.remove());
+  for (const speed of SPEEDS) {
+    const btn = el(
+      "button",
+      {
+        class: "speed-btn" + (speed.rate === currentRate ? " active" : ""),
+        onclick: () => {
+          currentRate = speed.rate;
+          Store.set("listening.rate", currentRate);
+          renderSpeedControls();
+        },
+      },
+      [speed.label]
+    );
+    host.appendChild(btn);
+  }
+}
+renderSpeedControls();
 
 document.getElementById("header-slot").appendChild(
   gameHeader({
@@ -293,6 +352,7 @@ function openPassage(passage) {
   stopListening();
   currentPassage = passage;
   transcriptRevealed = false;
+  lastPlayedSentence = null;
   const alreadyDone = isPassageDone(passage.id);
   transcriptUnlocked = alreadyDone;
   hasListenedFully = alreadyDone;
@@ -316,6 +376,7 @@ function reviewPassage(passage) {
   transcriptUnlocked = true;
   hasListenedFully = true;
   transcriptRevealed = true;
+  lastPlayedSentence = null;
 
   renderPassageView(passage);
   document.getElementById("btn-toggle-transcript").style.display = "";
@@ -667,7 +728,19 @@ function stopListening() {
 function playSentence(span, text) {
   stopListening();
   span.classList.add("sentence-playing");
-  Speech.say(text, { rate: 0.9, onend: () => span.classList.remove("sentence-playing") });
+  lastPlayedSentence = { span, text };
+  Speech.say(text, { rate: currentRate, onend: () => span.classList.remove("sentence-playing") });
+}
+
+function repeatLastSentence() {
+  if (!lastPlayedSentence) {
+    toast("Spela upp avsnittet först, så kan du upprepa en rad.");
+    return;
+  }
+  stopListening();
+  const { span, text } = lastPlayedSentence;
+  span.classList.add("sentence-playing");
+  Speech.say(text, { rate: currentRate, onend: () => span.classList.remove("sentence-playing") });
 }
 
 function playPassage() {
@@ -695,13 +768,14 @@ function playPassage() {
     clearSentenceHighlight();
     span.classList.add("sentence-playing");
     document.getElementById("listen-progress-fill").style.width = `${Math.round((i / sentences.length) * 100)}%`;
-    i++;
     const text = span.textContent.trim();
+    lastPlayedSentence = { span, text };
+    i++;
     if (!text) {
       playNext();
       return;
     }
-    const ok = Speech.say(text, { rate: 0.9, onend: playNext });
+    const ok = Speech.say(text, { rate: currentRate, onend: playNext });
     if (!ok) playNext();
   }
   playNext();
@@ -719,6 +793,10 @@ document.getElementById("btn-replay").addEventListener("click", () => {
   stopListening();
   document.getElementById("listen-progress-fill").style.width = "0%";
   playPassage();
+});
+
+document.getElementById("btn-repeat-sentence").addEventListener("click", () => {
+  repeatLastSentence();
 });
 
 renderLevelTabs();
