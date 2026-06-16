@@ -54,10 +54,6 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [~] 2.1 — Create `data/news-b1.js` with 5 simplified news-style articles at B1 level.
-      Topics: weather report, local event, job market, health advice, technology.
-      Include glossaries and comprehension questions.
-      (started 2026-06-16)
 - [ ] 2.2 — Create `news.html` with news article layout: headline, lead paragraph,
       body text with glossing, source attribution. Reuse glossing engine from reader.
 - [ ] 2.3 — Add "text type" indicators (informational, argumentative, instructional)
@@ -291,6 +287,25 @@
       end-to-end, full existing regression suite re-run — all pass, zero console
       errors, HTML tag-balance clean. **Milestone 1 (Graded Reader) complete.**
       (2026-06-16)
+- [x] 2.1 — `data/news-b1.js` created: 5 B1 news-style articles (weather, local
+      event, job market, health advice, technology), 131-152 words each, schema
+      `{id, title, titleEn, level, theme, textType, source, wordCount, lead, body,
+      glossary, questions}`. Split `lead`/`body` (rather than one `text` field) to
+      anticipate 2.2's headline/lede/body layout; `textType: "informational"`
+      anticipates 2.3's SFI-D text-type indicators; `source: "Svenska CI Nyheter"`
+      is a fictional in-app byline since these are invented articles for
+      pedagogical use, not real reporting. Questions vary `correct` across
+      0/1/2 (continuing the 1.8 pattern). Bug found and fixed: all 5 articles'
+      `wordCount` fields were stale (declared 156-167, actual 131-152) from
+      editing text after first writing the field — resynced via script to the
+      true computed count. Verified programmatically: `node --check` syntax
+      clean, every declared `wordCount` matches actual lead+body word count,
+      every glossary key (including the multi-word phrases "hjärt- och
+      kärlsjukdomar", "digitala verktyg", "interaktiva tavlor", "grundläggande
+      färdigheter") appears in its article's text, every article has exactly 5
+      questions with exactly 3 options and a valid `correct` index. No
+      end-to-end render test yet possible since `news.html` doesn't exist —
+      will be exercised once 2.2 builds the news reader page. (2026-06-16)
 
 ---
 
