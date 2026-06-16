@@ -54,10 +54,6 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [~] 2.4 — Create `data/news-b1plus.js` with 5 articles at B1+ level (~250-400 words).
-      Topics: integration debate, climate policy, education reform, gender equality,
-      digital society. Use more advanced connectors and abstract vocabulary.
-      (started 2026-06-16)
 - [ ] 2.5 — Polish news reader: article list view, difficulty indicator, completion
       tracking, word encounter integration.
 
@@ -359,6 +355,44 @@
       and HTML tag-balance clean; full regression suite (10 reader.html +
       4 news.html tests) re-run — all pass, zero console errors.
       (2026-06-16)
+- [x] 2.4 — `data/news-b1plus.js` created: 5 B1+ articles (integration debate,
+      climate policy, school reform, gender equality at home, online safety),
+      254-279 words each (within the 250-400 target), same schema as the B1
+      set. Deliberately diversified `textType` across all three SFI-D genres
+      (2 argumentative, 2 informational, 1 instructional) instead of defaulting
+      to "informational" like the B1 set, so the 2.3 text-type badges get real
+      non-fabricated examples of every variant. Body text uses blank-line
+      paragraph breaks (`\n\n`), which exposed a latent CSS gap: `.story-text`
+      (shared by `reader.html`'s and `news.html`'s body containers) had no
+      `white-space` rule, so `\n\n` would have collapsed to a single space.
+      Fixed by adding `white-space: pre-line;` to `.story-text` in
+      `shared.css` — confirmed safe for all 4 existing data files (none
+      contain `\n`), so this is purely additive for the new content. Wired
+      into `news.html` via a second `<script src="data/news-b1plus.js">` tag;
+      the page's `LEVELS` array already referenced `NEWS_B1_PLUS` defensively
+      since 2.2, so the B1+ tab auto-activated (no other code change needed).
+      Bug found and fixed during drafting: 3 of 5 articles (integration,
+      climate, education) were initially 218-236 words, short of the 250-400
+      target — extended each with one more substantive sentence and re-synced
+      the `wordCount` fields via the same id-keyed regex-patch script used in
+      2.1. Verified via jsdom (new `test-news-b1plus.js`): B1+ tab shows
+      "(0/5)" and is enabled (not "snart"); switching to it lists exactly 5
+      articles with the intended 2/2/1 argumentative/informational/
+      instructional badge split; opening each of the 4 articles containing
+      multi-word glossary phrases confirms "strukturella hinder", "fossila
+      bränslen", "förnybar energi", "socioekonomiska faktorer", "fristående
+      skolor", and "obetalda omsorgen" each render as single gloss spans (not
+      broken by the longer/more abstract B1+ vocabulary); full question flow
+      answering all 5 questions correctly on all 5 articles in turn scores
+      5/5 each time and the level tab updates to "(5/5)" after the last one,
+      confirming level-complete detection works for the B1+ set too. Full
+      regression suite (10 reader.html + 5 news.html tests, including the new
+      one) re-run after the `shared.css` change — all pass, zero console
+      errors. One pre-existing test (`test-news.js`) had a stale assertion
+      from 2.1 expecting the B1+ tab to be disabled "(no data yet)" — updated
+      that expectation to match the now-intended enabled state rather than
+      changing app behavior. `node --check` and HTML tag-balance clean for
+      `news.html`. (2026-06-16)
 
 ---
 

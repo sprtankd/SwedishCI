@@ -409,6 +409,7 @@ button {
 .story-text {
   font-size: 1.15rem;
   line-height: 1.85;
+  white-space: pre-line;
 }
 
 .story-sentence {
