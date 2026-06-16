@@ -157,6 +157,7 @@
 <script src="shared.js"></script>
 <script src="data/stories-a2.js"></script>
 <script src="data/stories-a2-high.js"></script>
+<script src="data/stories-b1.js"></script>
 <script>
 auroraBackground();
 
@@ -447,6 +448,32 @@ function renderGlossedText(container, text, glossary, contextId) {
   }
 }
 
+// Try to match a glossary phrase of 2+ words starting at tokens[i] (word,
+// single space, word, single space, word, ...). Tries the longest known
+// phrase length first so e.g. a 3-word phrase wins over a 2-word prefix of it.
+function matchPhraseAt(tokens, i, phrases, maxWords) {
+  for (let wordCount = maxWords; wordCount >= 2; wordCount--) {
+    const words = [tokens[i].text];
+    let idx = i + 1;
+    let valid = true;
+    for (let w = 1; w < wordCount; w++) {
+      const gapTok = tokens[idx];
+      const wordTok = tokens[idx + 1];
+      if (!gapTok || gapTok.type !== "gap" || gapTok.text !== " " || !wordTok || wordTok.type !== "word") {
+        valid = false;
+        break;
+      }
+      words.push(wordTok.text);
+      idx += 2;
+    }
+    if (!valid) continue;
+    const candidate = words.join(" ").toLowerCase();
+    const phraseHit = phrases.find((p) => p.key === candidate);
+    if (phraseHit) return { phraseHit, endIndex: idx - 1, display: words.join(" ") };
+  }
+  return null;
+}
+
 function appendGlossedTokens(container, text, singleWordMap, phrases, glossary, contextId) {
   const tokens = [];
   let lastIndex = 0;
@@ -459,22 +486,19 @@ function appendGlossedTokens(container, text, singleWordMap, phrases, glossary, 
   }
   if (lastIndex < text.length) tokens.push({ type: "gap", text: text.slice(lastIndex) });
 
+  const maxPhraseWords = phrases.length ? Math.max(...phrases.map((p) => p.key.split(" ").length)) : 0;
+
   for (let i = 0; i < tokens.length; i++) {
     const tok = tokens[i];
     if (tok.type === "gap") {
       container.appendChild(document.createTextNode(tok.text));
       continue;
     }
-    // Try to match a two-word phrase starting here (word, single space, word).
-    const next1 = tokens[i + 1];
-    const next2 = tokens[i + 2];
-    if (next1 && next1.type === "gap" && next1.text === " " && next2 && next2.type === "word") {
-      const candidate = (tok.text + " " + next2.text).toLowerCase();
-      const phraseHit = phrases.find((p) => p.key === candidate);
-      if (phraseHit) {
-        const display = tok.text + " " + next2.text;
-        container.appendChild(makeGlossSpan(display, phraseHit.key, glossary[phraseHit.original], contextId));
-        i += 2;
+    if (maxPhraseWords >= 2) {
+      const m = matchPhraseAt(tokens, i, phrases, maxPhraseWords);
+      if (m) {
+        container.appendChild(makeGlossSpan(m.display, m.phraseHit.key, glossary[m.phraseHit.original], contextId));
+        i = m.endIndex;
         continue;
       }
     }

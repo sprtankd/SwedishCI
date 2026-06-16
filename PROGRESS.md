@@ -50,10 +50,6 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.8 — Create `data/stories-b1.js` with 5 stories at B1 level (~150-250 words).
-      Topics: workplace culture, healthcare system, environmental issues, Swedish
-      traditions, immigrant experiences.
-      (started 2026-06-16)
 
 ---
 
@@ -270,6 +266,29 @@
       `openStory()` call instead of staying stale. Full existing regression suite
       (reader/questions/fail/progression/encounters/hub-integration/audio) re-run —
       all pass, zero console errors. HTML tag-balance and `node --check` clean.
+      (2026-06-16)
+- [x] 1.8 — `data/stories-b1.js` created: 5 B1 stories (workplace culture, healthcare
+      system, environmental issues, Swedish traditions/lagom, immigrant experiences),
+      194-211 words each, using compound sentences and a wider connector range
+      (eftersom, trots att, medan, så, även om, samtidigt som). Wired into
+      `reader.html`'s script tags — the B1 level tab (previously always "(snart)")
+      is now live. Unlike the earlier A2 data files, questions vary which option
+      index is correct (0/1/2, not always 0) since `selectAnswer`/`renderQuestion`
+      were already fully data-driven off `q.correct` with no shuffling — unrelated
+      to this chunk's scope, but new content didn't need to repeat the old habit.
+      Bug found and fixed while testing this content: one B1 glossary entry
+      ("vänja sig vid") is a 3-word phrase, but `appendGlossedTokens`'s phrase
+      matcher (from 1.2/1.6) only ever tried exactly 2-word lookahead, so it silently
+      failed to gloss it (7 of 8 gloss spans instead of 8). Generalized the matcher
+      (new `matchPhraseAt` helper) to try the longest known phrase length down to 2
+      words at each position, so phrases of any length now work; re-verified the
+      existing 2-word phrase ("slappna av" in stories-a2.js) still matches correctly.
+      Verified via jsdom: word counts re-synced to actual counts (were off by
+      10-18 due to the `text` string being edited after the field was first
+      written), glossary-key-in-text / option-length / correct-index validity all
+      checked programmatically, B1 tab/cards/sentences/gloss-spans/questions exercised
+      end-to-end, full existing regression suite re-run — all pass, zero console
+      errors, HTML tag-balance clean. **Milestone 1 (Graded Reader) complete.**
       (2026-06-16)
 
 ---
