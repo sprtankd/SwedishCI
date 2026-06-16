@@ -50,9 +50,10 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [ ] 1.5 — Implement word encounter tracking: when a reader reads a story, all glossary
+- [~] 1.5 — Implement word encounter tracking: when a reader reads a story, all glossary
       words are marked as "encountered". Track encounter count per word across stories.
       Words graduate: new (0) → met (1-2) → familiar (3-5) → known (6+).
+      (started 2026-06-16)
 - [ ] 1.6 — Add audio playback for story text: "read aloud" button that speaks the full
       story via TTS (Speech helper). Per-sentence playback on tap.
 - [ ] 1.7 — Polish reader UI: smooth transitions between stories, reading progress bar,
