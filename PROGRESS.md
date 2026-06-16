@@ -58,8 +58,6 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [~] 3.5 — Create `data/listening-b1.js` with 5 passages at B1 level. Longer,
-      more complex topics. (started 2026-06-16)
 - [ ] 3.6 — Polish: smooth transitions, progress tracking, mobile audio controls.
 
 ---
@@ -549,6 +547,44 @@
       exactly one utterance at the selected rate afterward. Full regression
       suite (24 files total) re-run — all pass, zero console errors.
       `node --check` and HTML tag-balance clean. (2026-06-16)
+- [x] 3.5 — `data/listening-b1.js` created: 5 B1 listening passages, longer
+      and grammatically denser than the A2 set (125-132 words vs. A2's
+      61-69), using subordinate clauses (eftersom, medan, om, innan),
+      conditional/modal phrasing, and SFI-D-adjacent civic/workplace/society
+      topics instead of A2's everyday-errand scenarios: a radio profile of a
+      community volunteer, a workplace-meeting briefing about new routines,
+      a healthcare advice-line call, a municipal recycling-rules
+      announcement, and an explainer on Swedish parental leave (vs. A2's
+      voicemail/train/shop/weather/dentist set) — same diversified-genre
+      strategy as 2.4/3.2. Same schema as `listening-a2.js`. Wired into
+      `listening.html` via a `<script src="data/listening-b1.js">` tag; the
+      B1 tab auto-activated since `LEVELS` already referenced `LISTENING_B1`
+      defensively since 3.1. Bug found and fixed while drafting: the
+      glossary word "eldsjäl" (a passionate volunteer) was used only in a
+      passage's title, never in its transcript body, so it would never
+      actually render as a gloss span — fixed by adding a sentence using
+      the word naturally ("Grannarna brukar kalla henne en riktig
+      eldsjäl.") rather than dropping the glossary entry, since it's a
+      useful, level-appropriate word worth glossing. Verified
+      programmatically that every glossary key now appears in its
+      passage's transcript, every `wordCount` matches the actual computed
+      count, every passage has exactly 5 questions with exactly 3 options
+      and a valid `correct` index, and the 25-question correct-index
+      distribution is balanced (9/9/7 across options 0/1/2). Verified via
+      jsdom: the existing `test-listening1.js` had a stale assumption from
+      3.2 ("B1 tab still disabled") — updated to assert both tabs are now
+      enabled, same convention as 2.4/3.2's stale-test fixes; a new
+      `test-listening-b1.js` confirms 5 real B1 cards render, the workplace
+      passage's two multi-word phrases ("på försök", "påminna om") and the
+      health passage's two phrases ("söka vård", "höra av sig") all gloss
+      correctly as single units despite B1's denser sentence structure, and
+      completing all 5 passages' question sets (each preceded by a full
+      listen-through, per the 3.3 gate) scores 5/5 each and flips the B1
+      tab to "(5/5)", confirming level-complete detection works
+      identically to the A2 set. Full regression suite (25 files total)
+      re-run — all pass, zero console errors. `node --check` and HTML
+      tag-balance clean. **Milestone 3 core listening content is now
+      complete at both levels** (3.6 polish remains). (2026-06-16)
 
 ---
 
