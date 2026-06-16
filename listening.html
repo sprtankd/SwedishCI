@@ -151,12 +151,12 @@
       </div>
 
       <div>
-        <button class="btn" id="btn-toggle-transcript">📝 Visa transkript</button>
+        <button class="btn" id="btn-toggle-transcript" style="display:none;">📝 Visa transkript</button>
       </div>
       <div id="transcript-host" style="display:none;">
         <div class="story-text" id="passage-transcript"></div>
       </div>
-      <div class="listen-hint" id="listen-hint">Lyssna på avsnittet innan du läser texten — det tränar din hörförståelse bäst.</div>
+      <div class="listen-hint" id="listen-hint">Lyssna på hela avsnittet — sedan väntar frågorna. Transkriptet låses upp när du är klar med dem.</div>
     </div>
     <div class="flex justify-between" style="margin-top:4px;">
       <button class="btn" id="btn-back-to-list">← Till listan</button>
@@ -185,6 +185,8 @@ const LEVELS = [
 let currentLevel = Store.get("listening.lastLevel", LEVELS[0].key);
 let currentPassage = null;
 let transcriptRevealed = false;
+let transcriptUnlocked = false;
+let hasListenedFully = false;
 
 document.getElementById("header-slot").appendChild(
   gameHeader({
@@ -273,11 +275,7 @@ function renderPassageList() {
   }
 }
 
-function openPassage(passage) {
-  stopListening();
-  currentPassage = passage;
-  transcriptRevealed = false;
-
+function renderPassageView(passage) {
   document.getElementById("passage-title").textContent = passage.title;
   document.getElementById("passage-title-en").textContent = passage.titleEn;
 
@@ -289,9 +287,41 @@ function openPassage(passage) {
   const transcriptHost = document.getElementById("passage-transcript");
   transcriptHost.innerHTML = "";
   renderGlossedText(transcriptHost, passage.transcript, passage.glossary, passage.id);
+}
+
+function openPassage(passage) {
+  stopListening();
+  currentPassage = passage;
+  transcriptRevealed = false;
+  const alreadyDone = isPassageDone(passage.id);
+  transcriptUnlocked = alreadyDone;
+  hasListenedFully = alreadyDone;
+
+  renderPassageView(passage);
   document.getElementById("transcript-host").style.display = "none";
+  document.getElementById("btn-toggle-transcript").style.display = transcriptUnlocked ? "" : "none";
   document.getElementById("btn-toggle-transcript").textContent = "📝 Visa transkript";
   document.getElementById("listen-hint").style.display = "block";
+  document.getElementById("listen-hint").textContent =
+    "Lyssna på hela avsnittet — sedan väntar frågorna. Transkriptet låses upp när du är klar med dem.";
+  document.getElementById("listen-progress-fill").style.width = "0%";
+
+  showView("view-listen");
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+function reviewPassage(passage) {
+  stopListening();
+  currentPassage = passage;
+  transcriptUnlocked = true;
+  hasListenedFully = true;
+  transcriptRevealed = true;
+
+  renderPassageView(passage);
+  document.getElementById("btn-toggle-transcript").style.display = "";
+  document.getElementById("transcript-host").style.display = "block";
+  document.getElementById("btn-toggle-transcript").textContent = "🙈 Dölj transkript";
+  document.getElementById("listen-hint").style.display = "none";
   document.getElementById("listen-progress-fill").style.width = "0%";
 
   showView("view-listen");
@@ -299,6 +329,7 @@ function openPassage(passage) {
 }
 
 document.getElementById("btn-toggle-transcript").addEventListener("click", () => {
+  if (!transcriptUnlocked) return;
   transcriptRevealed = !transcriptRevealed;
   document.getElementById("transcript-host").style.display = transcriptRevealed ? "block" : "none";
   document.getElementById("btn-toggle-transcript").textContent = transcriptRevealed
@@ -315,6 +346,10 @@ document.getElementById("btn-back-to-list").addEventListener("click", () => {
 });
 
 document.getElementById("btn-to-questions").addEventListener("click", () => {
+  if (!hasListenedFully) {
+    toast("Lyssna på hela avsnittet innan du går till frågorna.");
+    return;
+  }
   stopListening();
   recordPassageEncounters(currentPassage);
   showView("view-questions");
@@ -461,6 +496,11 @@ function finishQuestions() {
         },
       },
       ["← Till listan"]
+    ),
+    el(
+      "button",
+      { class: "btn", onclick: () => reviewPassage(passage) },
+      ["📝 Visa transkript & lyssna igen"]
     ),
     nextPassage
       ? el(
@@ -643,7 +683,12 @@ function playPassage() {
       listenActive = false;
       clearSentenceHighlight();
       setPlayButtonState(false);
-      if (!listenCancelled) document.getElementById("listen-progress-fill").style.width = "100%";
+      if (!listenCancelled) {
+        document.getElementById("listen-progress-fill").style.width = "100%";
+        hasListenedFully = true;
+        const hint = document.getElementById("listen-hint");
+        if (hint) hint.textContent = "✅ Bra! Nu kan du gå vidare till frågorna.";
+      }
       return;
     }
     const span = sentences[i];

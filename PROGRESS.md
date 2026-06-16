@@ -58,8 +58,6 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [~] 3.3 — Implement listen-first flow: play audio → answer questions → reveal
-      transcript with glosses → re-listen while reading. (started 2026-06-16)
 - [ ] 3.4 — Add speed controls (0.75x / 1.0x / 1.1x) and repeat controls.
 - [ ] 3.5 — Create `data/listening-b1.js` with 5 passages at B1 level. Longer,
       more complex topics.
@@ -476,6 +474,48 @@
       "(5/5)" confirming level-complete detection. Full regression suite
       (23 files total) re-run — all pass, zero console errors. `node --check`
       and HTML tag-balance clean. (2026-06-16)
+- [x] 3.3 — Implemented the listen-first flow in `listening.html`: two new
+      state flags, `transcriptUnlocked` and `hasListenedFully`, gate the
+      page. Opening a passage hides the "📝 Visa transkript" button entirely
+      (`display:none`) and the "Till frågorna →" handler now checks
+      `hasListenedFully` first — if the learner hasn't played the passage
+      through to completion yet, it shows a `toast()` ("Lyssna på hela
+      avsnittet innan du går till frågorna.") and refuses to navigate,
+      instead of silently jumping to questions. `playPassage()`'s natural-
+      completion branch (reaching the end of the sentence chain without
+      cancellation) flips `hasListenedFully = true` and swaps the
+      `listen-hint` text to a "✅ Bra! Nu kan du gå vidare till frågorna."
+      confirmation. Once questions are answered, `finishQuestions()`'s
+      result screen now always offers a third button, "📝 Visa transkript &
+      lyssna igen", wired to a new `reviewPassage(passage)` function — it
+      force-unlocks and reveals the transcript, switches the toggle button
+      to "🙈 Dölj transkript", hides the listen-hint, and returns to
+      `view-listen` so the learner can re-listen while reading along,
+      fulfilling the chunk's literal sequence (play → questions → reveal →
+      re-listen). Factored the title/meta/transcript-rendering body shared
+      by `openPassage`/`reviewPassage` into a new `renderPassageView(passage)`
+      helper to avoid duplicating that block a third time in-file (distinct
+      from the project's cross-file engine duplication, which stays as-is).
+      Revisiting an already-completed passage (`isPassageDone(id)` true)
+      skips the gate entirely — both flags default to `true` on open — so a
+      learner who already proved comprehension isn't forced to re-listen
+      just to peek at the transcript again; a previously-failed passage
+      still re-locks on reopen. Updated the static `listen-hint` default
+      text to describe the new gate instead of the old "read second" framing.
+      Updated two now-stale jsdom tests rather than reverting behavior (same
+      convention as 2.4/3.2): `test-listening1.js` now asserts the toggle
+      button stays hidden until after questions, that a premature
+      "Till frågorna" click is blocked, and exercises the full post-questions
+      review-button flow (transcript reveal, toggle re-enabled, second toggle
+      click works); `test-listening-a2.js`'s 5-passage completion loop now
+      plays each passage to completion (via the stubbed chained
+      `speechSynthesis`) before clicking "Till frågorna" — restructured from
+      a synchronous `for` loop into an async `completePassageAt(pos)`
+      recursive helper since the listen-chain now requires waiting on
+      `setTimeout`-driven `onend` callbacks between passages. Full
+      regression suite (23 files) re-run — all pass, zero console errors.
+      `node --check` (on the extracted inline script) and HTML tag-balance
+      both clean. (2026-06-16)
 
 ---
 
