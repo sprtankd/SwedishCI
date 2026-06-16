@@ -50,8 +50,9 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [ ] 1.6 — Add audio playback for story text: "read aloud" button that speaks the full
+- [~] 1.6 — Add audio playback for story text: "read aloud" button that speaks the full
       story via TTS (Speech helper). Per-sentence playback on tap.
+      (started 2026-06-16)
 - [ ] 1.7 — Polish reader UI: smooth transitions between stories, reading progress bar,
       celebration on completing a level's stories. Mobile responsive.
 - [ ] 1.8 — Create `data/stories-b1.js` with 5 stories at B1 level (~150-250 words).
