@@ -72,7 +72,17 @@
     transition: width 0.2s ease;
   }
   #view-list, #view-story, #view-questions { display: none; }
-  #view-list.active, #view-story.active, #view-questions.active { display: block; }
+  #view-list.active, #view-story.active, #view-questions.active {
+    display: block;
+    animation: view-fade-in 0.35s ease;
+  }
+  @keyframes view-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #view-list.active, #view-story.active, #view-questions.active { animation: none; }
+  }
   .q-block { margin-bottom: 22px; }
   .q-options { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
   .q-option {
@@ -94,6 +104,16 @@
     font-size: 0.85rem;
     text-align: center;
     padding: 30px 0;
+  }
+  @media (max-width: 480px) {
+    #view-story > .flex, #questions-card .flex {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    #view-story > .flex button, #questions-card .flex button {
+      width: 100%;
+    }
+    .level-tab { font-size: 0.8rem; padding: 8px 12px; }
   }
 </style>
 </head>
@@ -238,6 +258,7 @@ function openStory(story) {
   renderGlossedText(document.getElementById("story-text"), story.text, story.glossary, story.id);
   showView("view-story");
   window.scrollTo({ top: 0, behavior: "instant" });
+  updateReadingProgress();
 }
 
 /* ---------------- Comprehension questions ---------------- */
@@ -362,9 +383,10 @@ function finishQuestions() {
   const levelComplete = levelStories.length > 0 && countDone(levelStories) === levelStories.length;
 
   if (levelComplete) {
-    card.appendChild(
-      el("div", { class: "badge green", style: "margin-top:6px;" }, [`🏅 Hela nivån ${lvl.label} är klar!`])
-    );
+    const levelBadge = el("div", { class: "badge green", style: "margin-top:6px;" }, [`🏅 Hela nivån ${lvl.label} är klar!`]);
+    card.appendChild(levelBadge);
+    toast(`🏅 Hela nivån ${lvl.label} är klar!`);
+    setTimeout(() => celebrate(levelBadge), 250);
   }
 
   const actions = el("div", { class: "flex gap-12 justify-between", style: "margin-top:22px;flex-wrap:wrap;" }, [
@@ -611,13 +633,14 @@ function recordStoryEncounters(story) {
 }
 
 // Simple scroll-based reading progress indicator.
-window.addEventListener("scroll", () => {
+function updateReadingProgress() {
   const storyView = document.getElementById("view-story");
   if (!storyView.classList.contains("active")) return;
   const scrollable = document.documentElement.scrollHeight - window.innerHeight;
   const pct = scrollable > 0 ? Math.min(100, Math.round((window.scrollY / scrollable) * 100)) : 100;
   document.getElementById("reading-fill").style.width = pct + "%";
-});
+}
+window.addEventListener("scroll", updateReadingProgress);
 
 renderLevelTabs();
 renderStoryList();

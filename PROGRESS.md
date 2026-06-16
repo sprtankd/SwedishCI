@@ -50,9 +50,6 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.7 — Polish reader UI: smooth transitions between stories, reading progress bar,
-      celebration on completing a level's stories. Mobile responsive.
-      (started 2026-06-16)
 - [ ] 1.8 — Create `data/stories-b1.js` with 5 stories at B1 level (~150-250 words).
       Topics: workplace culture, healthcare system, environmental issues, Swedish
       traditions, immigrant experiences.
@@ -254,6 +251,25 @@
       full existing regression suite (reader/questions/fail/progression/encounters/
       hub-integration smoke tests) — all still pass with zero console errors. HTML
       tag-balance and `node --check` on the inline script both clean. (2026-06-16)
+- [x] 1.7 — Reader UI polish: (1) view switches (`showView`) now fade+slide in via a
+      `view-fade-in` keyframe on `.active` (disabled under `prefers-reduced-motion`);
+      (2) fixed a stale reading-progress-bar bug — `updateReadingProgress()` (factored
+      out of the scroll handler) is now also called immediately on `openStory()`, so
+      the bar reflects the new story right away instead of showing the previous
+      story's last scroll position until the user scrolls; (3) level-completion is
+      now louder (still no confetti, per PLAN.md): in addition to the existing green
+      "🏅 Hela nivån X är klar!" badge, a `toast()` fires the same message and the
+      badge gets a delayed `celebrate()` pulse; (4) mobile: action-button rows in the
+      story/questions views stack full-width under 480px (`#view-story > .flex`,
+      `#questions-card .flex`), level-tab padding/font shrink slightly — story-list
+      grid and header row were already responsive via existing `auto-fit`/`flex-wrap`.
+      Verified via jsdom: a new `test-level-complete.js` completes all 5 A2-low
+      stories and confirms the badge, toast text, and delayed `celebrate-pulse` class
+      all fire correctly; `test-progress-bar.js` confirms the fill recomputes on every
+      `openStory()` call instead of staying stale. Full existing regression suite
+      (reader/questions/fail/progression/encounters/hub-integration/audio) re-run —
+      all pass, zero console errors. HTML tag-balance and `node --check` clean.
+      (2026-06-16)
 
 ---
 
