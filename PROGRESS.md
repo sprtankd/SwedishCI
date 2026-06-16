@@ -50,9 +50,10 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [ ] 1.8 — Create `data/stories-b1.js` with 5 stories at B1 level (~150-250 words).
+- [~] 1.8 — Create `data/stories-b1.js` with 5 stories at B1 level (~150-250 words).
       Topics: workplace culture, healthcare system, environmental issues, Swedish
       traditions, immigrant experiences.
+      (started 2026-06-16)
 
 ---
 
