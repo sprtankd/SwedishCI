@@ -50,8 +50,9 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [ ] 1.4 — Implement story progression: level selector (A2-low / A2-high / B1 / B1+),
+- [~] 1.4 — Implement story progression: level selector (A2-low / A2-high / B1 / B1+),
       story list within each level, completion tracking in localStorage.
+      (started 2026-06-16)
 - [ ] 1.5 — Implement word encounter tracking: when a reader reads a story, all glossary
       words are marked as "encountered". Track encounter count per word across stories.
       Words graduate: new (0) → met (1-2) → familiar (3-5) → known (6+).
