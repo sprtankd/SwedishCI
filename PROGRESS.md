@@ -54,8 +54,9 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [ ] 2.3 — Add "text type" indicators (informational, argumentative, instructional)
+- [~] 2.3 — Add "text type" indicators (informational, argumentative, instructional)
       matching SFI D text categories.
+      (started 2026-06-16)
 - [ ] 2.4 — Create `data/news-b1plus.js` with 5 articles at B1+ level (~250-400 words).
       Topics: integration debate, climate policy, education reform, gender equality,
       digital society. Use more advanced connectors and abstract vocabulary.
