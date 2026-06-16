@@ -46,9 +46,10 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [ ] 0.4 — Create `data/stories-a2.js` with the first 5 graded reader stories at
+- [~] 0.4 — Create `data/stories-a2.js` with the first 5 graded reader stories at
       A2-low level (~80-100 words each). Topics: daily routine, shopping, at the café,
       the weather, my family. Include glossaries and comprehension questions.
+      (started 2026-06-16)
 - [ ] 0.5 — Create `data/stories-a2-high.js` with 5 stories at A2-high level
       (~100-150 words each). Topics: job interview, visiting the doctor, apartment
       hunting, taking the bus, swedish holidays.
