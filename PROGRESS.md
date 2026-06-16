@@ -54,8 +54,9 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [ ] 2.2 — Create `news.html` with news article layout: headline, lead paragraph,
+- [~] 2.2 — Create `news.html` with news article layout: headline, lead paragraph,
       body text with glossing, source attribution. Reuse glossing engine from reader.
+      (started 2026-06-16)
 - [ ] 2.3 — Add "text type" indicators (informational, argumentative, instructional)
       matching SFI D text categories.
 - [ ] 2.4 — Create `data/news-b1plus.js` with 5 articles at B1+ level (~250-400 words).
