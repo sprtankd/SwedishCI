@@ -46,8 +46,6 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [~] 0.6 — Initial commit of scaffold: hub + data files + shared assets. Verify
-      index.html opens cleanly with no console errors. (started 2026-06-16)
 
 ---
 
@@ -192,6 +190,10 @@
       words each, introduces subordinate clauses (att/eftersom/när/om) and mixed
       tense. Verified word counts and option-index validity programmatically.
       (2026-06-16)
+- [x] 0.6 — Scaffold verified: HTML tag-balance check (Python html.parser) on
+      index.html is clean, all `href`/`src` references (`shared.css`, `shared.js`)
+      resolve to real files, `node --check` passes on all `.js`. **Milestone 0
+      complete.** (2026-06-16)
 
 ---
 
