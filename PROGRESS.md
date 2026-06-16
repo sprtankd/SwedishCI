@@ -58,7 +58,7 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [ ] 3.6 — Polish: smooth transitions, progress tracking, mobile audio controls.
+- [~] 3.6 — Polish: smooth transitions, progress tracking, mobile audio controls. (started 2026-06-16)
 
 ---
 
