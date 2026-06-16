@@ -50,9 +50,6 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.2 — Implement glossed text rendering: parse story text, make each word tappable,
-      show English gloss + pronunciation on tap/hover. Use a tooltip or inline reveal.
-      (started 2026-06-16)
 - [ ] 1.3 — Implement comprehension questions panel: show questions after reading,
       multiple choice, score tracking, explanations on answer.
 - [ ] 1.4 — Implement story progression: level selector (A2-low / A2-high / B1 / B1+),
@@ -198,6 +195,14 @@
       with sticky scroll-progress bar (plain text for now — glossing comes in 1.2),
       questions view stubbed as placeholder. Hub link already wired. Verified inline
       JS syntax + HTML tag balance. (2026-06-16)
+- [x] 1.2 — Glossed text rendering implemented: only glossary-listed words/phrases
+      become tappable (CI principle — leave known words clean), tap shows tooltip +
+      speaks word via `Speech.say`, hover previews translation, click-away dismisses.
+      Multi-word phrase glosses (e.g. "slappna av") supported. Verified with a jsdom
+      smoke harness (no headless Chromium available in this sandbox — Playwright's
+      browser download is blocked by network egress allowlist): loaded reader.html,
+      clicked a story card, confirmed 8 gloss spans render with correct translations,
+      tooltip show/hide on click and click-away, zero console errors. (2026-06-16)
 
 ---
 

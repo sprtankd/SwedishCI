@@ -222,9 +222,114 @@ function openStory(story) {
   currentStory = story;
   document.getElementById("story-title").textContent = story.title;
   document.getElementById("story-title-en").textContent = story.titleEn;
-  document.getElementById("story-text").textContent = story.text;
+  renderGlossedText(document.getElementById("story-text"), story.text, story.glossary, story.id);
   showView("view-story");
   window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+/* ---------------- Glossed text rendering ----------------
+   Only glossary-listed words/phrases become tappable (CI principle:
+   gloss the unfamiliar, leave known words clean). Tap = translation +
+   spoken pronunciation; hover previews the translation. */
+const WORD_RE = /[A-Za-zÅÄÖÉåäöé]+/g;
+
+function renderGlossedText(container, text, glossary, contextId) {
+  container.innerHTML = "";
+  const singleWordMap = new Map();
+  const phrases = [];
+  for (const key of Object.keys(glossary)) {
+    if (key.includes(" ")) phrases.push({ key: key.toLowerCase(), original: key });
+    else singleWordMap.set(key.toLowerCase(), key);
+  }
+  phrases.sort((a, b) => b.key.length - a.key.length);
+
+  const tokens = [];
+  let lastIndex = 0;
+  let match;
+  WORD_RE.lastIndex = 0;
+  while ((match = WORD_RE.exec(text))) {
+    if (match.index > lastIndex) tokens.push({ type: "gap", text: text.slice(lastIndex, match.index) });
+    tokens.push({ type: "word", text: match[0] });
+    lastIndex = WORD_RE.lastIndex;
+  }
+  if (lastIndex < text.length) tokens.push({ type: "gap", text: text.slice(lastIndex) });
+
+  for (let i = 0; i < tokens.length; i++) {
+    const tok = tokens[i];
+    if (tok.type === "gap") {
+      container.appendChild(document.createTextNode(tok.text));
+      continue;
+    }
+    // Try to match a two-word phrase starting here (word, single space, word).
+    const next1 = tokens[i + 1];
+    const next2 = tokens[i + 2];
+    if (next1 && next1.type === "gap" && next1.text === " " && next2 && next2.type === "word") {
+      const candidate = (tok.text + " " + next2.text).toLowerCase();
+      const phraseHit = phrases.find((p) => p.key === candidate);
+      if (phraseHit) {
+        const display = tok.text + " " + next2.text;
+        container.appendChild(makeGlossSpan(display, phraseHit.key, glossary[phraseHit.original], contextId));
+        i += 2;
+        continue;
+      }
+    }
+    const lower = tok.text.toLowerCase();
+    if (singleWordMap.has(lower)) {
+      const originalKey = singleWordMap.get(lower);
+      container.appendChild(makeGlossSpan(tok.text, lower, glossary[originalKey], contextId));
+    } else {
+      container.appendChild(document.createTextNode(tok.text));
+    }
+  }
+}
+
+let activeTooltipAnchor = null;
+let tooltipPinned = false;
+
+function showGlossTooltip(anchor, text) {
+  if (activeTooltipAnchor === anchor) return;
+  removeTooltip();
+  anchor.classList.add("active");
+  anchor.appendChild(el("div", { class: "gloss-tooltip" }, [text]));
+  activeTooltipAnchor = anchor;
+}
+
+function removeTooltip() {
+  if (!activeTooltipAnchor) return;
+  activeTooltipAnchor.classList.remove("active");
+  const tip = activeTooltipAnchor.querySelector(".gloss-tooltip");
+  if (tip) tip.remove();
+  activeTooltipAnchor = null;
+  tooltipPinned = false;
+}
+
+document.addEventListener("click", () => removeTooltip());
+
+function makeGlossSpan(displayText, glossKey, gloss, contextId) {
+  const span = el("span", { class: "gloss-word", tabindex: "0" }, [displayText]);
+  if (Words.get(glossKey).count > 0) span.classList.add("encountered");
+
+  span.addEventListener("mouseenter", () => {
+    if (!tooltipPinned) showGlossTooltip(span, gloss);
+  });
+  span.addEventListener("mouseleave", () => {
+    if (!tooltipPinned && activeTooltipAnchor === span) removeTooltip();
+  });
+  span.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showGlossTooltip(span, gloss);
+    tooltipPinned = true;
+    Speech.say(displayText, { rate: 0.85 });
+  });
+  span.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      showGlossTooltip(span, gloss);
+      tooltipPinned = true;
+      Speech.say(displayText, { rate: 0.85 });
+    }
+  });
+  return span;
 }
 
 document.getElementById("btn-back-to-list").addEventListener("click", () => {
