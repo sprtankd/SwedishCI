@@ -46,9 +46,6 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [~] 0.5 — Create `data/stories-a2-high.js` with 5 stories at A2-high level
-      (~100-150 words each). Topics: job interview, visiting the doctor, apartment
-      hunting, taking the bus, swedish holidays. (started 2026-06-16)
 - [ ] 0.6 — Initial commit of scaffold: hub + data files + shared assets. Verify
       index.html opens cleanly with no console errors.
 
@@ -190,6 +187,11 @@
       café, weather, family), 83-99 words each, simple V2/SVO present-tense Swedish,
       8-9 glossary words each, 5 questions each (1 gist + 4 detail). Verified word
       counts and option-index validity programmatically. (2026-06-16)
+- [x] 0.5 — `data/stories-a2-high.js` created: 5 A2-high stories (job interview,
+      doctor visit, apartment hunting, taking the bus, Swedish holidays), 123-143
+      words each, introduces subordinate clauses (att/eftersom/när/om) and mixed
+      tense. Verified word counts and option-index validity programmatically.
+      (2026-06-16)
 
 ---
 
