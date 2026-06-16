@@ -46,8 +46,8 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [ ] 0.6 — Initial commit of scaffold: hub + data files + shared assets. Verify
-      index.html opens cleanly with no console errors.
+- [~] 0.6 — Initial commit of scaffold: hub + data files + shared assets. Verify
+      index.html opens cleanly with no console errors. (started 2026-06-16)
 
 ---
 
