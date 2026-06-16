@@ -58,7 +58,7 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [ ] 3.4 — Add speed controls (0.75x / 1.0x / 1.1x) and repeat controls.
+- [~] 3.4 — Add speed controls (0.75x / 1.0x / 1.1x) and repeat controls. (started 2026-06-16)
 - [ ] 3.5 — Create `data/listening-b1.js` with 5 passages at B1 level. Longer,
       more complex topics.
 - [ ] 3.6 — Polish: smooth transitions, progress tracking, mobile audio controls.
