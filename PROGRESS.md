@@ -46,10 +46,6 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [~] 0.4 — Create `data/stories-a2.js` with the first 5 graded reader stories at
-      A2-low level (~80-100 words each). Topics: daily routine, shopping, at the café,
-      the weather, my family. Include glossaries and comprehension questions.
-      (started 2026-06-16)
 - [ ] 0.5 — Create `data/stories-a2-high.js` with 5 stories at A2-high level
       (~100-150 words each). Topics: job interview, visiting the doctor, apartment
       hunting, taking the bus, swedish holidays.
@@ -190,6 +186,10 @@
       download is blocked by network egress allowlist — `cdn.playwright.dev` not
       permitted), so visual smoke-testing relied on static review instead of a real
       browser. (2026-06-16)
+- [x] 0.4 — `data/stories-a2.js` created: 5 A2-low stories (daily routine, shopping,
+      café, weather, family), 83-99 words each, simple V2/SVO present-tense Swedish,
+      8-9 glossary words each, 5 questions each (1 gist + 4 detail). Verified word
+      counts and option-index validity programmatically. (2026-06-16)
 
 ---
 
