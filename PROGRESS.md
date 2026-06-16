@@ -46,9 +46,10 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [ ] 0.2 — Create `shared.js` with shared utilities (adapted from SwedishGames:
+- [~] 0.2 — Create `shared.js` with shared utilities (adapted from SwedishGames:
       Store, Speech, Sfx, auroraBackground, gameHeader, confetti, toast, base helpers).
       Namespace the localStorage key as `svenska_ci_v1` to avoid collision.
+      (started 2026-06-16)
 - [ ] 0.3 — Create `index.html` hub page with hero section, progress dashboard
       (words encountered, reading sessions, streak), and mode cards grid. Initially
       all modes show as "Coming soon" except the first one.
