@@ -50,9 +50,6 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.4 — Implement story progression: level selector (A2-low / A2-high / B1 / B1+),
-      story list within each level, completion tracking in localStorage.
-      (started 2026-06-16)
 - [ ] 1.5 — Implement word encounter tracking: when a reader reads a story, all glossary
       words are marked as "encountered". Track encounter count per word across stories.
       Words graduate: new (0) → met (1-2) → familiar (3-5) → known (6+).
@@ -216,6 +213,13 @@
       the fallback arg so missing entries default through `undefined`. Verified
       both pass (5/5, completed=true) and fail (0/5, completed=false) paths end to
       end with zero console errors. (2026-06-16)
+- [x] 1.4 — Story progression polished: level tabs now show live completion counts
+      ("A2-låg (2/5)"), results screen offers a "Nästa berättelse →" button to the
+      next uncompleted story in the level, and a level-complete badge appears once
+      every story in a level is done. Completion persistence (from 1.3) confirmed
+      working across multi-story sessions via jsdom smoke test — counts and
+      checkmarks update correctly after completing 2 stories in sequence, zero
+      console errors. (2026-06-16)
 
 ---
 

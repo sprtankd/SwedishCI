@@ -164,11 +164,19 @@ function isStoryDone(storyId) {
   return !!Store.get(`reader.progress.${storyId}.completed`, false);
 }
 
+function countDone(stories) {
+  return stories.filter((s) => isStoryDone(s.id)).length;
+}
+
 function renderLevelTabs() {
   const host = document.getElementById("level-tabs");
   host.innerHTML = "";
   for (const lvl of LEVELS) {
     const stories = lvl.get();
+    const done = countDone(stories);
+    const label = stories.length
+      ? `${lvl.label} (${done}/${stories.length})`
+      : `${lvl.label} (snart)`;
     const btn = el(
       "button",
       {
@@ -185,7 +193,7 @@ function renderLevelTabs() {
           renderStoryList();
         },
       },
-      [`${lvl.label}${stories.length ? "" : " (snart)"}`]
+      [label]
     );
     host.appendChild(btn);
   }
@@ -342,14 +350,30 @@ function finishQuestions() {
   card.appendChild(resultCard);
   if (passed) celebrate(card);
 
-  const actions = el("div", { class: "flex gap-12 justify-between", style: "margin-top:22px;" }, [
+  const lvl = LEVELS.find((l) => l.key === story.level) || LEVELS.find((l) => l.key === currentLevel);
+  const levelStories = lvl ? lvl.get() : [];
+  const storyIdx = levelStories.findIndex((s) => s.id === story.id);
+  const nextStory = storyIdx >= 0 ? levelStories[storyIdx + 1] : null;
+  const levelComplete = levelStories.length > 0 && countDone(levelStories) === levelStories.length;
+
+  if (levelComplete) {
+    card.appendChild(
+      el("div", { class: "badge green", style: "margin-top:6px;" }, [`🏅 Hela nivån ${lvl.label} är klar!`])
+    );
+  }
+
+  const actions = el("div", { class: "flex gap-12 justify-between", style: "margin-top:22px;flex-wrap:wrap;" }, [
     el("button", { class: "btn", onclick: () => { openStory(story); } }, ["← Läs igen"]),
+    nextStory
+      ? el("button", { class: "btn btn-gold", onclick: () => { openStory(nextStory); } }, ["Nästa berättelse →"])
+      : null,
     el(
       "button",
       {
         class: "btn btn-primary",
         onclick: () => {
           showView("view-list");
+          renderLevelTabs();
           renderStoryList();
         },
       },
@@ -466,6 +490,7 @@ function makeGlossSpan(displayText, glossKey, gloss, contextId) {
 
 document.getElementById("btn-back-to-list").addEventListener("click", () => {
   showView("view-list");
+  renderLevelTabs();
   renderStoryList();
 });
 
