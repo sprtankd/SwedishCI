@@ -58,8 +58,6 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [~] 3.1 — Create `listening.html` skeleton: audio player controls, question panel,
-      transcript reveal area. Wire up from hub. (started 2026-06-16)
 - [ ] 3.2 — Create `data/listening-a2.js` with 5 short listening passages (transcripts
       + questions). Generate audio via TTS integration.
 - [ ] 3.3 — Implement listen-first flow: play audio → answer questions → reveal
@@ -412,6 +410,41 @@
       regression suite (10 reader.html + 7 news.html tests, 20 files total)
       re-run — all pass, zero console errors. `node --check` and HTML
       tag-balance clean. This completes Milestone 2 (News Reader).
+      (2026-06-16)
+- [x] 3.1 — `listening.html` skeleton created: level tabs (A2/B1, both disabled
+      "(snart)" until 3.2/3.5 add `data/listening-a2.js` / `data/listening-b1.js`
+      — the page defensively references `LISTENING_A2`/`LISTENING_B1` the same
+      way news.html anticipated `NEWS_B1_PLUS` ahead of time), passage list
+      cards (theme, estimated listening time from `wordCount`/130wpm, and the
+      same 2.5-style new-words/best-score swap badge), a listen view with
+      play/stop + replay controls driving the same sentence-chained
+      `Speech.say` engine as reader.html/news.html (rendered into a transcript
+      container that's kept hidden via `display:none` until the learner
+      explicitly clicks "Visa transkript" — listen-first, read-second, per
+      the chunk's pedagogical intent), a listening-progress bar, and a
+      questions view identical in structure to reader.html/news.html but
+      namespaced under `listening.progress.<id>`. Glossing/audio/question
+      engine is duplicated a third time rather than shared, consistent with
+      the project's no-build-step, no-shared-module precedent from 2.2.
+      Wired into the hub: flipped "Listening Lab" from `enabled:false` to
+      `true` in `index.html` now (rather than waiting for 3.2's data), since
+      the chunk's own description explicitly calls for hub wiring and the
+      empty-level placeholder ("Inga avsnitt ännu på den här nivån") is the
+      same graceful empty state already used by reader.html/news.html, not a
+      broken experience. Verified via two new jsdom tests: `test-listening1.js`
+      exercises the full skeleton end-to-end with a fabricated passage object
+      (ahead of real data, same approach as 2.3's `textTypeBadge()` test) —
+      transcript stays hidden by default and reveals/hides on toggle, glossing
+      renders correctly, play/replay correctly chains through both sentences
+      via the stubbed `speechSynthesis`, the progress bar reaches 100% after
+      playback, and the full question flow scores correctly and persists to
+      `listening.progress.<id>` plus increments the shared
+      `stats.readingSessions` counter and records glossary words into the
+      `Words` store; `test-hub-listening.js` confirms the hub card is enabled,
+      unlinked from any "Snart" badge, and points to `listening.html`. Full
+      regression suite (22 files total) re-run — all pass, zero console
+      errors. `node --check` (via extracted inline script) and HTML
+      tag-balance clean for both `listening.html` and `index.html`.
       (2026-06-16)
 
 ---

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Listening Lab — Svenska CI</title>
+<link rel="stylesheet" href="shared.css" />
+<style>
+  .level-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .level-tab {
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .level-tab.active {
+    background: linear-gradient(135deg, var(--blue), var(--green));
+    color: #06121a;
+    border-color: transparent;
+  }
+  .level-tab:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .passage-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .passage-card {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .passage-card .pc-title {
+    font-weight: 700;
+    font-size: 1.02rem;
+  }
+  .passage-card .pc-title-en {
+    color: var(--text-dim);
+    font-size: 0.82rem;
+  }
+  .passage-card .pc-meta {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .passage-meta {
+    margin-bottom: 14px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .listen-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .listen-hint {
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 20px 0;
+  }
+  #transcript-host { margin-top: 4px; }
+  #view-list, #view-listen, #view-questions { display: none; }
+  #view-list.active, #view-listen.active, #view-questions.active {
+    display: block;
+    animation: view-fade-in 0.35s ease;
+  }
+  @keyframes view-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #view-list.active, #view-listen.active, #view-questions.active { animation: none; }
+  }
+  .q-block { margin-bottom: 22px; }
+  .q-options { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .q-option {
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .q-option:hover { background: rgba(255,255,255,0.09); }
+  .q-option.selected { border-color: var(--blue); }
+  .q-option.correct { border-color: var(--green); background: rgba(111,207,151,0.15); }
+  .q-option.incorrect { border-color: var(--pink); background: rgba(226,120,158,0.15); }
+  .placeholder-note {
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 30px 0;
+  }
+  @media (max-width: 480px) {
+    #view-listen > .flex, #questions-card .flex {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    #view-listen > .flex button, #questions-card .flex button {
+      width: 100%;
+    }
+    .level-tab { font-size: 0.8rem; padding: 8px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page" id="page-root">
+  <div id="header-slot"></div>
+
+  <!-- ===================== Passage list view ===================== -->
+  <div id="view-list" class="active">
+    <div class="level-tabs" id="level-tabs"></div>
+    <div class="passage-list" id="passage-list"></div>
+  </div>
+
+  <!-- ===================== Listen view ===================== -->
+  <div id="view-listen">
+    <div class="card">
+      <div class="flex justify-between items-center" style="gap:12px; flex-wrap:wrap;">
+        <h2 id="passage-title" style="margin:0;">—</h2>
+      </div>
+      <div class="text-dim" id="passage-title-en" style="margin-bottom:10px;"></div>
+      <div class="passage-meta" id="passage-meta"></div>
+
+      <div class="listen-controls">
+        <button class="btn btn-primary" id="btn-play-pause">▶️ Lyssna</button>
+        <button class="btn" id="btn-replay">🔁 Lyssna igen</button>
+      </div>
+      <div class="progress-track" style="margin-bottom:18px;">
+        <div class="progress-fill" id="listen-progress-fill" style="width:0%"></div>
+      </div>
+
+      <div>
+        <button class="btn" id="btn-toggle-transcript">📝 Visa transkript</button>
+      </div>
+      <div id="transcript-host" style="display:none;">
+        <div class="story-text" id="passage-transcript"></div>
+      </div>
+      <div class="listen-hint" id="listen-hint">Lyssna på avsnittet innan du läser texten — det tränar din hörförståelse bäst.</div>
+    </div>
+    <div class="flex justify-between" style="margin-top:4px;">
+      <button class="btn" id="btn-back-to-list">← Till listan</button>
+      <button class="btn btn-primary" id="btn-to-questions">Till frågorna →</button>
+    </div>
+  </div>
+
+  <!-- ===================== Questions view ===================== -->
+  <div id="view-questions">
+    <div class="card" id="questions-card">
+      <div class="placeholder-note">Frågor laddas…</div>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+auroraBackground();
+
+const LEVELS = [
+  { key: "A2", label: "A2", get: () => (typeof LISTENING_A2 !== "undefined" ? LISTENING_A2 : []) },
+  { key: "B1", label: "B1", get: () => (typeof LISTENING_B1 !== "undefined" ? LISTENING_B1 : []) },
+];
+
+let currentLevel = Store.get("listening.lastLevel", LEVELS[0].key);
+let currentPassage = null;
+let transcriptRevealed = false;
+
+document.getElementById("header-slot").appendChild(
+  gameHeader({
+    title: "🎧 Listening Lab",
+    subtitle: "Lyssna först, läs sedan — träna hörförståelse utan att fuska med texten",
+    backHref: "index.html",
+  })
+);
+
+function showView(id) {
+  for (const v of ["view-list", "view-listen", "view-questions"]) {
+    document.getElementById(v).classList.toggle("active", v === id);
+  }
+}
+
+function isPassageDone(passageId) {
+  return !!Store.get(`listening.progress.${passageId}.completed`, false);
+}
+
+function countDone(passages) {
+  return passages.filter((p) => isPassageDone(p.id)).length;
+}
+
+function renderLevelTabs() {
+  const host = document.getElementById("level-tabs");
+  host.innerHTML = "";
+  for (const lvl of LEVELS) {
+    const passages = lvl.get();
+    const done = countDone(passages);
+    const label = passages.length
+      ? `${lvl.label} (${done}/${passages.length})`
+      : `${lvl.label} (snart)`;
+    const btn = el(
+      "button",
+      {
+        class: "level-tab" + (lvl.key === currentLevel ? " active" : ""),
+        disabled: passages.length === 0 ? "disabled" : undefined,
+        onclick: () => {
+          if (passages.length === 0) {
+            toast(`${lvl.label} kommer snart`);
+            return;
+          }
+          currentLevel = lvl.key;
+          Store.set("listening.lastLevel", currentLevel);
+          renderLevelTabs();
+          renderPassageList();
+        },
+      },
+      [label]
+    );
+    host.appendChild(btn);
+  }
+}
+
+function renderPassageList() {
+  const host = document.getElementById("passage-list");
+  host.innerHTML = "";
+  const lvl = LEVELS.find((l) => l.key === currentLevel) || LEVELS[0];
+  const passages = lvl.get();
+  if (passages.length === 0) {
+    host.appendChild(el("div", { class: "placeholder-note" }, ["Inga avsnitt ännu på den här nivån."]));
+    return;
+  }
+  for (const passage of passages) {
+    const done = isPassageDone(passage.id);
+    const attempts = Store.get(`listening.progress.${passage.id}.attempts`, 0);
+    const bestScore = Store.get(`listening.progress.${passage.id}.bestScore`, 0);
+    const newWords = Object.keys(passage.glossary).filter((w) => Words.get(w).count === 0).length;
+    const minutes = Math.max(1, Math.round((passage.wordCount || 0) / 130));
+    const card = el(
+      "div",
+      { class: "card passage-card", onclick: () => openPassage(passage) },
+      [
+        el("div", { class: "pc-title" }, [(done ? "✅ " : "") + passage.title]),
+        el("div", { class: "pc-title-en" }, [passage.titleEn]),
+        el("div", { class: "pc-meta" }, [
+          el("span", { class: "badge" }, [passage.theme]),
+          el("span", { class: "badge" }, [`~${minutes} min`]),
+          attempts > 0
+            ? el("span", { class: "badge gold" }, [`🏅 ${bestScore}%`])
+            : el("span", { class: "badge" }, [`🌱 ${newWords} nya ord`]),
+        ]),
+      ]
+    );
+    host.appendChild(card);
+  }
+}
+
+function openPassage(passage) {
+  stopListening();
+  currentPassage = passage;
+  transcriptRevealed = false;
+
+  document.getElementById("passage-title").textContent = passage.title;
+  document.getElementById("passage-title-en").textContent = passage.titleEn;
+
+  const metaHost = document.getElementById("passage-meta");
+  metaHost.innerHTML = "";
+  metaHost.appendChild(el("span", { class: "badge" }, [passage.theme]));
+  metaHost.appendChild(el("span", { class: "badge" }, [`${passage.wordCount} ord`]));
+
+  const transcriptHost = document.getElementById("passage-transcript");
+  transcriptHost.innerHTML = "";
+  renderGlossedText(transcriptHost, passage.transcript, passage.glossary, passage.id);
+  document.getElementById("transcript-host").style.display = "none";
+  document.getElementById("btn-toggle-transcript").textContent = "📝 Visa transkript";
+  document.getElementById("listen-hint").style.display = "block";
+  document.getElementById("listen-progress-fill").style.width = "0%";
+
+  showView("view-listen");
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+document.getElementById("btn-toggle-transcript").addEventListener("click", () => {
+  transcriptRevealed = !transcriptRevealed;
+  document.getElementById("transcript-host").style.display = transcriptRevealed ? "block" : "none";
+  document.getElementById("btn-toggle-transcript").textContent = transcriptRevealed
+    ? "🙈 Dölj transkript"
+    : "📝 Visa transkript";
+  document.getElementById("listen-hint").style.display = transcriptRevealed ? "none" : "block";
+});
+
+document.getElementById("btn-back-to-list").addEventListener("click", () => {
+  stopListening();
+  showView("view-list");
+  renderLevelTabs();
+  renderPassageList();
+});
+
+document.getElementById("btn-to-questions").addEventListener("click", () => {
+  stopListening();
+  recordPassageEncounters(currentPassage);
+  showView("view-questions");
+  startQuestions(currentPassage);
+});
+
+/* ---------------- Comprehension questions ---------------- */
+let qState = { passage: null, index: 0, score: 0, answered: false };
+
+function startQuestions(passage) {
+  qState = { passage, index: 0, score: 0, answered: false };
+  window.scrollTo({ top: 0, behavior: "instant" });
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const card = document.getElementById("questions-card");
+  card.innerHTML = "";
+  const { passage, index } = qState;
+  const total = passage.questions.length;
+  const q = passage.questions[index];
+  qState.answered = false;
+
+  card.appendChild(
+    el("div", { class: "text-faint", style: "margin-bottom:10px;font-size:0.85rem;" }, [
+      `Fråga ${index + 1} av ${total}`,
+    ])
+  );
+  card.appendChild(
+    el("div", { class: "progress-track", style: "margin-bottom:18px;" }, [
+      el("div", { class: "progress-fill", style: `width:${(index / total) * 100}%` }),
+    ])
+  );
+
+  const block = el("div", { class: "q-block" }, [
+    el("h3", {}, [q.q]),
+    el("div", { class: "text-dim", style: "font-size:0.85rem;margin-top:-6px;" }, [q.qEn]),
+  ]);
+  const optionsHost = el("div", { class: "q-options" });
+  q.options.forEach((opt, i) => {
+    const optBtn = el("button", { class: "q-option" }, [opt]);
+    optBtn.addEventListener("click", () => selectAnswer(i, q, optionsHost, optBtn));
+    optionsHost.appendChild(optBtn);
+  });
+  block.appendChild(optionsHost);
+  card.appendChild(block);
+
+  const nextBtn = el(
+    "button",
+    { class: "btn btn-primary", id: "btn-next-question", disabled: "disabled" },
+    [index + 1 < total ? "Nästa fråga →" : "Se resultat →"]
+  );
+  nextBtn.addEventListener("click", () => {
+    if (!qState.answered) return;
+    qState.index += 1;
+    if (qState.index < total) {
+      renderQuestion();
+    } else {
+      finishQuestions();
+    }
+  });
+  card.appendChild(el("div", { style: "margin-top:18px;text-align:right;" }, [nextBtn]));
+}
+
+function selectAnswer(choiceIndex, q, optionsHost, chosenBtn) {
+  if (qState.answered) return;
+  qState.answered = true;
+  const correct = choiceIndex === q.correct;
+  if (correct) qState.score += 1;
+
+  Array.from(optionsHost.children).forEach((btn, i) => {
+    if (i === q.correct) btn.classList.add("correct");
+    if (i === choiceIndex && !correct) btn.classList.add("incorrect");
+  });
+  chosenBtn.classList.add("selected");
+  if (correct) Sfx.correct();
+  else Sfx.incorrect();
+
+  optionsHost.appendChild(
+    el("div", { class: correct ? "text-dim" : "badge pink", style: "margin-top:12px;font-size:0.85rem;" }, [
+      correct ? "✓ Rätt!" : `Rätt svar: ${q.options[q.correct]}`,
+    ])
+  );
+
+  document.getElementById("btn-next-question").removeAttribute("disabled");
+}
+
+function finishQuestions() {
+  const { passage, score } = qState;
+  const total = passage.questions.length;
+  const pct = Math.round((score / total) * 100);
+  const passed = pct >= 60;
+
+  const prevBest = Store.get(`listening.progress.${passage.id}.bestScore`, 0);
+  Store.update(`listening.progress.${passage.id}`, (entry) => {
+    entry = entry || { attempts: 0, bestScore: 0, completed: false };
+    entry.attempts += 1;
+    entry.lastScore = pct;
+    entry.bestScore = Math.max(entry.bestScore, pct);
+    entry.completed = entry.completed || passed;
+    return entry;
+  });
+  Store.update("stats.readingSessions", (n) => (n || 0) + 1, 0);
+
+  const card = document.getElementById("questions-card");
+  card.innerHTML = "";
+  const resultCard = el("div", { class: "text-center" }, [
+    el("div", { style: "font-size:2.4rem;" }, [passed ? "🎉" : "🎧"]),
+    el("h2", {}, [`${score} / ${total} rätt`]),
+    el("div", { class: "text-dim" }, [
+      passed
+        ? "Bra jobbat! Du har förstått avsnittet."
+        : "Lyssna gärna igen och titta på transkriptet — du blir bättre för varje gång.",
+    ]),
+    pct > prevBest
+      ? el("div", { class: "badge gold", style: "margin-top:10px;" }, ["Nytt personligt bästa!"])
+      : null,
+  ]);
+  card.appendChild(resultCard);
+  if (passed) celebrate(card);
+
+  const lvl = LEVELS.find((l) => l.key === passage.level) || LEVELS.find((l) => l.key === currentLevel);
+  const levelPassages = lvl ? lvl.get() : [];
+  const passageIdx = levelPassages.findIndex((p) => p.id === passage.id);
+  const nextPassage = passageIdx >= 0 ? levelPassages[passageIdx + 1] : null;
+  const levelComplete = levelPassages.length > 0 && countDone(levelPassages) === levelPassages.length;
+
+  if (levelComplete) {
+    const levelBadge = el("div", { class: "badge green", style: "margin-top:6px;" }, [`🏅 Hela nivån ${lvl.label} är klar!`]);
+    card.appendChild(levelBadge);
+    toast(`🏅 Hela nivån ${lvl.label} är klar!`);
+    setTimeout(() => celebrate(levelBadge), 250);
+  }
+
+  const navRow = el("div", { class: "flex justify-between", style: "margin-top:22px;flex-wrap:wrap;gap:10px;" }, [
+    el(
+      "button",
+      {
+        class: "btn",
+        onclick: () => {
+          showView("view-list");
+          renderLevelTabs();
+          renderPassageList();
+        },
+      },
+      ["← Till listan"]
+    ),
+    nextPassage
+      ? el(
+          "button",
+          { class: "btn btn-primary", onclick: () => openPassage(nextPassage) },
+          ["Nästa avsnitt →"]
+        )
+      : null,
+  ]);
+  card.appendChild(navRow);
+}
+
+/* ---------------- Word encounter tracking ---------------- */
+function recordPassageEncounters(passage) {
+  for (const word of Object.keys(passage.glossary)) {
+    Words.record(word, passage.id);
+  }
+}
+
+/* ---------------- Glossed text rendering (shared pattern with reader.html / news.html) ---------------- */
+const WORD_RE = /[A-Za-zÅÄÖÉåäöé]+/g;
+const SENTENCE_RE = /[^.!?]+[.!?]*(\s+|$)/g;
+
+function matchPhraseAt(tokens, i, phrases, maxWords) {
+  for (let n = maxWords; n >= 2; n--) {
+    if (i + n > tokens.length) continue;
+    let ok = true;
+    for (let k = 0; k < n - 1; k++) {
+      if (tokens[i + 2 * k + 1] !== " ") { ok = false; break; }
+    }
+    if (!ok) continue;
+    const words = [];
+    for (let k = 0; k < n; k++) words.push(tokens[i + 2 * k]);
+    const candidate = words.join(" ").toLowerCase();
+    if (phrases.has(candidate)) {
+      return { matched: candidate, tokenSpan: 2 * n - 1 };
+    }
+  }
+  return null;
+}
+
+function makeGlossSpan(text, glossKey, glossary, contextId) {
+  const span = el("span", { class: "gloss-word" }, [text]);
+  if (Words.get(glossKey).count > 0) span.classList.add("encountered");
+  span.addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.querySelectorAll(".gloss-word.active").forEach((n) => n.classList.remove("active"));
+    span.classList.add("active");
+    showGlossTooltip(span, glossary[glossKey]);
+    Words.record(glossKey, contextId);
+    Speech.say(text);
+  });
+  return span;
+}
+
+let activeTooltip = null;
+function showGlossTooltip(span, translation) {
+  hideGlossTooltip();
+  const tip = el("span", { class: "gloss-tooltip" }, [translation]);
+  span.appendChild(tip);
+  activeTooltip = tip;
+  setTimeout(() => {
+    document.addEventListener("click", hideGlossTooltipOnce, { once: true });
+  }, 0);
+}
+function hideGlossTooltipOnce() {
+  hideGlossTooltip();
+  document.querySelectorAll(".gloss-word.active").forEach((n) => n.classList.remove("active"));
+}
+function hideGlossTooltip() {
+  if (activeTooltip) {
+    activeTooltip.remove();
+    activeTooltip = null;
+  }
+}
+
+function appendGlossedTokens(parent, segment, glossary, contextId) {
+  const phraseSet = new Set(Object.keys(glossary).filter((k) => k.includes(" ")));
+  let maxWords = 2;
+  phraseSet.forEach((p) => {
+    maxWords = Math.max(maxWords, p.split(" ").length);
+  });
+
+  const tokens = [];
+  let lastIndex = 0;
+  segment.replace(WORD_RE, (match, offset) => {
+    if (offset > lastIndex) tokens.push(segment.slice(lastIndex, offset));
+    tokens.push(match);
+    lastIndex = offset + match.length;
+    return match;
+  });
+  if (lastIndex < segment.length) tokens.push(segment.slice(lastIndex));
+
+  const wordTokens = [];
+  for (const t of tokens) {
+    if (WORD_RE.test(t) && /^[A-Za-zÅÄÖÉåäöé]+$/.test(t)) {
+      wordTokens.push(t);
+    } else {
+      for (const ch of t) wordTokens.push(ch);
+    }
+  }
+
+  let i = 0;
+  while (i < wordTokens.length) {
+    const tok = wordTokens[i];
+    const isWord = /^[A-Za-zÅÄÖÉåäöé]+$/.test(tok);
+    if (isWord && phraseSet.size > 0) {
+      const phraseMatch = matchPhraseAt(wordTokens, i, phraseSet, maxWords);
+      if (phraseMatch) {
+        const text = wordTokens.slice(i, i + phraseMatch.tokenSpan).join("");
+        parent.appendChild(makeGlossSpan(text, phraseMatch.matched, glossary, contextId));
+        i += phraseMatch.tokenSpan;
+        continue;
+      }
+    }
+    if (isWord && glossary[tok.toLowerCase()]) {
+      parent.appendChild(makeGlossSpan(tok, tok.toLowerCase(), glossary, contextId));
+    } else {
+      parent.appendChild(document.createTextNode(tok));
+    }
+    i++;
+  }
+}
+
+function renderGlossedText(container, text, glossary, contextId) {
+  container.innerHTML = "";
+  let match;
+  SENTENCE_RE.lastIndex = 0;
+  while ((match = SENTENCE_RE.exec(text)) !== null) {
+    if (match[0] === "") {
+      SENTENCE_RE.lastIndex++;
+      continue;
+    }
+    const span = el("span", { class: "story-sentence" });
+    appendGlossedTokens(span, match[0], glossary, contextId);
+    span.addEventListener("click", () => playSentence(span, match[0].trim()));
+    container.appendChild(span);
+  }
+}
+
+/* ---------------- Audio playback ---------------- */
+let listenActive = false;
+let listenCancelled = false;
+
+function clearSentenceHighlight() {
+  const playing = document.querySelector("#passage-transcript .story-sentence.sentence-playing");
+  if (playing) playing.classList.remove("sentence-playing");
+}
+
+function setPlayButtonState(playing) {
+  const btn = document.getElementById("btn-play-pause");
+  if (!btn) return;
+  btn.textContent = playing ? "⏹ Stoppa" : "▶️ Lyssna";
+}
+
+function stopListening() {
+  listenCancelled = true;
+  listenActive = false;
+  Speech.stop();
+  clearSentenceHighlight();
+  setPlayButtonState(false);
+}
+
+function playSentence(span, text) {
+  stopListening();
+  span.classList.add("sentence-playing");
+  Speech.say(text, { rate: 0.9, onend: () => span.classList.remove("sentence-playing") });
+}
+
+function playPassage() {
+  const sentences = Array.from(document.querySelectorAll("#passage-transcript .story-sentence"));
+  if (!sentences.length) return;
+  listenCancelled = false;
+  listenActive = true;
+  setPlayButtonState(true);
+
+  let i = 0;
+  function playNext() {
+    if (listenCancelled || i >= sentences.length) {
+      listenActive = false;
+      clearSentenceHighlight();
+      setPlayButtonState(false);
+      if (!listenCancelled) document.getElementById("listen-progress-fill").style.width = "100%";
+      return;
+    }
+    const span = sentences[i];
+    clearSentenceHighlight();
+    span.classList.add("sentence-playing");
+    document.getElementById("listen-progress-fill").style.width = `${Math.round((i / sentences.length) * 100)}%`;
+    i++;
+    const text = span.textContent.trim();
+    if (!text) {
+      playNext();
+      return;
+    }
+    const ok = Speech.say(text, { rate: 0.9, onend: playNext });
+    if (!ok) playNext();
+  }
+  playNext();
+}
+
+document.getElementById("btn-play-pause").addEventListener("click", () => {
+  if (listenActive) {
+    stopListening();
+  } else {
+    playPassage();
+  }
+});
+
+document.getElementById("btn-replay").addEventListener("click", () => {
+  stopListening();
+  document.getElementById("listen-progress-fill").style.width = "0%";
+  playPassage();
+});
+
+renderLevelTabs();
+renderPassageList();
+</script>
+</body>
+</html>
