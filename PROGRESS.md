@@ -58,8 +58,6 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [~] 3.2 — Create `data/listening-a2.js` with 5 short listening passages (transcripts
-      + questions). Generate audio via TTS integration. (started 2026-06-16)
 - [ ] 3.3 — Implement listen-first flow: play audio → answer questions → reveal
       transcript with glosses → re-listen while reading.
 - [ ] 3.4 — Add speed controls (0.75x / 1.0x / 1.1x) and repeat controls.
@@ -446,6 +444,38 @@
       errors. `node --check` (via extracted inline script) and HTML
       tag-balance clean for both `listening.html` and `index.html`.
       (2026-06-16)
+- [x] 3.2 — `data/listening-a2.js` created: 5 A2 listening passages covering
+      realistic SFI listening-test genres rather than 5 of the same shape —
+      a voicemail (telephone message), a train-station PA announcement, a
+      shop-counter dialogue, a radio weather report, and a dentist-booking
+      phone call — 61-69 words each, schema `{id, title, titleEn, level,
+      theme, wordCount, transcript, glossary, questions}` (no lead/body split
+      since a listening passage is one continuous audio clip, unlike a news
+      article's headline+lede+body). Wired into `listening.html` via a
+      `<script src="data/listening-a2.js">` tag; the A2 tab auto-activated
+      since `LEVELS` already referenced `LISTENING_A2` defensively since 3.1.
+      Bug found and fixed while drafting: the weather passage's glossary
+      phrase "klarnar upp" (a separable particle verb, "to clear up") didn't
+      appear as adjacent text once the sentence was V2-fronted with "Imorgon"
+      — Swedish inversion places the subject "det" between the fronted
+      adverbial and the verb+particle pair ("Imorgon klarnar **det** upp"),
+      splitting the two words the phrase-tokenizer needs adjacent. Fixed by
+      rewording to subject-first order ("Det klarnar upp imorgon, …"), which
+      keeps "klarnar upp" textually adjacent while remaining equally natural,
+      correct Swedish — same rewording strategy as 2.2's hyphen-elision fix
+      (avoid the construction in content rather than extending the
+      tokenizer). Verified via two jsdom tests: the existing
+      `test-listening1.js` was updated since its "both tabs disabled" stale
+      assumption no longer held (A2 tab is enabled now; only B1 stays
+      "(snart)" pending 3.5) — same kind of stale-assertion fix as 2.4's
+      `test-news.js` update; a new `test-listening-a2.js` confirms 5 real
+      cards render, the weather passage's two multi-word phrases
+      ("tillfälligt regn", "klarnar upp") and the shopping passage's "letar
+      efter" all gloss correctly as single units, and completing all 5
+      passages' question sets scores 5/5 each and flips the A2 tab to
+      "(5/5)" confirming level-complete detection. Full regression suite
+      (23 files total) re-run — all pass, zero console errors. `node --check`
+      and HTML tag-balance clean. (2026-06-16)
 
 ---
 
