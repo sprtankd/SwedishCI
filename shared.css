@@ -411,6 +411,20 @@ button {
   line-height: 1.85;
 }
 
+.story-sentence {
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.story-sentence:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.story-sentence.sentence-playing {
+  background: rgba(212, 175, 55, 0.16);
+}
+
 .gloss-word {
   position: relative;
   border-bottom: 1.5px dotted var(--gold);

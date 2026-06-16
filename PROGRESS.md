@@ -50,9 +50,6 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.6 — Add audio playback for story text: "read aloud" button that speaks the full
-      story via TTS (Speech helper). Per-sentence playback on tap.
-      (started 2026-06-16)
 - [ ] 1.7 — Polish reader UI: smooth transitions between stories, reading progress bar,
       celebration on completing a level's stories. Mobile responsive.
 - [ ] 1.8 — Create `data/stories-b1.js` with 5 stories at B1 level (~150-250 words).
@@ -233,6 +230,29 @@
       confirmed `renderStats()` correctly aggregates "Ord mötta" (3), "Kända ord" (1),
       session count, and readiness label — all matched expected values with zero
       console errors. (2026-06-16)
+- [x] 1.6 — Audio playback added: `renderGlossedText` now splits each story into
+      sentences (`SENTENCE_RE`), wrapping each in a clickable `.story-sentence` span
+      (glossing logic moved into a new `appendGlossedTokens` helper, unchanged
+      behavior) — tapping a sentence speaks just that sentence via `Speech.say` and
+      highlights it while playing. A new "🔊 Läs hela texten" button speaks every
+      sentence in order by chaining `Speech.say(..., {onend: playNext})`, highlighting
+      the active sentence and toggling to "⏸ Stoppa uppläsning"; clicking again (or
+      navigating away/opening another story) calls `stopReadAloud()` which cancels
+      mid-sequence cleanly. Gloss-word clicks inside a sentence already call
+      `e.stopPropagation()` so single-word taps don't also trigger sentence playback.
+      NOTE: per-word/sentence audio reuses the existing Web Speech API TTS approach
+      (no pre-recorded clips), consistent with how gloss-word pronunciation already
+      worked — PLAN.md allows falling back to browser TTS where pre-generated audio
+      isn't available, and no SwedishGames audio asset pipeline is reachable from
+      this repo's scope. Verified via jsdom: extended the test harness's
+      `speechSynthesis.speak` stub to fire `onend` asynchronously (simulating real
+      playback) so the onend-chained sequence could be exercised; confirmed all 15
+      sentences of a story are spoken in order and highlighted/un-highlighted
+      correctly, stopping mid-sequence halts further progress and resets the button,
+      and single gloss-word clicks remain isolated from sentence playback. Re-ran the
+      full existing regression suite (reader/questions/fail/progression/encounters/
+      hub-integration smoke tests) — all still pass with zero console errors. HTML
+      tag-balance and `node --check` on the inline script both clean. (2026-06-16)
 
 ---
 

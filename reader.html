@@ -112,9 +112,13 @@
   <div id="view-story">
     <div class="reading-progress"><div class="fill" id="reading-fill"></div></div>
     <div class="card">
-      <h2 id="story-title">—</h2>
+      <div class="flex justify-between items-center" style="gap:12px; flex-wrap:wrap;">
+        <h2 id="story-title" style="margin:0;">—</h2>
+        <button class="btn" id="btn-read-aloud" data-playing="0">🔊 Läs hela texten</button>
+      </div>
       <div class="text-dim" id="story-title-en" style="margin-bottom:14px;"></div>
       <div class="story-text" id="story-text"></div>
+      <div class="text-dim" style="font-size:0.85rem; margin-top:10px;">Klicka på en mening för att höra den.</div>
     </div>
     <div class="flex justify-between" style="margin-top:4px;">
       <button class="btn" id="btn-back-to-list">← Till listan</button>
@@ -227,6 +231,7 @@ function renderStoryList() {
 }
 
 function openStory(story) {
+  stopReadAloud();
   currentStory = story;
   document.getElementById("story-title").textContent = story.title;
   document.getElementById("story-title-en").textContent = story.titleEn;
@@ -389,6 +394,10 @@ function finishQuestions() {
    spoken pronunciation; hover previews the translation. */
 const WORD_RE = /[A-Za-zÅÄÖÉåäöé]+/g;
 
+// Split into sentences (kept together with trailing punctuation + whitespace)
+// so each one can be wrapped in a clickable "play this sentence" span.
+const SENTENCE_RE = /[^.!?]+[.!?]*(\s+|$)/g;
+
 function renderGlossedText(container, text, glossary, contextId) {
   container.innerHTML = "";
   const singleWordMap = new Map();
@@ -399,6 +408,24 @@ function renderGlossedText(container, text, glossary, contextId) {
   }
   phrases.sort((a, b) => b.key.length - a.key.length);
 
+  const sentences = text.match(SENTENCE_RE) || [text];
+  for (const sentence of sentences) {
+    const trimmed = sentence.trim();
+    if (!trimmed) {
+      container.appendChild(document.createTextNode(sentence));
+      continue;
+    }
+    const span = el("span", { class: "story-sentence" }, []);
+    appendGlossedTokens(span, sentence, singleWordMap, phrases, glossary, contextId);
+    span.addEventListener("click", (e) => {
+      e.stopPropagation();
+      playSentence(span, trimmed);
+    });
+    container.appendChild(span);
+  }
+}
+
+function appendGlossedTokens(container, text, singleWordMap, phrases, glossary, contextId) {
   const tokens = [];
   let lastIndex = 0;
   let match;
@@ -489,15 +516,99 @@ function makeGlossSpan(displayText, glossKey, gloss, contextId) {
 }
 
 document.getElementById("btn-back-to-list").addEventListener("click", () => {
+  stopReadAloud();
   showView("view-list");
   renderLevelTabs();
   renderStoryList();
 });
 
 document.getElementById("btn-to-questions").addEventListener("click", () => {
+  stopReadAloud();
+  recordStoryEncounters(currentStory);
   showView("view-questions");
   startQuestions(currentStory);
 });
+
+/* ---------------- Audio playback ----------------
+   "Läs hela texten" speaks every sentence in order via the Speech helper
+   (sv-SE TTS), highlighting each sentence as it plays. Tapping a single
+   sentence (see renderGlossedText) plays just that one. No audio files —
+   same TTS approach used for individual gloss words. */
+let readAloudActive = false;
+let readAloudCancelled = false;
+
+function clearSentenceHighlight() {
+  const playing = document.querySelector(".story-sentence.sentence-playing");
+  if (playing) playing.classList.remove("sentence-playing");
+}
+
+function setReadAloudButtonState(playing) {
+  const btn = document.getElementById("btn-read-aloud");
+  if (!btn) return;
+  btn.dataset.playing = playing ? "1" : "0";
+  btn.textContent = playing ? "⏸ Stoppa uppläsning" : "🔊 Läs hela texten";
+}
+
+function stopReadAloud() {
+  readAloudCancelled = true;
+  readAloudActive = false;
+  Speech.stop();
+  clearSentenceHighlight();
+  setReadAloudButtonState(false);
+}
+
+function playSentence(span, text) {
+  stopReadAloud();
+  span.classList.add("sentence-playing");
+  Speech.say(text, { rate: 0.9, onend: () => span.classList.remove("sentence-playing") });
+}
+
+function readStoryAloud() {
+  const sentences = Array.from(document.querySelectorAll("#story-text .story-sentence"));
+  if (!sentences.length) return;
+  readAloudCancelled = false;
+  readAloudActive = true;
+  setReadAloudButtonState(true);
+
+  let i = 0;
+  function playNext() {
+    if (readAloudCancelled || i >= sentences.length) {
+      readAloudActive = false;
+      clearSentenceHighlight();
+      setReadAloudButtonState(false);
+      return;
+    }
+    const span = sentences[i++];
+    clearSentenceHighlight();
+    span.classList.add("sentence-playing");
+    const text = span.textContent.trim();
+    if (!text) {
+      playNext();
+      return;
+    }
+    const ok = Speech.say(text, { rate: 0.9, onend: playNext });
+    if (!ok) playNext();
+  }
+  playNext();
+}
+
+document.getElementById("btn-read-aloud").addEventListener("click", () => {
+  if (readAloudActive) {
+    stopReadAloud();
+  } else {
+    readStoryAloud();
+  }
+});
+
+/* ---------------- Word encounter tracking ----------------
+   Finishing a reading pass (moving on to the comprehension check) counts
+   as one encounter with every glossed word in that story — re-reading a
+   story later adds further encounters, per the spaced-encounter design. */
+function recordStoryEncounters(story) {
+  for (const word of Object.keys(story.glossary)) {
+    Words.record(word, story.id);
+  }
+}
 
 // Simple scroll-based reading progress indicator.
 window.addEventListener("scroll", () => {
