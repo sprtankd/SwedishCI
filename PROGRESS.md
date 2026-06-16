@@ -50,8 +50,9 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [ ] 1.2 — Implement glossed text rendering: parse story text, make each word tappable,
+- [~] 1.2 — Implement glossed text rendering: parse story text, make each word tappable,
       show English gloss + pronunciation on tap/hover. Use a tooltip or inline reveal.
+      (started 2026-06-16)
 - [ ] 1.3 — Implement comprehension questions panel: show questions after reading,
       multiple choice, score tracking, explanations on answer.
 - [ ] 1.4 — Implement story progression: level selector (A2-low / A2-high / B1 / B1+),
