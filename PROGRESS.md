@@ -58,8 +58,8 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [ ] 3.2 — Create `data/listening-a2.js` with 5 short listening passages (transcripts
-      + questions). Generate audio via TTS integration.
+- [~] 3.2 — Create `data/listening-a2.js` with 5 short listening passages (transcripts
+      + questions). Generate audio via TTS integration. (started 2026-06-16)
 - [ ] 3.3 — Implement listen-first flow: play audio → answer questions → reveal
       transcript with glosses → re-listen while reading.
 - [ ] 3.4 — Add speed controls (0.75x / 1.0x / 1.1x) and repeat controls.
