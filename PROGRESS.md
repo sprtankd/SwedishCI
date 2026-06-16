@@ -46,9 +46,9 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [ ] 0.3 — Create `index.html` hub page with hero section, progress dashboard
+- [~] 0.3 — Create `index.html` hub page with hero section, progress dashboard
       (words encountered, reading sessions, streak), and mode cards grid. Initially
-      all modes show as "Coming soon" except the first one.
+      all modes show as "Coming soon" except the first one. (started 2026-06-16)
 - [ ] 0.4 — Create `data/stories-a2.js` with the first 5 graded reader stories at
       A2-low level (~80-100 words each). Topics: daily routine, shopping, at the café,
       the weather, my family. Include glossaries and comprehension questions.
