@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>News Reader — Svenska CI</title>
+<link rel="stylesheet" href="shared.css" />
+<style>
+  .level-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .level-tab {
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .level-tab.active {
+    background: linear-gradient(135deg, var(--blue), var(--green));
+    color: #06121a;
+    border-color: transparent;
+  }
+  .level-tab:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .article-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .article-card {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .article-card .ac-title {
+    font-weight: 700;
+    font-size: 1.02rem;
+  }
+  .article-card .ac-title-en {
+    color: var(--text-dim);
+    font-size: 0.82rem;
+  }
+  .article-card .ac-meta {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .reading-progress {
+    position: sticky;
+    top: 0;
+    height: 5px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .reading-progress .fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--blue));
+    width: 0%;
+    transition: width 0.2s ease;
+  }
+  .article-meta {
+    margin-bottom: 14px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .news-lead {
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+  .news-lead .gloss-word,
+  .story-text .gloss-word {
+    font-weight: inherit;
+  }
+  .article-source {
+    margin-top: 14px;
+    font-size: 0.85rem;
+    color: var(--text-faint);
+    font-style: italic;
+  }
+  #view-list, #view-article, #view-questions { display: none; }
+  #view-list.active, #view-article.active, #view-questions.active {
+    display: block;
+    animation: view-fade-in 0.35s ease;
+  }
+  @keyframes view-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #view-list.active, #view-article.active, #view-questions.active { animation: none; }
+  }
+  .q-block { margin-bottom: 22px; }
+  .q-options { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .q-option {
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .q-option:hover { background: rgba(255,255,255,0.09); }
+  .q-option.selected { border-color: var(--blue); }
+  .q-option.correct { border-color: var(--green); background: rgba(111,207,151,0.15); }
+  .q-option.incorrect { border-color: var(--pink); background: rgba(226,120,158,0.15); }
+  .placeholder-note {
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 30px 0;
+  }
+  @media (max-width: 480px) {
+    #view-article > .flex, #questions-card .flex {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    #view-article > .flex button, #questions-card .flex button {
+      width: 100%;
+    }
+    .level-tab { font-size: 0.8rem; padding: 8px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page" id="page-root">
+  <div id="header-slot"></div>
+
+  <!-- ===================== Article list view ===================== -->
+  <div id="view-list" class="active">
+    <div class="level-tabs" id="level-tabs"></div>
+    <div class="article-list" id="article-list"></div>
+  </div>
+
+  <!-- ===================== Article view ===================== -->
+  <div id="view-article">
+    <div class="reading-progress"><div class="fill" id="reading-fill"></div></div>
+    <div class="card">
+      <div class="flex justify-between items-center" style="gap:12px; flex-wrap:wrap;">
+        <h2 id="article-title" style="margin:0;">—</h2>
+        <button class="btn" id="btn-read-aloud" data-playing="0">🔊 Läs hela texten</button>
+      </div>
+      <div class="text-dim" id="article-title-en" style="margin-bottom:10px;"></div>
+      <div class="article-meta" id="article-meta"></div>
+      <div class="news-lead" id="article-lead"></div>
+      <div class="story-text" id="article-body"></div>
+      <div class="article-source" id="article-source"></div>
+    </div>
+    <div class="flex justify-between" style="margin-top:4px;">
+      <button class="btn" id="btn-back-to-list">← Till listan</button>
+      <button class="btn btn-primary" id="btn-to-questions">Till frågorna →</button>
+    </div>
+  </div>
+
+  <!-- ===================== Questions view ===================== -->
+  <div id="view-questions">
+    <div class="card" id="questions-card">
+      <div class="placeholder-note">Frågor laddas…</div>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script src="data/news-b1.js"></script>
+<script>
+auroraBackground();
+
+const LEVELS = [
+  { key: "B1", label: "B1", get: () => (typeof NEWS_B1 !== "undefined" ? NEWS_B1 : []) },
+  { key: "B1+", label: "B1+", get: () => (typeof NEWS_B1_PLUS !== "undefined" ? NEWS_B1_PLUS : []) },
+];
+
+let currentLevel = Store.get("news.lastLevel", LEVELS[0].key);
+let currentArticle = null;
+
+document.getElementById("header-slot").appendChild(
+  gameHeader({
+    title: "📰 News Reader",
+    subtitle: "Förenklade nyheter — påhittade för övning, samma princip som riktiga rubriker",
+    backHref: "index.html",
+  })
+);
+
+function showView(id) {
+  for (const v of ["view-list", "view-article", "view-questions"]) {
+    document.getElementById(v).classList.toggle("active", v === id);
+  }
+}
+
+function isArticleDone(articleId) {
+  return !!Store.get(`news.progress.${articleId}.completed`, false);
+}
+
+function countDone(articles) {
+  return articles.filter((a) => isArticleDone(a.id)).length;
+}
+
+function renderLevelTabs() {
+  const host = document.getElementById("level-tabs");
+  host.innerHTML = "";
+  for (const lvl of LEVELS) {
+    const articles = lvl.get();
+    const done = countDone(articles);
+    const label = articles.length
+      ? `${lvl.label} (${done}/${articles.length})`
+      : `${lvl.label} (snart)`;
+    const btn = el(
+      "button",
+      {
+        class: "level-tab" + (lvl.key === currentLevel ? " active" : ""),
+        disabled: articles.length === 0 ? "disabled" : undefined,
+        onclick: () => {
+          if (articles.length === 0) {
+            toast(`${lvl.label} kommer snart`);
+            return;
+          }
+          currentLevel = lvl.key;
+          Store.set("news.lastLevel", currentLevel);
+          renderLevelTabs();
+          renderArticleList();
+        },
+      },
+      [label]
+    );
+    host.appendChild(btn);
+  }
+}
+
+function renderArticleList() {
+  const host = document.getElementById("article-list");
+  host.innerHTML = "";
+  const lvl = LEVELS.find((l) => l.key === currentLevel) || LEVELS[0];
+  const articles = lvl.get();
+  if (articles.length === 0) {
+    host.appendChild(el("div", { class: "placeholder-note" }, ["Inga artiklar ännu på den här nivån."]));
+    return;
+  }
+  for (const article of articles) {
+    const done = isArticleDone(article.id);
+    const card = el(
+      "div",
+      { class: "card article-card", onclick: () => openArticle(article) },
+      [
+        el("div", { class: "ac-title" }, [(done ? "✅ " : "") + article.title]),
+        el("div", { class: "ac-title-en" }, [article.titleEn]),
+        el("div", { class: "ac-meta" }, [
+          el("span", { class: "badge" }, [article.theme]),
+          el("span", { class: "badge" }, [`${article.wordCount} ord`]),
+        ]),
+      ]
+    );
+    host.appendChild(card);
+  }
+}
+
+function openArticle(article) {
+  stopReadAloud();
+  currentArticle = article;
+  document.getElementById("article-title").textContent = article.title;
+  document.getElementById("article-title-en").textContent = article.titleEn;
+
+  const metaHost = document.getElementById("article-meta");
+  metaHost.innerHTML = "";
+  metaHost.appendChild(el("span", { class: "badge blue" }, [article.theme]));
+  metaHost.appendChild(el("span", { class: "badge" }, [article.textType]));
+  metaHost.appendChild(el("span", { class: "badge" }, [`${article.wordCount} ord`]));
+
+  renderGlossedText(document.getElementById("article-lead"), article.lead, article.glossary, article.id);
+  renderGlossedText(document.getElementById("article-body"), article.body, article.glossary, article.id);
+  document.getElementById("article-source").textContent = `Källa: ${article.source} (påhittad artikel för läsövning)`;
+
+  showView("view-article");
+  window.scrollTo({ top: 0, behavior: "instant" });
+  updateReadingProgress();
+}
+
+/* ---------------- Comprehension questions ---------------- */
+let qState = { article: null, index: 0, score: 0, answered: false };
+
+function startQuestions(article) {
+  qState = { article, index: 0, score: 0, answered: false };
+  window.scrollTo({ top: 0, behavior: "instant" });
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const card = document.getElementById("questions-card");
+  card.innerHTML = "";
+  const { article, index } = qState;
+  const total = article.questions.length;
+  const q = article.questions[index];
+  qState.answered = false;
+
+  card.appendChild(
+    el("div", { class: "text-faint", style: "margin-bottom:10px;font-size:0.85rem;" }, [
+      `Fråga ${index + 1} av ${total}`,
+    ])
+  );
+  card.appendChild(
+    el("div", { class: "progress-track", style: "margin-bottom:18px;" }, [
+      el("div", { class: "progress-fill", style: `width:${(index / total) * 100}%` }),
+    ])
+  );
+
+  const block = el("div", { class: "q-block" }, [
+    el("h3", {}, [q.q]),
+    el("div", { class: "text-dim", style: "font-size:0.85rem;margin-top:-6px;" }, [q.qEn]),
+  ]);
+  const optionsHost = el("div", { class: "q-options" });
+  q.options.forEach((opt, i) => {
+    const optBtn = el("button", { class: "q-option" }, [opt]);
+    optBtn.addEventListener("click", () => selectAnswer(i, q, optionsHost, optBtn));
+    optionsHost.appendChild(optBtn);
+  });
+  block.appendChild(optionsHost);
+  card.appendChild(block);
+
+  const nextBtn = el(
+    "button",
+    { class: "btn btn-primary", id: "btn-next-question", disabled: "disabled" },
+    [index + 1 < total ? "Nästa fråga →" : "Se resultat →"]
+  );
+  nextBtn.addEventListener("click", () => {
+    if (!qState.answered) return;
+    qState.index += 1;
+    if (qState.index < total) {
+      renderQuestion();
+    } else {
+      finishQuestions();
+    }
+  });
+  card.appendChild(el("div", { style: "margin-top:18px;text-align:right;" }, [nextBtn]));
+}
+
+function selectAnswer(choiceIndex, q, optionsHost, chosenBtn) {
+  if (qState.answered) return;
+  qState.answered = true;
+  const correct = choiceIndex === q.correct;
+  if (correct) qState.score += 1;
+
+  Array.from(optionsHost.children).forEach((btn, i) => {
+    if (i === q.correct) btn.classList.add("correct");
+    if (i === choiceIndex && !correct) btn.classList.add("incorrect");
+  });
+  chosenBtn.classList.add("selected");
+  if (correct) Sfx.correct();
+  else Sfx.incorrect();
+
+  optionsHost.appendChild(
+    el("div", { class: correct ? "text-dim" : "badge pink", style: "margin-top:12px;font-size:0.85rem;" }, [
+      correct ? "✓ Rätt!" : `Rätt svar: ${q.options[q.correct]}`,
+    ])
+  );
+
+  document.getElementById("btn-next-question").removeAttribute("disabled");
+}
+
+function finishQuestions() {
+  const { article, score } = qState;
+  const total = article.questions.length;
+  const pct = Math.round((score / total) * 100);
+  const passed = pct >= 60;
+
+  const prevBest = Store.get(`news.progress.${article.id}.bestScore`, 0);
+  Store.update(`news.progress.${article.id}`, (entry) => {
+    entry = entry || { attempts: 0, bestScore: 0, completed: false };
+    entry.attempts += 1;
+    entry.lastScore = pct;
+    entry.bestScore = Math.max(entry.bestScore, pct);
+    entry.completed = entry.completed || passed;
+    return entry;
+  });
+  Store.update("stats.readingSessions", (n) => (n || 0) + 1, 0);
+
+  const card = document.getElementById("questions-card");
+  card.innerHTML = "";
+  const resultCard = el("div", { class: "text-center" }, [
+    el("div", { style: "font-size:2.4rem;" }, [passed ? "🎉" : "📰"]),
+    el("h2", {}, [`${score} / ${total} rätt`]),
+    el("div", { class: "text-dim" }, [
+      passed
+        ? "Bra jobbat! Du har förstått artikeln."
+        : "Läs gärna artikeln igen — du blir bättre för varje gång.",
+    ]),
+    pct > prevBest
+      ? el("div", { class: "badge gold", style: "margin-top:10px;" }, ["Nytt personligt bästa!"])
+      : null,
+  ]);
+  card.appendChild(resultCard);
+  if (passed) celebrate(card);
+
+  const lvl = LEVELS.find((l) => l.key === article.level) || LEVELS.find((l) => l.key === currentLevel);
+  const levelArticles = lvl ? lvl.get() : [];
+  const articleIdx = levelArticles.findIndex((a) => a.id === article.id);
+  const nextArticle = articleIdx >= 0 ? levelArticles[articleIdx + 1] : null;
+  const levelComplete = levelArticles.length > 0 && countDone(levelArticles) === levelArticles.length;
+
+  if (levelComplete) {
+    const levelBadge = el("div", { class: "badge green", style: "margin-top:6px;" }, [`🏅 Hela nivån ${lvl.label} är klar!`]);
+    card.appendChild(levelBadge);
+    toast(`🏅 Hela nivån ${lvl.label} är klar!`);
+    setTimeout(() => celebrate(levelBadge), 250);
+  }
+
+  const actions = el("div", { class: "flex gap-12 justify-between", style: "margin-top:22px;flex-wrap:wrap;" }, [
+    el("button", { class: "btn", onclick: () => { openArticle(article); } }, ["← Läs igen"]),
+    nextArticle
+      ? el("button", { class: "btn btn-gold", onclick: () => { openArticle(nextArticle); } }, ["Nästa artikel →"])
+      : null,
+    el(
+      "button",
+      {
+        class: "btn btn-primary",
+        onclick: () => {
+          showView("view-list");
+          renderLevelTabs();
+          renderArticleList();
+        },
+      },
+      ["Till listan"]
+    ),
+  ]);
+  card.appendChild(actions);
+}
+
+/* ---------------- Glossed text rendering ----------------
+   Same engine as reader.html: only glossary-listed words/phrases become
+   tappable. Lead and body are rendered into separate containers (so the
+   lede can be styled distinctly) but both share the same sentence-click
+   and read-aloud machinery, since querySelectorAll picks up both in
+   document order. */
+const WORD_RE = /[A-Za-zÅÄÖÉåäöé]+/g;
+const SENTENCE_RE = /[^.!?]+[.!?]*(\s+|$)/g;
+
+function renderGlossedText(container, text, glossary, contextId) {
+  container.innerHTML = "";
+  const singleWordMap = new Map();
+  const phrases = [];
+  for (const key of Object.keys(glossary)) {
+    if (key.includes(" ")) phrases.push({ key: key.toLowerCase(), original: key });
+    else singleWordMap.set(key.toLowerCase(), key);
+  }
+  phrases.sort((a, b) => b.key.length - a.key.length);
+
+  const sentences = text.match(SENTENCE_RE) || [text];
+  for (const sentence of sentences) {
+    const trimmed = sentence.trim();
+    if (!trimmed) {
+      container.appendChild(document.createTextNode(sentence));
+      continue;
+    }
+    const span = el("span", { class: "story-sentence" }, []);
+    appendGlossedTokens(span, sentence, singleWordMap, phrases, glossary, contextId);
+    span.addEventListener("click", (e) => {
+      e.stopPropagation();
+      playSentence(span, trimmed);
+    });
+    container.appendChild(span);
+  }
+}
+
+function matchPhraseAt(tokens, i, phrases, maxWords) {
+  for (let wordCount = maxWords; wordCount >= 2; wordCount--) {
+    const words = [tokens[i].text];
+    let idx = i + 1;
+    let valid = true;
+    for (let w = 1; w < wordCount; w++) {
+      const gapTok = tokens[idx];
+      const wordTok = tokens[idx + 1];
+      if (!gapTok || gapTok.type !== "gap" || gapTok.text !== " " || !wordTok || wordTok.type !== "word") {
+        valid = false;
+        break;
+      }
+      words.push(wordTok.text);
+      idx += 2;
+    }
+    if (!valid) continue;
+    const candidate = words.join(" ").toLowerCase();
+    const phraseHit = phrases.find((p) => p.key === candidate);
+    if (phraseHit) return { phraseHit, endIndex: idx - 1, display: words.join(" ") };
+  }
+  return null;
+}
+
+function appendGlossedTokens(container, text, singleWordMap, phrases, glossary, contextId) {
+  const tokens = [];
+  let lastIndex = 0;
+  let match;
+  WORD_RE.lastIndex = 0;
+  while ((match = WORD_RE.exec(text))) {
+    if (match.index > lastIndex) tokens.push({ type: "gap", text: text.slice(lastIndex, match.index) });
+    tokens.push({ type: "word", text: match[0] });
+    lastIndex = WORD_RE.lastIndex;
+  }
+  if (lastIndex < text.length) tokens.push({ type: "gap", text: text.slice(lastIndex) });
+
+  const maxPhraseWords = phrases.length ? Math.max(...phrases.map((p) => p.key.split(" ").length)) : 0;
+
+  for (let i = 0; i < tokens.length; i++) {
+    const tok = tokens[i];
+    if (tok.type === "gap") {
+      container.appendChild(document.createTextNode(tok.text));
+      continue;
+    }
+    if (maxPhraseWords >= 2) {
+      const m = matchPhraseAt(tokens, i, phrases, maxPhraseWords);
+      if (m) {
+        container.appendChild(makeGlossSpan(m.display, m.phraseHit.key, glossary[m.phraseHit.original], contextId));
+        i = m.endIndex;
+        continue;
+      }
+    }
+    const lower = tok.text.toLowerCase();
+    if (singleWordMap.has(lower)) {
+      const originalKey = singleWordMap.get(lower);
+      container.appendChild(makeGlossSpan(tok.text, lower, glossary[originalKey], contextId));
+    } else {
+      container.appendChild(document.createTextNode(tok.text));
+    }
+  }
+}
+
+let activeTooltipAnchor = null;
+let tooltipPinned = false;
+
+function showGlossTooltip(anchor, text) {
+  if (activeTooltipAnchor === anchor) return;
+  removeTooltip();
+  anchor.classList.add("active");
+  anchor.appendChild(el("div", { class: "gloss-tooltip" }, [text]));
+  activeTooltipAnchor = anchor;
+}
+
+function removeTooltip() {
+  if (!activeTooltipAnchor) return;
+  activeTooltipAnchor.classList.remove("active");
+  const tip = activeTooltipAnchor.querySelector(".gloss-tooltip");
+  if (tip) tip.remove();
+  activeTooltipAnchor = null;
+  tooltipPinned = false;
+}
+
+document.addEventListener("click", () => removeTooltip());
+
+function makeGlossSpan(displayText, glossKey, gloss, contextId) {
+  const span = el("span", { class: "gloss-word", tabindex: "0" }, [displayText]);
+  if (Words.get(glossKey).count > 0) span.classList.add("encountered");
+
+  span.addEventListener("mouseenter", () => {
+    if (!tooltipPinned) showGlossTooltip(span, gloss);
+  });
+  span.addEventListener("mouseleave", () => {
+    if (!tooltipPinned && activeTooltipAnchor === span) removeTooltip();
+  });
+  span.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showGlossTooltip(span, gloss);
+    tooltipPinned = true;
+    Speech.say(displayText, { rate: 0.85 });
+  });
+  span.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      showGlossTooltip(span, gloss);
+      tooltipPinned = true;
+      Speech.say(displayText, { rate: 0.85 });
+    }
+  });
+  return span;
+}
+
+document.getElementById("btn-back-to-list").addEventListener("click", () => {
+  stopReadAloud();
+  showView("view-list");
+  renderLevelTabs();
+  renderArticleList();
+});
+
+document.getElementById("btn-to-questions").addEventListener("click", () => {
+  stopReadAloud();
+  recordArticleEncounters(currentArticle);
+  showView("view-questions");
+  startQuestions(currentArticle);
+});
+
+/* ---------------- Audio playback ---------------- */
+let readAloudActive = false;
+let readAloudCancelled = false;
+
+function clearSentenceHighlight() {
+  const playing = document.querySelector(".story-sentence.sentence-playing");
+  if (playing) playing.classList.remove("sentence-playing");
+}
+
+function setReadAloudButtonState(playing) {
+  const btn = document.getElementById("btn-read-aloud");
+  if (!btn) return;
+  btn.dataset.playing = playing ? "1" : "0";
+  btn.textContent = playing ? "⏸ Stoppa uppläsning" : "🔊 Läs hela texten";
+}
+
+function stopReadAloud() {
+  readAloudCancelled = true;
+  readAloudActive = false;
+  Speech.stop();
+  clearSentenceHighlight();
+  setReadAloudButtonState(false);
+}
+
+function playSentence(span, text) {
+  stopReadAloud();
+  span.classList.add("sentence-playing");
+  Speech.say(text, { rate: 0.9, onend: () => span.classList.remove("sentence-playing") });
+}
+
+function readStoryAloud() {
+  const sentences = Array.from(document.querySelectorAll("#article-lead .story-sentence, #article-body .story-sentence"));
+  if (!sentences.length) return;
+  readAloudCancelled = false;
+  readAloudActive = true;
+  setReadAloudButtonState(true);
+
+  let i = 0;
+  function playNext() {
+    if (readAloudCancelled || i >= sentences.length) {
+      readAloudActive = false;
+      clearSentenceHighlight();
+      setReadAloudButtonState(false);
+      return;
+    }
+    const span = sentences[i++];
+    clearSentenceHighlight();
+    span.classList.add("sentence-playing");
+    const text = span.textContent.trim();
+    if (!text) {
+      playNext();
+      return;
+    }
+    const ok = Speech.say(text, { rate: 0.9, onend: playNext });
+    if (!ok) playNext();
+  }
+  playNext();
+}
+
+document.getElementById("btn-read-aloud").addEventListener("click", () => {
+  if (readAloudActive) {
+    stopReadAloud();
+  } else {
+    readStoryAloud();
+  }
+});
+
+/* ---------------- Word encounter tracking ---------------- */
+function recordArticleEncounters(article) {
+  for (const word of Object.keys(article.glossary)) {
+    Words.record(word, article.id);
+  }
+}
+
+// Simple scroll-based reading progress indicator.
+function updateReadingProgress() {
+  const articleView = document.getElementById("view-article");
+  if (!articleView.classList.contains("active")) return;
+  const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = scrollable > 0 ? Math.min(100, Math.round((window.scrollY / scrollable) * 100)) : 100;
+  document.getElementById("reading-fill").style.width = pct + "%";
+}
+window.addEventListener("scroll", updateReadingProgress);
+
+renderLevelTabs();
+renderArticleList();
+</script>
+</body>
+</html>

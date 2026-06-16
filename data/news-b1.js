@@ -230,7 +230,7 @@ const NEWS_B1 = [
     body:
       "Enligt myndighetens undersökning sover var tredje vuxen mindre än sex timmar per natt, vilket är " +
       "betydligt mindre än de sju till nio timmar som rekommenderas. Bristande sömn kan leda till " +
-      "koncentrationssvårigheter, sämre immunförsvar och ökad risk för hjärt- och kärlsjukdomar på lång " +
+      "koncentrationssvårigheter, sämre immunförsvar och ökad risk för hjärtsjukdomar och kärlsjukdomar på lång " +
       "sikt. Forskarna bakom rapporten menar att skärmtid sent på kvällen är en av de vanligaste orsakerna " +
       "till sömnproblem, eftersom blått ljus från mobiler och datorer kan störa kroppens naturliga " +
       "dygnsrytm. Myndigheten rekommenderar att man undviker skärmar minst en timme innan läggdags och att " +
@@ -241,7 +241,7 @@ const NEWS_B1 = [
       Folkhälsomyndigheten: "the Public Health Agency",
       bristande: "lacking, insufficient",
       immunförsvar: "immune system",
-      "hjärt- och kärlsjukdomar": "cardiovascular diseases",
+      "hjärtsjukdomar och kärlsjukdomar": "cardiovascular diseases",
       dygnsrytm: "circadian rhythm",
       läggdags: "bedtime",
       sömnkvaliteten: "the sleep quality",

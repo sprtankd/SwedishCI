@@ -54,9 +54,6 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [~] 2.2 — Create `news.html` with news article layout: headline, lead paragraph,
-      body text with glossing, source attribution. Reuse glossing engine from reader.
-      (started 2026-06-16)
 - [ ] 2.3 — Add "text type" indicators (informational, argumentative, instructional)
       matching SFI D text categories.
 - [ ] 2.4 — Create `data/news-b1plus.js` with 5 articles at B1+ level (~250-400 words).
@@ -307,6 +304,45 @@
       questions with exactly 3 options and a valid `correct` index. No
       end-to-end render test yet possible since `news.html` doesn't exist —
       will be exercised once 2.2 builds the news reader page. (2026-06-16)
+- [x] 2.2 — `news.html` created: level tabs (B1 live, B1+ shows "snart"), article
+      list cards, article view with headline/English subtitle/meta badges
+      (theme, textType, wordCount), lead paragraph rendered in a distinct
+      bold/larger `.news-lead` style, body text glossed identically to the
+      Graded Reader, italic source-attribution line noting articles are
+      invented for practice (not real reporting), sentence-click + "Läs hela
+      texten" read-aloud spanning both lead and body in document order,
+      comprehension questions/scoring/progress reusing the same data-driven
+      pattern as `reader.html` but namespaced under `news.progress.<id>` and
+      "Nästa artikel" instead of "Nästa berättelse". Glossing/audio engine
+      (`WORD_RE`, `SENTENCE_RE`, `appendGlossedTokens`, `matchPhraseAt`,
+      `makeGlossSpan`, tooltip, read-aloud chain) is duplicated from
+      reader.html rather than factored into a shared file, since the project
+      has no script-sharing mechanism beyond `shared.js`/`shared.css` and
+      duplicating ~250 lines across two pages is simpler than introducing a
+      new shared-module convention for two call sites. Enabled "News Reader"
+      in `index.html`'s mode grid (was a disabled "Snart" card) now that the
+      page works. Bug found and fixed while testing: the data file's
+      3-word phrase `"hjärt- och kärlsjukdomar"` used Swedish hyphen-elision
+      (a word fragment + "och" + a second word), which the existing
+      `matchPhraseAt`/`WORD_RE` tokenizer can't match because it requires a
+      single literal space between phrase words, not a hyphen — confirmed via
+      jsdom test showing the phrase rendered as plain unglossed text. Fixed
+      by rewording the article text to the fully-spelled-out
+      `"hjärtsjukdomar och kärlsjukdomar"` (same meaning, same word count)
+      rather than extending the tokenizer for this orthographic edge case.
+      NOTE: hyphen-elision compounds (e.g. "för- och efternamn") should be
+      avoided in future glossary phrases, or the tokenizer would need a
+      dedicated enhancement to support them. Verified via jsdom: 2 new test
+      files exercise article list/level tabs, opening an article, gloss
+      rendering (incl. the 3-word and 2-word phrases, and repeated
+      occurrences of the same phrase across sentences), gloss-word click
+      isolation from sentence playback, full pass-path scoring incl. word
+      encounter recording and `stats.readingSessions`, "Nästa artikel"
+      navigation, level-complete badge/toast/celebrate across all 5
+      articles, fail-path scoring, and the full lead+body read-aloud chain —
+      all pass with zero console errors. `node --check` and HTML tag-balance
+      clean for both `news.html` and the updated `index.html`. Full existing
+      reader.html regression suite re-run — still all pass. (2026-06-16)
 
 ---
 
