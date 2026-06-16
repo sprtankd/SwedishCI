@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Graded Reader — Svenska CI</title>
+<link rel="stylesheet" href="shared.css" />
+<style>
+  .level-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .level-tab {
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .level-tab.active {
+    background: linear-gradient(135deg, var(--blue), var(--green));
+    color: #06121a;
+    border-color: transparent;
+  }
+  .level-tab:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .story-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .story-card {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .story-card .sc-title {
+    font-weight: 700;
+    font-size: 1.02rem;
+  }
+  .story-card .sc-title-en {
+    color: var(--text-dim);
+    font-size: 0.82rem;
+  }
+  .story-card .sc-meta {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .reading-progress {
+    position: sticky;
+    top: 0;
+    height: 5px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .reading-progress .fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--blue));
+    width: 0%;
+    transition: width 0.2s ease;
+  }
+  #view-list, #view-story, #view-questions { display: none; }
+  #view-list.active, #view-story.active, #view-questions.active { display: block; }
+  .q-block { margin-bottom: 22px; }
+  .q-options { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .q-option {
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .q-option:hover { background: rgba(255,255,255,0.09); }
+  .q-option.selected { border-color: var(--blue); }
+  .q-option.correct { border-color: var(--green); background: rgba(111,207,151,0.15); }
+  .q-option.incorrect { border-color: var(--pink); background: rgba(226,120,158,0.15); }
+  .placeholder-note {
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 30px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="page" id="page-root">
+  <div id="header-slot"></div>
+
+  <!-- ===================== Story list view ===================== -->
+  <div id="view-list" class="active">
+    <div class="level-tabs" id="level-tabs"></div>
+    <div class="story-list" id="story-list"></div>
+  </div>
+
+  <!-- ===================== Reading view ===================== -->
+  <div id="view-story">
+    <div class="reading-progress"><div class="fill" id="reading-fill"></div></div>
+    <div class="card">
+      <h2 id="story-title">—</h2>
+      <div class="text-dim" id="story-title-en" style="margin-bottom:14px;"></div>
+      <div class="story-text" id="story-text"></div>
+    </div>
+    <div class="flex justify-between" style="margin-top:4px;">
+      <button class="btn" id="btn-back-to-list">← Till listan</button>
+      <button class="btn btn-primary" id="btn-to-questions">Till frågorna →</button>
+    </div>
+  </div>
+
+  <!-- ===================== Questions view ===================== -->
+  <div id="view-questions">
+    <div class="card" id="questions-card">
+      <div class="placeholder-note">Frågor laddas…</div>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script src="data/stories-a2.js"></script>
+<script src="data/stories-a2-high.js"></script>
+<script>
+auroraBackground();
+
+const LEVELS = [
+  { key: "A2-low", label: "A2-låg", get: () => (typeof STORIES_A2_LOW !== "undefined" ? STORIES_A2_LOW : []) },
+  { key: "A2-high", label: "A2-hög", get: () => (typeof STORIES_A2_HIGH !== "undefined" ? STORIES_A2_HIGH : []) },
+  { key: "B1", label: "B1", get: () => (typeof STORIES_B1 !== "undefined" ? STORIES_B1 : []) },
+  { key: "B1+", label: "B1+", get: () => (typeof STORIES_B1_PLUS !== "undefined" ? STORIES_B1_PLUS : []) },
+];
+
+let currentLevel = Store.get("reader.lastLevel", LEVELS[0].key);
+let currentStory = null;
+
+document.getElementById("header-slot").appendChild(
+  gameHeader({
+    title: "📖 Graded Reader",
+    subtitle: "Läs och förstå — ingen ordboksjakt",
+    backHref: "index.html",
+  })
+);
+
+function showView(id) {
+  for (const v of ["view-list", "view-story", "view-questions"]) {
+    document.getElementById(v).classList.toggle("active", v === id);
+  }
+}
+
+function isStoryDone(storyId) {
+  return !!Store.get(`reader.progress.${storyId}.completed`, false);
+}
+
+function renderLevelTabs() {
+  const host = document.getElementById("level-tabs");
+  host.innerHTML = "";
+  for (const lvl of LEVELS) {
+    const stories = lvl.get();
+    const btn = el(
+      "button",
+      {
+        class: "level-tab" + (lvl.key === currentLevel ? " active" : ""),
+        disabled: stories.length === 0 ? "disabled" : undefined,
+        onclick: () => {
+          if (stories.length === 0) {
+            toast(`${lvl.label} kommer snart`);
+            return;
+          }
+          currentLevel = lvl.key;
+          Store.set("reader.lastLevel", currentLevel);
+          renderLevelTabs();
+          renderStoryList();
+        },
+      },
+      [`${lvl.label}${stories.length ? "" : " (snart)"}`]
+    );
+    host.appendChild(btn);
+  }
+}
+
+function renderStoryList() {
+  const host = document.getElementById("story-list");
+  host.innerHTML = "";
+  const lvl = LEVELS.find((l) => l.key === currentLevel) || LEVELS[0];
+  const stories = lvl.get();
+  if (stories.length === 0) {
+    host.appendChild(el("div", { class: "placeholder-note" }, ["Inga berättelser ännu på den här nivån."]));
+    return;
+  }
+  for (const story of stories) {
+    const done = isStoryDone(story.id);
+    const card = el(
+      "div",
+      { class: "card story-card", onclick: () => openStory(story) },
+      [
+        el("div", { class: "sc-title" }, [(done ? "✅ " : "") + story.title]),
+        el("div", { class: "sc-title-en" }, [story.titleEn]),
+        el("div", { class: "sc-meta" }, [
+          el("span", { class: "badge" }, [story.theme]),
+          el("span", { class: "badge" }, [`${story.wordCount} ord`]),
+        ]),
+      ]
+    );
+    host.appendChild(card);
+  }
+}
+
+function openStory(story) {
+  currentStory = story;
+  document.getElementById("story-title").textContent = story.title;
+  document.getElementById("story-title-en").textContent = story.titleEn;
+  document.getElementById("story-text").textContent = story.text;
+  showView("view-story");
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+document.getElementById("btn-back-to-list").addEventListener("click", () => {
+  showView("view-list");
+  renderStoryList();
+});
+
+document.getElementById("btn-to-questions").addEventListener("click", () => {
+  showView("view-questions");
+  const card = document.getElementById("questions-card");
+  card.innerHTML = "";
+  card.appendChild(el("div", { class: "placeholder-note" }, ["Frågepanelen byggs i nästa steg."]));
+});
+
+// Simple scroll-based reading progress indicator.
+window.addEventListener("scroll", () => {
+  const storyView = document.getElementById("view-story");
+  if (!storyView.classList.contains("active")) return;
+  const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = scrollable > 0 ? Math.min(100, Math.round((window.scrollY / scrollable) * 100)) : 100;
+  document.getElementById("reading-fill").style.width = pct + "%";
+});
+
+renderLevelTabs();
+renderStoryList();
+</script>
+</body>
+</html>
