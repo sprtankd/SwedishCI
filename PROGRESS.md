@@ -58,8 +58,8 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [ ] 3.5 — Create `data/listening-b1.js` with 5 passages at B1 level. Longer,
-      more complex topics.
+- [~] 3.5 — Create `data/listening-b1.js` with 5 passages at B1 level. Longer,
+      more complex topics. (started 2026-06-16)
 - [ ] 3.6 — Polish: smooth transitions, progress tracking, mobile audio controls.
 
 ---
