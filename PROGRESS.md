@@ -46,9 +46,6 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [~] 0.3 — Create `index.html` hub page with hero section, progress dashboard
-      (words encountered, reading sessions, streak), and mode cards grid. Initially
-      all modes show as "Coming soon" except the first one. (started 2026-06-16)
 - [ ] 0.4 — Create `data/stories-a2.js` with the first 5 graded reader stories at
       A2-low level (~80-100 words each). Topics: daily routine, shopping, at the café,
       the weather, my family. Include glossaries and comprehension questions.
@@ -184,6 +181,14 @@
       auroraBackground(), gameHeader(), toast(), celebrate() (subtle pulse, no
       confetti per PLAN.md adult-appropriate guidance), Words encounter tracker
       (new/met/familiar/known), streakUpdate(). (2026-06-16)
+- [x] 0.3 — `index.html` hub created: Swedish-language hero, live stats dashboard
+      (words met/known, reading sessions, streak, readiness % bar), 8-mode grid with
+      only Graded Reader enabled (rest show "Snart"/Coming soon badges + toast on
+      click). Verified via `node --check` on extracted inline script (no syntax
+      errors); no headless browser available in this sandbox (Playwright's Chromium
+      download is blocked by network egress allowlist — `cdn.playwright.dev` not
+      permitted), so visual smoke-testing relied on static review instead of a real
+      browser. (2026-06-16)
 
 ---
 

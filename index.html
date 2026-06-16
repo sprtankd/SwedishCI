@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Svenska CI — Comprehensible Input för SFI C &amp; D</title>
+<link rel="stylesheet" href="shared.css" />
+<style>
+  .hero {
+    text-align: center;
+    padding: 36px 12px 8px;
+  }
+  .hero h1 {
+    font-size: 2.1rem;
+    background: linear-gradient(135deg, var(--gold), var(--green), var(--blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 6px;
+  }
+  .hero p {
+    color: var(--text-dim);
+    font-size: 1rem;
+    max-width: 560px;
+    margin: 0 auto 4px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+  }
+  .stat {
+    text-align: center;
+    padding: 10px 6px;
+  }
+  .stat .stat-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+  }
+  .stat .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .section-title {
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 30px 4px 14px;
+  }
+  footer.note {
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.8rem;
+    margin-top: 36px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="hero">
+    <h1>🇸🇪 Svenska CI</h1>
+    <p>Comprehensible Input för SFI C &amp; D — lär dig svenska genom att läsa och lyssna, inte genom att plugga listor.</p>
+  </div>
+
+  <div class="card" id="dashboard-card">
+    <div class="stats-grid" id="stats-grid"></div>
+    <div style="margin-top:18px;">
+      <div class="flex justify-between items-center" style="margin-bottom:6px;">
+        <span class="text-dim" style="font-size:0.85rem;">Uppskattad nivå (readiness)</span>
+        <span class="text-dim" style="font-size:0.85rem;" id="readiness-label">—</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="readiness-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Lägen</div>
+  <div class="mode-grid" id="mode-grid"></div>
+
+  <footer class="note">Allt sparas lokalt i din webbläsare — inget skickas till någon server.</footer>
+</div>
+
+<script src="shared.js"></script>
+<script>
+auroraBackground();
+
+const MODES = [
+  {
+    icon: "📖",
+    title: "Graded Reader",
+    desc: "Korta berättelser A2→B1+ med ordförklaringar, ljud och förståelsefrågor.",
+    href: "reader.html",
+    enabled: true,
+  },
+  {
+    icon: "📰",
+    title: "News Reader",
+    desc: "Förenklade nyhetsartiklar för läsförståelse på SFI D-nivå.",
+    href: "news.html",
+    enabled: false,
+  },
+  {
+    icon: "🎧",
+    title: "Listening Lab",
+    desc: "Lyssna på korta avsnitt, svara på frågor, läs sedan med i texten.",
+    href: "listening.html",
+    enabled: false,
+  },
+  {
+    icon: "🔗",
+    title: "Collocations",
+    desc: "Partikelverb och prepositioner i sammanhang — aldrig isolerade.",
+    href: "collocations.html",
+    enabled: false,
+  },
+  {
+    icon: "🧩",
+    title: "Connectors",
+    desc: "Sambandsord (dessutom, däremot, alltså…) i luckövningar.",
+    href: "connectors.html",
+    enabled: false,
+  },
+  {
+    icon: "📊",
+    title: "Vocab Tracker",
+    desc: "Visuell översikt av alla ord du mött, efter status och tema.",
+    href: "tracker.html",
+    enabled: false,
+  },
+  {
+    icon: "📝",
+    title: "Reading Exam",
+    desc: "Tidsbegränsade läsförståelseprov i SFI C/D-format.",
+    href: "exam-reading.html",
+    enabled: false,
+  },
+  {
+    icon: "🎙️",
+    title: "Listening Exam",
+    desc: "Tidsbegränsade hörförståelseprov i SFI C/D-format.",
+    href: "exam-listening.html",
+    enabled: false,
+  },
+];
+
+function renderStats() {
+  const wordsAll = Words.all();
+  const counts = { new: 0, met: 0, familiar: 0, known: 0 };
+  let encountered = 0;
+  for (const key in wordsAll) {
+    const entry = wordsAll[key];
+    const st = Words.status(entry.count || 0);
+    counts[st] = (counts[st] || 0) + 1;
+    if ((entry.count || 0) > 0) encountered++;
+  }
+
+  const sessions = Store.get("stats.readingSessions", 0);
+  const streak = streakUpdate();
+
+  const grid = document.getElementById("stats-grid");
+  grid.innerHTML = "";
+  const stats = [
+    { value: encountered, label: "Ord mötta", color: "var(--gold)" },
+    { value: counts.known, label: "Kända ord", color: "var(--green)" },
+    { value: sessions, label: "Lässessioner", color: "var(--blue)" },
+    { value: streak, label: "Dagars streak", color: "var(--pink)" },
+  ];
+  for (const s of stats) {
+    const node = el("div", { class: "stat" }, [
+      el("div", { class: "stat-value", style: `color:${s.color}` }, [String(s.value)]),
+      el("div", { class: "stat-label" }, [s.label]),
+    ]);
+    grid.appendChild(node);
+  }
+
+  // Rough readiness estimate: known+familiar words against a 1600-word target.
+  const knownWeight = counts.known * 1 + counts.familiar * 0.5;
+  const pct = Math.min(100, Math.round((knownWeight / 1600) * 100));
+  let label = "A2-low";
+  if (pct >= 70) label = "B1+";
+  else if (pct >= 45) label = "B1";
+  else if (pct >= 20) label = "A2-high";
+  document.getElementById("readiness-fill").style.width = pct + "%";
+  document.getElementById("readiness-label").textContent = `${label} (${pct}%)`;
+}
+
+function renderModes() {
+  const grid = document.getElementById("mode-grid");
+  grid.innerHTML = "";
+  for (const mode of MODES) {
+    const card = el(
+      "a",
+      {
+        class: "mode-card" + (mode.enabled ? "" : " disabled"),
+        href: mode.enabled ? mode.href : undefined,
+        onclick: mode.enabled
+          ? undefined
+          : (e) => {
+              e.preventDefault();
+              toast(`${mode.title} kommer snart`);
+            },
+      },
+      [
+        !mode.enabled ? el("span", { class: "mc-soon" }, ["Snart"]) : null,
+        el("div", { class: "mc-icon" }, [mode.icon]),
+        el("div", { class: "mc-title" }, [mode.title]),
+        el("div", { class: "mc-desc" }, [mode.desc]),
+      ]
+    );
+    grid.appendChild(card);
+  }
+}
+
+renderStats();
+renderModes();
+</script>
+</body>
+</html>
