@@ -42,6 +42,12 @@
   <h2 class="section-title">Lägen <span class="faint" style="font-size:1rem;">· Modes</span></h2>
   <div class="mode-grid" id="modes"></div>
 
+  <!-- Study plan card -->
+  <section class="card mt-24" id="study-plan-container" aria-label="Study Plan">
+    <h2 style="margin-top:0;font-size:1.2rem;">Din studieplan <span class="faint" style="font-size:.85rem;">· Study plan</span></h2>
+    <div id="study-plan-content"></div>
+  </section>
+
   <p class="center muted mt-24" style="font-size:.82rem;">
     Allt sparas lokalt i din webbläsare. Inget konto behövs. ·
     Everything is saved locally in your browser. No account needed.
@@ -166,6 +172,33 @@
       S.el("span", { class: "muted", text: l.t })
     ]));
   });
+
+  // ---- Study Plan rendering ----
+  var planContent = S.$("#study-plan-content");
+  if (planContent) {
+    var planTitle = "", planDesc = "", planIcon = "🌱";
+    if (completed < 10) {
+      planIcon = "📖";
+      planTitle = "Börja med 2 Reader-berättelser om dagen · Start with 2 Reader stories/day";
+      planDesc = "Du är i början av din resa! Fokusera på att bygga upp din grundläggande förståelse genom att läsa och lyssna på berättelser i Graderad Läsning (Graded Reader) i din egen takt.";
+    } else if (completed <= 30) {
+      planIcon = "📰";
+      planTitle = "Lägg till nyheter och lyssning · Add News + Listening";
+      planDesc = "Bra jobbat! Du har byggt en bra grund. Nu är det dags att utmana dig själv med förenklade nyhetsartiklar och träna din hörförståelse i Hörlabbet (Listening Lab).";
+    } else {
+      planIcon = "🏆";
+      planTitle = "Prova examenssimulatorer & kollokationer · Try Exam simulators + Collocations";
+      planDesc = "Fantastiskt framsteg! Du är redo för mer avancerade utmaningar. Testa dina färdigheter under tidspress i examenssimulatorerna och öva på vanliga fraser och bindeord.";
+    }
+    
+    planContent.appendChild(S.el("div", { class: "row", style: "gap: 16px; align-items: center;" }, [
+      S.el("span", { style: "font-size: 2.5rem;", text: planIcon }),
+      S.el("div", { style: "flex: 1;" }, [
+        S.el("h3", { style: "margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; color: var(--gold);", text: planTitle }),
+        S.el("p", { style: "margin: 0; font-size: 0.88rem; line-height: 1.45; color: var(--ink-dim);", text: planDesc })
+      ])
+    ]));
+  }
 })();
 </script>
 </body>
