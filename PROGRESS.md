@@ -49,10 +49,9 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.1 — Create `reader.html` skeleton: header, story display area, question panel,
-      progress indicators. Wire up navigation from hub. _(claimed 2026-06-17)_
-- [ ] 1.2 — Implement glossed text rendering: parse story text, make each word tappable,
+- [~] 1.2 — Implement glossed text rendering: parse story text, make each word tappable,
       show English gloss + pronunciation on tap/hover. Use a tooltip or inline reveal.
+      _(claimed 2026-06-17)_
 - [ ] 1.3 — Implement comprehension questions panel: show questions after reading,
       multiple choice, score tracking, explanations on answer.
 - [ ] 1.4 — Implement story progression: level selector (A2-low / A2-high / B1 / B1+),
@@ -174,6 +173,9 @@
       glossaries + 5 questions each, validated. _(2026-06-17)_
 - [x] 0.6 — Scaffold verified: all shared assets + data files present, jsdom smoke
       test of index.html passes with no console errors. Milestone 0 complete. _(2026-06-17)_
+- [x] 1.1 — `reader.html` + `reader.js` skeleton: level tabs (A2-low/high/B1/B1+),
+      per-level progress bar, story list cards, reading view, questions view, view
+      switching. Wired from hub. jsdom smoke test passes. _(2026-06-17)_
 
 ---
 

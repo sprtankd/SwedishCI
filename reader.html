@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>📖 Graded Reader — Svenska CI</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div id="header"></div>
+
+<main class="wrap">
+
+  <!-- ============ LIST VIEW ============ -->
+  <section id="view-list">
+    <div class="hero">
+      <h1>📖 Graderad läsning</h1>
+      <p class="lead">Korta berättelser på din nivå. Tryck på ett ord för översättning,
+        läs i lugn takt och svara sedan på frågorna.</p>
+    </div>
+
+    <div class="level-tabs" id="level-tabs" role="tablist"></div>
+
+    <div class="row between mb-8">
+      <span class="muted" id="level-progress-label" style="font-size:.9rem;"></span>
+      <span class="muted" id="level-progress-pct" style="font-size:.9rem;"></span>
+    </div>
+    <div class="progress mb-24"><span id="level-progress-bar"></span></div>
+
+    <div id="story-list" class="mode-grid"></div>
+  </section>
+
+  <!-- ============ READING VIEW ============ -->
+  <section id="view-read" class="hidden">
+    <button class="btn btn-ghost btn-sm" id="back-btn">← Tillbaka till listan</button>
+
+    <article class="card mt-16">
+      <div class="row between" style="align-items:flex-start;">
+        <div>
+          <h1 id="story-title" style="margin:0 0 4px;font-size:1.6rem;"></h1>
+          <div class="muted" id="story-titleEn" style="font-size:.95rem;"></div>
+        </div>
+        <span class="pill blue" id="story-level"></span>
+      </div>
+      <div class="row mt-8" id="story-meta" style="gap:8px;"></div>
+
+      <div class="reading mt-24" id="story-text"></div>
+
+      <div class="row mt-24" style="gap:10px;">
+        <button class="btn btn-primary" id="to-questions-btn">Svara på frågor →</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ QUESTIONS VIEW ============ -->
+  <section id="view-questions" class="hidden">
+    <button class="btn btn-ghost btn-sm" id="back-to-read-btn">← Tillbaka till texten</button>
+    <article class="card mt-16">
+      <h2 style="margin-top:0;">Frågor <span class="faint" style="font-size:1rem;">· Comprehension</span></h2>
+      <div id="questions-host"></div>
+      <div id="questions-result" class="hidden"></div>
+    </article>
+  </section>
+
+</main>
+
+<!-- gloss tooltip mounts here -->
+<div id="gloss-tip" class="gloss-tip" aria-hidden="true"></div>
+
+<script src="shared.js"></script>
+<script src="data/stories-a2.js"></script>
+<script src="data/stories-a2-high.js"></script>
+<script src="reader.js"></script>
+</body>
+</html>
