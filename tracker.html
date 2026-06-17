@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>📊 Ordbok &amp; Nivåspårare — Svenska CI</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div id="header"></div>
+
+<main class="wrap">
+
+  <section class="hero">
+    <h1>📊 Ordförråd &amp; Nivåspårare</h1>
+    <p class="lead">Se alla ord du mött i texterna och din beräknade språknivå. Klicka på ett ord för detaljer, sammanhang och uttal.</p>
+  </section>
+
+  <!-- CEFR Level Estimator Card -->
+  <section class="level-meter-card" aria-label="Estimated CEFR level progression">
+    <div class="level-meter-header">
+      <div class="level-meter-title">Beräknad språknivå · Estimated Level</div>
+      <div class="level-meter-sub" id="cefr-badge">Nybörjare · Beginner</div>
+    </div>
+    <div class="level-meter-bar">
+      <span class="level-meter-fill" id="cefr-fill"></span>
+    </div>
+    <div class="level-meter-markers">
+      <span class="level-meter-marker" style="left: 0%;">Nybörjare</span>
+      <span class="level-meter-marker" style="left: 18.2%;">A2 (200)</span>
+      <span class="level-meter-marker" style="left: 63.6%;">B1 (700)</span>
+      <span class="level-meter-marker" style="left: 100%;">B1+ (1100)</span>
+    </div>
+    <p class="muted mt-24" id="cefr-desc" style="font-size: 0.85rem; margin-top: 18px; margin-bottom: 0; line-height: 1.45;"></p>
+  </section>
+
+  <!-- Stats Grid -->
+  <div class="tracker-stats">
+    <div class="tracker-stat-card">
+      <div class="num" id="stat-total">0</div>
+      <div class="label">Mötta ord<br><span class="faint">Words met</span></div>
+    </div>
+    <div class="tracker-stat-card">
+      <div class="num" id="stat-known-pct">0%</div>
+      <div class="label">Bekanta &amp; kända<br><span class="faint">Familiar &amp; known</span></div>
+    </div>
+    <div class="tracker-stat-card">
+      <div class="num" style="color: var(--status-known);" id="stat-known">0</div>
+      <div class="label">Kända (6+)<br><span class="faint">Known words</span></div>
+    </div>
+    <div class="tracker-stat-card">
+      <div class="num" style="color: var(--status-familiar);" id="stat-familiar">0</div>
+      <div class="label">Bekanta (3-5)<br><span class="faint">Familiar words</span></div>
+    </div>
+    <div class="tracker-stat-card">
+      <div class="num" style="color: var(--status-met);" id="stat-met">0</div>
+      <div class="label">Mötta (1-2)<br><span class="faint">Encountered once</span></div>
+    </div>
+  </div>
+
+  <!-- Toolbar & Filters -->
+  <div class="tracker-toolbar">
+    <div class="tracker-search">
+      <input type="text" id="search-input" placeholder="Sök ord... / Search word..." aria-label="Search encountered words">
+    </div>
+    <div class="tracker-filters" role="tablist" aria-label="Filter words by status">
+      <button class="filter-tab active" data-filter="all" role="tab" aria-selected="true">Alla (<span id="count-all">0</span>)</button>
+      <button class="filter-tab" data-filter="met" role="tab" aria-selected="false">Mötta (<span id="count-met">0</span>)</button>
+      <button class="filter-tab" data-filter="familiar" role="tab" aria-selected="false">Bekanta (<span id="count-familiar">0</span>)</button>
+      <button class="filter-tab" data-filter="known" role="tab" aria-selected="false">Kända (<span id="count-known">0</span>)</button>
+    </div>
+    <select class="tracker-sort" id="sort-select" aria-label="Sort words">
+      <option value="alpha">A–Ö / Alphabetical</option>
+      <option value="freq-desc">Mest mötta / Most encounters</option>
+      <option value="freq-asc">Minst mötta / Least encounters</option>
+      <option value="recent">Nyligen sedda / Recently seen</option>
+      <option value="oldest">Äldsta först / Oldest first</option>
+    </select>
+    <button class="btn-export" id="export-btn" title="Exportera din ordbok till CSV">
+      <span>📥 Exportera</span>
+    </button>
+  </div>
+
+  <!-- Empty state panel -->
+  <div class="card center hidden" id="empty-state" style="padding: 40px 20px;">
+    <span class="icon" style="font-size: 3rem; display: block; margin-bottom: 16px;">📚</span>
+    <h2>Inga ord sparade än</h2>
+    <p class="muted" style="max-width: 400px; margin: 8px auto 20px;">Börja läsa berättelser eller nyheter och tryck på svåra ord för att spara och spåra dem här!</p>
+    <a href="reader.html" class="btn btn-primary">Gå till Graderad läsning →</a>
+  </div>
+
+  <!-- Main word grid -->
+  <div class="word-grid" id="word-grid"></div>
+
+</main>
+
+<!-- Slide-in Detail Overlay -->
+<div class="detail-overlay" id="detail-overlay" aria-hidden="true" role="dialog">
+  <div class="detail-panel">
+    <div class="detail-header">
+      <div>
+        <div class="detail-word" id="detail-word">hund</div>
+        <div class="detail-translation" id="detail-translation">dog</div>
+      </div>
+      <button class="detail-close" id="detail-close" aria-label="Stäng detaljer">&times;</button>
+    </div>
+    
+    <div class="detail-row">
+      <div>
+        <div class="detail-section-title">Status &amp; Repetitioner</div>
+        <div class="detail-card">
+          <div class="row between">
+            <span class="pill" id="detail-status-pill" style="font-weight: 700;">MET</span>
+            <span class="muted" id="detail-count-text">Mött 1 gång</span>
+          </div>
+          <button class="detail-speech-btn" id="detail-speech-btn">🔊 Lyssna / Listen</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="detail-section-title">Första &amp; Senaste möte</div>
+        <div class="detail-card">
+          <div style="font-size: 0.88rem;">
+            <div><span class="muted">Först sett:</span> <span id="detail-first-seen">-</span></div>
+            <div style="margin-top: 6px;"><span class="muted">Senast sett:</span> <span id="detail-last-seen">-</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="detail-section-title">Texter där ordet finns</div>
+        <div class="detail-card">
+          <ul class="context-list" id="detail-contexts">
+            <li class="muted" style="font-size: 0.9rem;">Inga texter listade.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<!-- Load all database files to resolve context titles -->
+<script src="data/stories-a2.js"></script>
+<script src="data/stories-a2-high.js"></script>
+<script src="data/stories-b1.js"></script>
+<script src="data/news-b1.js"></script>
+<script src="data/news-b1plus.js"></script>
+<script src="data/listening-a2.js"></script>
+<script src="data/listening-b1.js"></script>
+<script src="tracker.js"></script>
+</body>
+</html>

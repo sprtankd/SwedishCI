@@ -63,7 +63,7 @@
     "listening":     { desc: "Ljudpassager med frågor, transkript och hastighetskontroll.", enabled: true },
     "collocations":  { desc: "Partikelverb och prepositioner — alltid i meningar.", enabled: true },
     "connectors":    { desc: "Bindeord (dessutom, däremot, alltså…) i lucktexter.", enabled: true },
-    "tracker":       { desc: "Översikt över alla ord efter hur väl du känner dem.", enabled: false },
+    "tracker":       { desc: "Översikt över alla ord efter hur väl du känner dem.", enabled: true },
     "exam-reading":  { desc: "Tidsbestämda SFI C/D läsförståelseprov.", enabled: false },
     "exam-listening":{ desc: "Tidsbestämda SFI C/D hörförståelseprov.", enabled: false }
   };
@@ -89,6 +89,8 @@
       } else if (m.id === "listening") {
         var comp = Object.keys(S.Store.get("progress.listening.completed", {})).length;
         progressText = comp + " klara";
+      } else if (m.id === "tracker") {
+        progressText = S.wordStats().total + " ord";
       }
     }
 

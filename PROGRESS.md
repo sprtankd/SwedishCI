@@ -105,38 +105,11 @@
 > `stories-a2.js`, `stories-a2-high.js`, `stories-b1.js`, `news-b1.js`, `news-b1plus.js`,
 > `listening-a2.js`, `listening-b1.js`.
 
-- [~] 5.1 — Create `tracker.html` + `tracker.js` with word grid. (Started 2026-06-17)
-      Read Store.load().words → build array of {word, count, status, firstSeen, lastSeen, contexts}.
-      Render grid of small word pills color-coded: new=#555 dim, met=var(--status-met) blue,
-      familiar=var(--status-familiar) amber, known=var(--status-known) green.
-      Stats row at top: total met, % familiar+known, bar chart.
-      Empty state: "Börja läsa berättelser för att se dina ord här!"
-      **CSS**: `.word-grid` (CSS grid, auto-fill minmax(80px,1fr), gap 6px),
-      `.word-pill` (small pill, colored border-left by status, hover scale(1.05)).
-      **Enable** tracker in hub.
-      **Verify**: Shows empty state with no data; shows colored grid after using reader.
-
-- [ ] 5.2 — Add filters: Status pills (All/New/Met/Familiar/Known) + Sort dropdown
-      (Alphabetical/Most encountered/Recently seen/Oldest first). Grid updates live.
-      NOTE: theme/POS filters need story-glossary metadata enrichment → defer to M7.
-      **Verify**: Filters toggle correctly, grid responds.
-
-- [ ] 5.3 — Word detail view: click a pill → overlay panel (glass card, slide-in from
-      right / bottom on mobile) showing: word (large), encounter count, status pill,
-      "Seen in X texts" with list of story/article titles (resolve context IDs from
-      loaded data files), encounter timeline (first→last seen), 🔊 Listen button via
-      `SvCI.Speech.say(word)`. Close on × or outside click.
-      **Verify**: Click word → detail opens with correct contexts. Close works.
-
-- [ ] 5.4 — Readiness score: estimate CEFR level from word knowledge distribution.
-      A2 threshold ≥200 familiar/known, B1 ≥700, B1+ ≥1100. Show stepped progress
-      meter with A2/B1/B1+ markers: "Estimated level: A2 → B1 (45% of B1 words known)".
-      **Verify**: Score updates with word data, shows reasonable estimate.
-
-- [ ] 5.5 — Polish: responsive grid (1 col mobile, multi-col desktop), staggered
-      fade-in animations on word pills, "📥 Exportera" button downloads .csv of all
-      tracked words with count/status, keyboard nav + aria labels.
-      **Verify**: Mobile layout, export downloads file, smooth animations.
+- [x] 5.1 — Create `tracker.html` + `tracker.js` with word grid. _(2026-06-17)_
+- [x] 5.2 — Add filters: Status pills (All/New/Met/Familiar/Known) + Sort dropdown. _(2026-06-17)_
+- [x] 5.3 — Word detail view: click a pill → overlay panel showing metadata, context resolution and speech synth. _(2026-06-17)_
+- [x] 5.4 — Readiness score: estimate CEFR level from word knowledge distribution. _(2026-06-17)_
+- [x] 5.5 — Polish: responsive grid, staggered animations, CSV exporting, and keyboard nav. _(2026-06-17)_
 
 ---
 
