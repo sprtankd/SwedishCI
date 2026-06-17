@@ -55,9 +55,7 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [~] 3.5 — Create `data/listening-b1.js` with 5 passages at B1 level. Longer,
-      more complex topics. _(claimed 2026-06-17)_
-- [ ] 3.6 — Polish: smooth transitions, progress tracking, mobile audio controls.
+- [~] 3.6 — Polish: smooth transitions, progress tracking, mobile audio controls. _(claimed 2026-06-17)_
 
 ---
 
@@ -203,6 +201,9 @@
 - [x] 3.4 — Speed controls (0,75× / 1× / 1,1×) on the listen view and transcript
       re-listen, applied via shared Speech rate, persisted in localStorage and restored
       on reload; replay button repeats audio. Smoke test passes. _(2026-06-17)_
+- [x] 3.5 — `data/listening-b1.js`: 5 B1 passages (92–105 spoken words) — cycling
+      interview, workplace chat, apartment voicemail, recycling announcement, "lagom"
+      talk. Glossaries + 5 questions each. B1 listening tab enabled (10 total). _(2026-06-17)_
 
 ---
 
