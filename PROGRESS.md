@@ -46,10 +46,7 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [~] 0.5 — Create `data/stories-a2-high.js` with 5 stories at A2-high level
-      (~100-150 words each). Topics: job interview, visiting the doctor, apartment
-      hunting, taking the bus, swedish holidays.
-- [ ] 0.6 — Initial commit of scaffold: hub + data files + shared assets. Verify
+- [~] 0.6 — Initial commit of scaffold: hub + data files + shared assets. Verify
       index.html opens cleanly with no console errors.
 
 ---
@@ -175,6 +172,9 @@
 - [x] 0.4 — `data/stories-a2.js`: 5 A2-low stories (81–90w each) — daily routine,
       shopping, café, weather, family. Registry pattern into `window.SvCI_STORIES`;
       glossaries + 4 questions each, validated. _(2026-06-17)_
+- [x] 0.5 — `data/stories-a2-high.js`: 5 A2-high stories (106–118w) — job interview,
+      doctor, apartment hunting, bus, Swedish holidays. Subordinate clauses introduced;
+      glossaries + 5 questions each, validated. _(2026-06-17)_
 
 ---
 
