@@ -46,8 +46,9 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [ ] 0.1 — Create `shared.css` with the base design system (copied/adapted from
+- [~] 0.1 — Create `shared.css` with the base design system (copied/adapted from
       SwedishGames shared.js inline styles, extracted to standalone CSS file)
+      _(claimed 2026-06-17)_
 - [ ] 0.2 — Create `shared.js` with shared utilities (adapted from SwedishGames:
       Store, Speech, Sfx, auroraBackground, gameHeader, confetti, toast, base helpers).
       Namespace the localStorage key as `svenska_ci_v1` to avoid collision.
