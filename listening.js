@@ -270,6 +270,20 @@
       S.el("div", { class: "num", style: "font-size:2.2rem;font-weight:800;", text: pct + "%" }),
       S.el("div", { class: "muted", text: correct + " av " + total + " rätt · " + msg })
     ]));
+    // celebration when every passage in this level is now complete
+    var levelList = passagesAt(p.level);
+    var allDone = levelList.length && levelList.every(function (x) {
+      return S.Store.get("progress.listening.completed." + x.id, false);
+    });
+    if (allDone) {
+      var levelLabel = (LEVELS.find(function (l) { return l.id === p.level; }) || {}).label || p.level;
+      res.appendChild(S.el("div", { class: "level-banner" }, [
+        S.el("div", { class: "big", text: "🎉 Nivå klar!" }),
+        S.el("div", { class: "sub", text: "Du har klarat alla " + levelList.length + " avsnitt på nivå " + levelLabel + "." })
+      ]));
+      S.toast("Nivå " + levelLabel + " klar! 🎉", "ok", 3000);
+    }
+
     res.appendChild(S.el("div", { class: "row mt-16", style: "gap:10px;" }, [
       S.el("button", { class: "btn btn-primary", text: "Visa texten →",
         onclick: function () { openTranscript(p); } })

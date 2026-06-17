@@ -526,6 +526,10 @@ h2.section-title { font-size: 1.4rem; margin: 28px 0 8px; }
   .nav-links a { padding: 7px 9px; font-size: 0.82rem; }
   .card { padding: 18px; }
   :root { --read-size: 1.1rem; }
+  /* touch-friendly audio controls: let big buttons grow and wrap */
+  .btn-lg { padding: 13px 20px; }
+  #view-listen .btn-lg, #view-listen #replay-btn { flex: 1 1 auto; min-width: 140px; }
+  .level-tab { padding: 8px 12px; font-size: 0.82rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -55,8 +55,6 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [~] 3.6 — Polish: smooth transitions, progress tracking, mobile audio controls. _(claimed 2026-06-17)_
-
 ---
 
 ## Milestone 4: Collocation & Connector Activities (🔗 🧩)
@@ -204,6 +202,9 @@
 - [x] 3.5 — `data/listening-b1.js`: 5 B1 passages (92–105 spoken words) — cycling
       interview, workplace chat, apartment voicemail, recycling announcement, "lagom"
       talk. Glossaries + 5 questions each. B1 listening tab enabled (10 total). _(2026-06-17)_
+- [x] 3.6 — Listening polish: view-enter transitions, per-level progress tracking,
+      level-complete celebration banner + toast, touch-friendly mobile audio controls
+      (wrapping play/replay + speed tabs). Smoke test passes. Milestone 3 complete. _(2026-06-17)_
 
 ---
 
