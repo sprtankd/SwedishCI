@@ -52,11 +52,9 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [~] 2.1 — Create `data/news-b1.js` with 5 simplified news-style articles at B1 level.
-      Topics: weather report, local event, job market, health advice, technology.
-      Include glossaries and comprehension questions. _(claimed 2026-06-17)_
-- [ ] 2.2 — Create `news.html` with news article layout: headline, lead paragraph,
+- [~] 2.2 — Create `news.html` with news article layout: headline, lead paragraph,
       body text with glossing, source attribution. Reuse glossing engine from reader.
+      _(claimed 2026-06-17)_
 - [ ] 2.3 — Add "text type" indicators (informational, argumentative, instructional)
       matching SFI D text categories.
 - [ ] 2.4 — Create `data/news-b1plus.js` with 5 articles at B1+ level (~250-400 words).
@@ -185,6 +183,10 @@
       environment/climate, traditions, immigrant experience. Connectors + BIFF; 20–23
       gloss words & 5 questions each. B1 tab now enabled (15 stories total). Milestone 1
       complete. _(2026-06-17)_
+- [x] 2.1 — `data/news-b1.js`: 5 B1 news articles (146–167w) — weather, city festival,
+      job market, health advice, technology/payments. Headline+lead+body+source+textType
+      (informational/instructional), glossaries + 5 questions each. Registers into
+      `window.SvCI_NEWS`. Validated. _(2026-06-17)_
 
 ---
 
