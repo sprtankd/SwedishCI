@@ -149,25 +149,24 @@
     return { map: map, maxLen: maxLen };
   }
 
-  // Render the story text into tappable spans. Glossary words/phrases get the
-  // dotted underline and show an English translation; every other word is still
-  // tappable to hear its pronunciation.
-  function renderStoryText(story) {
-    var host = S.$("#story-text");
-    host.innerHTML = "";
-    var gm = buildGlossMap(story.glossary);
-    var tokens = S.tokenize(story.text);
-    var p = S.el("p");
+  // Split text into sentences, keeping trailing punctuation/space with each one.
+  function splitSentences(text) {
+    var re = /[^.!?]*[.!?]+["'’”)]*\s*|[^.!?]+$/g;
+    var out = text.match(re) || [text];
+    return out.filter(function (s) { return s.trim().length; });
+  }
 
+  // Render glossed word/phrase spans for a chunk of text into `container`.
+  function renderGlossedInto(container, text, gm) {
+    var tokens = S.tokenize(text);
     var i = 0;
     while (i < tokens.length) {
       var tok = tokens[i];
       if (!tok.isWord) {
-        p.appendChild(document.createTextNode(tok.word));
+        container.appendChild(document.createTextNode(tok.word));
         i++;
         continue;
       }
-      // try to match the longest glossary phrase starting at this word
       var collected = [], j = i, bestEntry = null, bestEnd = i;
       while (collected.length < gm.maxLen && j < tokens.length) {
         if (tokens[j].isWord) {
@@ -176,23 +175,93 @@
           if (gm.map[cand]) { bestEntry = gm.map[cand]; bestEnd = j; }
           j++;
         } else if (/^\s+$/.test(tokens[j].word)) {
-          j++; // allow whitespace between phrase words
+          j++;
         } else {
-          break; // punctuation breaks a phrase
+          break;
         }
       }
       if (bestEntry) {
         var raw = "";
         for (var k = i; k <= bestEnd; k++) raw += tokens[k].word;
-        p.appendChild(makeWordSpan(raw, bestEntry));
+        container.appendChild(makeWordSpan(raw, bestEntry));
         i = bestEnd + 1;
       } else {
-        p.appendChild(makeWordSpan(tok.word, null));
+        container.appendChild(makeWordSpan(tok.word, null));
         i++;
       }
     }
+  }
+
+  // Render the story text. Each sentence is wrapped so it can be played on tap;
+  // glossary words/phrases are tappable for translation, other words for audio.
+  function renderStoryText(story) {
+    ReadAloud.stop();
+    var host = S.$("#story-text");
+    host.innerHTML = "";
+    var gm = buildGlossMap(story.glossary);
+    var p = S.el("p");
+
+    splitSentences(story.text).forEach(function (sentence) {
+      var sentSpan = S.el("span", { class: "sentence" });
+      var play = S.el("span", { class: "sent-play", text: "🔊", title: "Lyssna på meningen" });
+      play.addEventListener("click", function (e) {
+        e.stopPropagation();
+        ReadAloud.stop();
+        highlightSentence(sentSpan);
+        S.Speech.say(sentence.trim(), { onend: function () { sentSpan.classList.remove("speaking"); } });
+      });
+      sentSpan.appendChild(play);
+      renderGlossedInto(sentSpan, sentence, gm);
+      p.appendChild(sentSpan);
+    });
     host.appendChild(p);
   }
+
+  function highlightSentence(node) {
+    S.$$(".sentence.speaking").forEach(function (n) { n.classList.remove("speaking"); });
+    if (node) node.classList.add("speaking");
+  }
+
+  // ---- Read-aloud engine (1.6) --------------------------------------------
+  // Speaks the whole story sentence-by-sentence, highlighting the current one.
+  var ReadAloud = {
+    playing: false,
+    sentences: [],
+    idx: 0,
+    btn: function () { return S.$("#read-aloud-btn"); },
+    start: function () {
+      var nodes = S.$$("#story-text .sentence");
+      if (!nodes.length || !S.Speech.available()) {
+        S.toast("Uppläsning stöds inte i den här webbläsaren.", "err");
+        return;
+      }
+      this.playing = true;
+      this.idx = 0;
+      this.btn().textContent = "⏹ Stoppa";
+      this.btn().classList.add("active");
+      this._speakNext(nodes);
+    },
+    _speakNext: function (nodes) {
+      var self = this;
+      if (!self.playing || self.idx >= nodes.length) { self.stop(); return; }
+      var node = nodes[self.idx];
+      highlightSentence(node);
+      node.scrollIntoView({ block: "center", behavior: "smooth" });
+      var text = node.textContent.replace(/^🔊/, "").trim();
+      S.Speech.say(text, { onend: function () {
+        self.idx++;
+        self._speakNext(nodes);
+      } });
+    },
+    stop: function () {
+      this.playing = false;
+      S.Speech.stop();
+      highlightSentence(null);
+      var b = this.btn();
+      if (b) { b.textContent = "🔊 Läs upp"; b.classList.remove("active"); }
+    },
+    toggle: function () { this.playing ? this.stop() : this.start(); }
+  };
 
   function makeWordSpan(text, entry) {
     var span = S.el("span", {
@@ -201,6 +270,7 @@
     });
     span.addEventListener("click", function (e) {
       e.stopPropagation();
+      ReadAloud.stop();
       Tooltip.show(span, text.replace(/[.,!?;:"'’“”()\[\]…—–]/g, "").trim(), entry);
     });
     return span;
@@ -354,13 +424,15 @@
   }
 
   // ---- Wire buttons -------------------------------------------------------
-  S.$("#back-btn").addEventListener("click", function () { renderList(); show("list"); });
+  S.$("#back-btn").addEventListener("click", function () { ReadAloud.stop(); renderList(); show("list"); });
   S.$("#back-to-read-btn").addEventListener("click", function () { show("read"); });
   S.$("#to-questions-btn").addEventListener("click", function () {
+    ReadAloud.stop();
     renderQuestions(state.story);
     S.$("#questions-result").classList.add("hidden");
     show("questions");
   });
+  S.$("#read-aloud-btn").addEventListener("click", function () { ReadAloud.toggle(); });
 
   // ---- Init ---------------------------------------------------------------
   if (!ALL.length) {

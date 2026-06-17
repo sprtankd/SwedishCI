@@ -354,6 +354,18 @@ body::after {
   transition: background 0.15s ease;
 }
 .word:hover, .word.active { background: rgba(255, 255, 255, 0.08); }
+/* sentence-level audio: tap a sentence to hear it */
+.sentence { border-radius: 5px; transition: background 0.2s ease; }
+.sentence.speaking { background: rgba(109, 179, 242, 0.16); box-shadow: 0 0 0 2px rgba(109,179,242,0.18); }
+.sent-play {
+  cursor: pointer;
+  opacity: 0.5;
+  font-size: 0.78em;
+  margin-right: 2px;
+  user-select: none;
+  transition: opacity 0.15s ease;
+}
+.sent-play:hover { opacity: 1; }
 
 /* Inline gloss tooltip */
 .gloss-tip {

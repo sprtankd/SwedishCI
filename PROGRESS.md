@@ -49,10 +49,8 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.6 — Add audio playback for story text: "read aloud" button that speaks the full
-      story via TTS (Speech helper). Per-sentence playback on tap. _(claimed 2026-06-17)_
-- [ ] 1.7 — Polish reader UI: smooth transitions between stories, reading progress bar,
-      celebration on completing a level's stories. Mobile responsive.
+- [~] 1.7 — Polish reader UI: smooth transitions between stories, reading progress bar,
+      celebration on completing a level's stories. Mobile responsive. _(claimed 2026-06-17)_
 - [ ] 1.8 — Create `data/stories-b1.js` with 5 stories at B1 level (~150-250 words).
       Topics: workplace culture, healthcare system, environmental issues, Swedish
       traditions, immigrant experiences.
@@ -182,6 +180,10 @@
       word/phrase is recorded as one encounter tied to that story (counts accumulate
       across distinct stories; new→met→familiar→known). Smoke test: 30 words tracked
       with contexts + correct status graduation. _(2026-06-17)_
+- [x] 1.6 — Audio playback: "🔊 Läs upp" reads the whole story sentence-by-sentence
+      via sv-SE TTS, highlighting + scrolling to the current sentence; per-sentence
+      🔊 tap plays one sentence; word tap plays the word. Sentences wrapped in spans.
+      Smoke test: 12 sentences chained + reset. _(2026-06-17)_
 
 ---
 
