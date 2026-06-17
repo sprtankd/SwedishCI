@@ -46,10 +46,7 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [~] 0.3 — Create `index.html` hub page with hero section, progress dashboard
-      (words encountered, reading sessions, streak), and mode cards grid. Initially
-      all modes show as "Coming soon" except the first one.
-- [ ] 0.4 — Create `data/stories-a2.js` with the first 5 graded reader stories at
+- [~] 0.4 — Create `data/stories-a2.js` with the first 5 graded reader stories at
       A2-low level (~80-100 words each). Topics: daily routine, shopping, at the café,
       the weather, my family. Include glossaries and comprehension questions.
 - [ ] 0.5 — Create `data/stories-a2-high.js` with 5 stories at A2-high level
@@ -175,6 +172,9 @@
 - [x] 0.2 — `shared.js`: Store (namespaced `svenska_ci_v1`), Speech (sv-SE TTS), Sfx,
       auroraBackground canvas, gameHeader nav, toast, encounter tracking, streaks,
       tokenize/gloss helpers. _(2026-06-17)_
+- [x] 0.3 — `index.html` hub: hero, progress dashboard (words met/known, texts done,
+      sessions, streak, word-knowledge bar), 8 mode cards (only Reader enabled).
+      jsdom smoke test passes, no console errors. _(2026-06-17)_
 
 ---
 

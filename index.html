@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Svenska CI — Comprehensible Input for SFI C &amp; D</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div id="header"></div>
+
+<main class="wrap">
+
+  <section class="hero">
+    <div class="row center" style="justify-content:center;gap:8px;">
+      <span class="pill gold">SFI C &amp; D</span>
+      <span class="pill blue">Comprehensible Input</span>
+    </div>
+    <h1>Lär dig svenska genom att läsa och lyssna</h1>
+    <p class="lead">Learn Swedish the natural way — through graded stories, news, and
+      listening at just the right level. Tap any word for an instant translation.</p>
+  </section>
+
+  <!-- Progress dashboard -->
+  <section class="card mt-24" aria-label="Your progress">
+    <div class="row between mb-16">
+      <h2 style="margin:0;font-size:1.2rem;">Din utveckling <span class="faint" style="font-size:.85rem;">· Your progress</span></h2>
+      <span id="streak-pill" class="pill green">🔥 0 dagar</span>
+    </div>
+    <div class="stat-grid" id="stats"></div>
+    <div class="mt-24">
+      <div class="row between mb-8">
+        <span class="muted" style="font-size:.88rem;">Ordkännedom · Word knowledge</span>
+        <span class="muted" id="word-pct" style="font-size:.88rem;">0%</span>
+      </div>
+      <div class="progress"><span id="word-bar"></span></div>
+      <div class="row mt-8" id="word-legend" style="gap:14px;font-size:.78rem;"></div>
+    </div>
+  </section>
+
+  <!-- Mode cards -->
+  <h2 class="section-title">Lägen <span class="faint" style="font-size:1rem;">· Modes</span></h2>
+  <div class="mode-grid" id="modes"></div>
+
+  <p class="center muted mt-24" style="font-size:.82rem;">
+    Allt sparas lokalt i din webbläsare. Inget konto behövs. ·
+    Everything is saved locally in your browser. No account needed.
+  </p>
+
+</main>
+
+<script src="shared.js"></script>
+<script>
+(function () {
+  var S = window.SvCI;
+  S.boot();
+  S.gameHeader("#header", null);
+
+  // ---- Mode catalogue (description + enabled flag) ----
+  var MODE_INFO = {
+    "reader":        { desc: "Korta berättelser på A2–B1+ med ordförklaringar, ljud och frågor.", enabled: true },
+    "news":          { desc: "Förenklade nyhetsartiklar för SFI D-läsning.", enabled: false },
+    "listening":     { desc: "Ljudpassager med frågor, transkript och hastighetskontroll.", enabled: false },
+    "collocations":  { desc: "Partikelverb och prepositioner — alltid i meningar.", enabled: false },
+    "connectors":    { desc: "Bindeord (dessutom, däremot, alltså…) i lucktexter.", enabled: false },
+    "tracker":       { desc: "Översikt över alla ord efter hur väl du känner dem.", enabled: false },
+    "exam-reading":  { desc: "Tidsbestämda SFI C/D läsförståelseprov.", enabled: false },
+    "exam-listening":{ desc: "Tidsbestämda SFI C/D hörförståelseprov.", enabled: false }
+  };
+
+  var grid = S.$("#modes");
+  S.MODES.forEach(function (m) {
+    var info = MODE_INFO[m.id] || { desc: "", enabled: false };
+    var card = S.el("a", {
+      href: info.enabled ? m.file : "javascript:void(0)",
+      class: "mode-card" + (info.enabled ? "" : " soon")
+    }, [
+      S.el("span", { class: "icon", text: m.icon }),
+      S.el("h3", { text: m.name }),
+      S.el("p", { text: info.desc })
+    ]);
+    grid.appendChild(card);
+  });
+
+  // ---- Stats ----
+  var ws = S.wordStats();
+  var sessions = S.sessionCount();
+  var completed = 0;
+  ["reader", "news", "listening"].forEach(function (k) {
+    var c = S.Store.get("progress." + k + ".completed", {});
+    completed += Object.keys(c).length;
+  });
+
+  var statData = [
+    { num: ws.total, label: "Ord mötta · Words met" },
+    { num: ws.known + ws.familiar, label: "Ord du kan · Words known" },
+    { num: completed, label: "Texter klara · Texts done" },
+    { num: sessions, label: "Lässessioner · Sessions" }
+  ];
+  var statHost = S.$("#stats");
+  statData.forEach(function (s) {
+    statHost.appendChild(S.el("div", { class: "stat" }, [
+      S.el("div", { class: "num", text: String(s.num) }),
+      S.el("div", { class: "label", text: s.label })
+    ]));
+  });
+
+  // ---- Streak ----
+  var streak = S.Store.get("streak.current", 0);
+  S.$("#streak-pill").textContent = "🔥 " + streak + " dag" + (streak === 1 ? "" : "ar");
+
+  // ---- Word knowledge bar (familiar+known share of all met words) ----
+  var pct = ws.total ? Math.round(((ws.familiar + ws.known) / ws.total) * 100) : 0;
+  S.$("#word-bar").style.width = pct + "%";
+  S.$("#word-pct").textContent = pct + "%";
+
+  var legend = [
+    { c: "var(--status-met)", t: "Mött " + ws.met },
+    { c: "var(--status-familiar)", t: "Bekant " + ws.familiar },
+    { c: "var(--status-known)", t: "Kan " + ws.known }
+  ];
+  var legHost = S.$("#word-legend");
+  legend.forEach(function (l) {
+    legHost.appendChild(S.el("span", { class: "row", style: "gap:6px;" }, [
+      S.el("span", { style: "width:10px;height:10px;border-radius:3px;background:" + l.c + ";display:inline-block;" }),
+      S.el("span", { class: "muted", text: l.t })
+    ]));
+  });
+})();
+</script>
+</body>
+</html>
