@@ -64,56 +64,265 @@
 ---
 
 ## Milestone 4: Collocation & Connector Activities (🔗 🧩)
-- [ ] 4.2 — Create `collocations.html`: read a mini-context paragraph, fill in the
-      correct particle/preposition from choices. NOT flashcards — always in context.
-- [ ] 4.3 — Create `data/connectors.js` with 30+ discourse connectors (dessutom,
-      däremot, alltså, dock, trots att, eftersom…) with gap-fill exercises in short
-      texts.
-- [ ] 4.4 — Create `connectors.html`: read a short text with a gap, pick the right
-      connector. Show explanation of why it fits.
-- [ ] 4.5 — Polish both modes: progress tracking, difficulty progression, review mode.
+
+### Implementation reference for M4
+> **File pattern**: Every mode = `<mode>.html` (shell) + `<mode>.js` (IIFE) + `data/<name>.js`.
+> HTML loads `shared.css`, `shared.js`, data file(s), then mode JS. IIFE calls
+> `SvCI.boot()`, `SvCI.gameHeader("#header", "<mode-id>")`, then builds UI.
+>
+> **Shared API** (from `shared.js`):
+> - `SvCI.Store.get(path, fallback)` / `.load()` / `.save()` — localStorage
+> - `SvCI.Sfx.correct()` / `.wrong()` / `.tick()` — audio feedback
+> - `SvCI.toast(msg, kind, ms)` — toast notifications
+> - `SvCI.el(tag, attrs, children)` / `SvCI.$(sel)` / `SvCI.$$(sel)` — DOM helpers
+> - `SvCI.recordEncounter(words, storyId)` — word encounter tracking
+> - `SvCI.logSession()` — session/streak tracking
+>
+> **Store shape** for these modes (already exists in shared.js defaults):
+> ```js
+> progress.collocations: { done: 0, correct: 0 }
+> progress.connectors:   { done: 0, correct: 0 }
+> ```
+>
+> **Hub integration**: After building a mode, set `enabled: true` for its key in
+> `index.html` line ~64 (in the `MODE_INFO` object). This lights up the card on the hub.
+>
+> **CSS**: Add new selectors to `shared.css` (never separate CSS files).
+
+- [ ] 4.2 — Create `collocations.html` + `collocations.js`: Collocation Cards mode.
+      **Data**: `data/collocations.js` already has 65 entries with schema:
+      `{id, collocation, collocationEn, type("particle-verb"|"preposition"), level("A2"|"B1"),
+      blank, options[3], correct(index), examples[{sentence(with "___"), sentenceEn}]}`.
+      Register as `window.SvCI_COLLOCATIONS = COLLOCATIONS;` at end of data file.
+      **UI flow**: Level filter tabs (A2/B1/All) → shuffled queue → main card shows:
+      collocation header "tycka ___" + English + type pill + context sentence with
+      highlighted gap (___) + 3 option buttons. On correct: green, Sfx.correct(),
+      show sentenceEn + "Nästa" btn. On wrong: red on picked, green on correct,
+      Sfx.wrong(), show sentenceEn. Progress bar "12/65". Track into
+      `Store progress.collocations.done/correct`. End: summary card with score + restart.
+      **CSS additions** in shared.css: `.coll-card`, `.gap` (gold highlight for blank),
+      `.option-btn` (pill-style), `.option-btn.correct/.wrong` (green/red feedback).
+      **Enable** collocations in hub `index.html`.
+      **Verify**: Open by double-click, full flow, no console errors, Store persists.
+
+- [ ] 4.3 — Create `data/connectors.js` with 30+ discourse connectors.
+      **Schema**:
+      ```js
+      window.SvCI_CONNECTORS = [{
+        id: "conn-dessutom",
+        connector: "dessutom",
+        connectorEn: "furthermore, besides",
+        category: "addition",  // addition|contrast|cause|consequence|concession|time|example
+        level: "B1",
+        exercises: [{
+          text: "Hon pluggar svenska. ___ lär hon sig engelska.",
+          textEn: "She studies Swedish. Furthermore, she is learning English.",
+          options: ["dessutom", "däremot", "alltså"],
+          correct: 0,
+          explanation: "'Dessutom' adds information — she does BOTH things."
+        }]
+      }];
+      ```
+      **Required connectors by category**:
+      Addition: dessutom, även, också, förutom, inte bara…utan även
+      Contrast: däremot, å andra sidan, tvärtom, dock, ändå, trots det
+      Cause: eftersom, därför att, på grund av (att), nämligen
+      Consequence: alltså, därför, följaktligen, det innebär att
+      Concession: trots att, även om, fastän, visserligen…men
+      Time/Order: sedan, därefter, slutligen, först…sedan, medan
+      Example: till exempel, bland annat, det vill säga
+      Each needs 2 exercises with B1-level short texts (2-3 sentences). Options = 3
+      connectors from DIFFERENT categories (plausible but distinguishable).
+      **Verify**: File loads, `window.SvCI_CONNECTORS` populated, ≥30 entries.
+
+- [ ] 4.4 — Create `connectors.html` + `connectors.js`: Connector Challenge mode.
+      Same IIFE pattern as collocations. Category filter pills at top (All/Addition/
+      Contrast/Cause/etc.). Shuffle connectors, one exercise at a time. Show: category
+      pill, text with highlighted gap, 3 option buttons. On answer: always show
+      explanation text (why this connector fits) + textEn. Track into
+      `Store progress.connectors.done/correct`. End: summary with score.
+      **Key difference from collocations**: the explanation text teaches WHY a connector
+      fits (semantic function). Always show it after answering.
+      **Enable** connectors in hub `index.html`.
+      **Verify**: Open by double-click, full flow, no console errors.
+
+- [ ] 4.5 — Polish both modes: difficulty progression (start A2, unlock B1 after ≥70%
+      on A2), progress tracking on hub cards ("X/65 klara"), review mode ("Granska fel"
+      replays wrong answers — store mistake IDs in `progress.collocations.mistakes[]`
+      and `progress.connectors.mistakes[]`). Smooth card entrance transitions.
+      **Verify**: Full flow of both, progress persists, review only shows mistakes.
 
 ---
 
 ## Milestone 5: Vocab Tracker Dashboard (📊)
-- [ ] 5.1 — Create `tracker.html` with word grid showing all 1593 words color-coded
-      by encounter status (unknown / met / familiar / known).
-- [ ] 5.2 — Add filters: by theme, part of speech, frequency rank, encounter status.
-- [ ] 5.3 — Add word detail view: click a word to see all story contexts where it
-      appeared, plus its encounter history.
-- [ ] 5.4 — Add overall "readiness score" estimating CEFR level based on word
-      knowledge distribution.
-- [ ] 5.5 — Polish dashboard: responsive grid, smooth animations, export stats.
+
+### Implementation reference for M5
+> **Data source**: `SvCI.Store.load().words` — object keyed by normalized word:
+> `{ "hund": { count: 3, firstSeen: timestamp, lastSeen: timestamp, contexts: ["daily-001"] } }`
+> Status = `SvCI.encounterStatus(count)` → "new"(0) / "met"(1-2) / "familiar"(3-5) / "known"(6+)
+>
+> No separate data file needed — tracker reads directly from Store. But to resolve
+> context IDs to story/article titles, load ALL data files in tracker.html:
+> `stories-a2.js`, `stories-a2-high.js`, `stories-b1.js`, `news-b1.js`, `news-b1plus.js`,
+> `listening-a2.js`, `listening-b1.js`.
+
+- [ ] 5.1 — Create `tracker.html` + `tracker.js` with word grid.
+      Read Store.load().words → build array of {word, count, status, firstSeen, lastSeen, contexts}.
+      Render grid of small word pills color-coded: new=#555 dim, met=var(--status-met) blue,
+      familiar=var(--status-familiar) amber, known=var(--status-known) green.
+      Stats row at top: total met, % familiar+known, bar chart.
+      Empty state: "Börja läsa berättelser för att se dina ord här!"
+      **CSS**: `.word-grid` (CSS grid, auto-fill minmax(80px,1fr), gap 6px),
+      `.word-pill` (small pill, colored border-left by status, hover scale(1.05)).
+      **Enable** tracker in hub.
+      **Verify**: Shows empty state with no data; shows colored grid after using reader.
+
+- [ ] 5.2 — Add filters: Status pills (All/New/Met/Familiar/Known) + Sort dropdown
+      (Alphabetical/Most encountered/Recently seen/Oldest first). Grid updates live.
+      NOTE: theme/POS filters need story-glossary metadata enrichment → defer to M7.
+      **Verify**: Filters toggle correctly, grid responds.
+
+- [ ] 5.3 — Word detail view: click a pill → overlay panel (glass card, slide-in from
+      right / bottom on mobile) showing: word (large), encounter count, status pill,
+      "Seen in X texts" with list of story/article titles (resolve context IDs from
+      loaded data files), encounter timeline (first→last seen), 🔊 Listen button via
+      `SvCI.Speech.say(word)`. Close on × or outside click.
+      **Verify**: Click word → detail opens with correct contexts. Close works.
+
+- [ ] 5.4 — Readiness score: estimate CEFR level from word knowledge distribution.
+      A2 threshold ≥200 familiar/known, B1 ≥700, B1+ ≥1100. Show stepped progress
+      meter with A2/B1/B1+ markers: "Estimated level: A2 → B1 (45% of B1 words known)".
+      **Verify**: Score updates with word data, shows reasonable estimate.
+
+- [ ] 5.5 — Polish: responsive grid (1 col mobile, multi-col desktop), staggered
+      fade-in animations on word pills, "📥 Exportera" button downloads .csv of all
+      tracked words with count/status, keyboard nav + aria labels.
+      **Verify**: Mobile layout, export downloads file, smooth animations.
 
 ---
 
 ## Milestone 6: Exam Simulators (📝 🎙️)
-- [ ] 6.1 — Create `data/exam-reading-c.js` with 2 SFI C-style reading tests
-      (2-3 short texts + questions each).
-- [ ] 6.2 — Create `exam-reading.html`: timed reading comprehension test interface
-      with text display, questions, timer, and scoring.
-- [ ] 6.3 — Create `data/exam-reading-d.js` with 2 SFI D-style reading tests
-      (longer, more complex texts).
-- [ ] 6.4 — Create `data/exam-listening-c.js` with 2 SFI C-style listening tests.
-- [ ] 6.5 — Create `exam-listening.html`: timed listening test interface.
-- [ ] 6.6 — Create `data/exam-listening-d.js` with 2 SFI D-style listening tests.
-- [ ] 6.7 — Add exam history tracking: past scores, date, areas of weakness.
-- [ ] 6.8 — Polish exam modes: realistic timer, proper instructions, result breakdown.
+
+### Implementation reference for M6
+> **Exam data schema (reading)**:
+> ```js
+> window.SvCI_EXAM_READING_C = [{
+>   id: "exam-rc-1", title: "Läsförståelse C — Prov 1", level: "C",
+>   timeMinutes: 30,
+>   texts: [{
+>     id: "rc1-t1", title: "Hyresavtal", type: "informerande",
+>     text: "Lediga lägenheter...",  // ~100 words for C, ~200-300 for D
+>     questions: [{
+>       q: "Vad kostar lägenheten?", qEn: "How much?",
+>       options: ["8 500 kr", "7 200 kr", "9 000 kr", "6 800 kr"], correct: 0
+>     }]
+>   }]
+> }];
+> ```
+>
+> **Exam data schema (listening)** — same but with `passages` instead of `texts`:
+> ```js
+> window.SvCI_EXAM_LISTENING_C = [{
+>   id: "exam-lc-1", title: "Hörförståelse C — Prov 1", level: "C",
+>   timeMinutes: 20,
+>   passages: [{
+>     id: "lc1-p1", title: "Telefonsamtal", transcript: "Hej, jag ringer...",
+>     replays: 2,  // C=2 replays, D=1 replay
+>     questions: [{ q, qEn, options[4], correct }]
+>   }]
+> }];
+> ```
+>
+> **Store path**: `progress.exams.push({id, kind:'reading'|'listening', level, score, total, date})`
+>
+> **TTS for listening exams**: Use `SvCI.Speech.say(transcript)` at rate 1.0 (no speed
+> controls in exam mode — it's a test).
+
+- [ ] 6.1 — Create `data/exam-reading-c.js`: 2 SFI C-style reading tests, each with
+      2-3 short practical texts (~100w) + 5 questions. Topics: rental ad, work schedule,
+      health clinic info, bus timetable, store return policy. A2-high/B1 vocab.
+      Questions test factual understanding.
+      **Verify**: File loads, 2 exams with texts and questions.
+
+- [ ] 6.2 — Create `exam-reading.html` + `exam-reading.js`: Exam selection screen
+      (C/D level tabs, "30 min" timer badge). Exam flow: start → timer (countdown
+      mm:ss, top-right, red at <5 min, pulse at <2 min) → all texts+questions in
+      scrollable view → "Lämna in" submit or auto-submit on timeout. Results: score
+      X/Y (%), per-text breakdown (green/red), correct answers + explanations, save to
+      `Store progress.exams`. Instructions screen before start: "Du har X minuter."
+      **CSS**: `.timer` (fixed top-right), `.timer.warning` (red pulse), `.exam-text`,
+      `.exam-submit-btn`. **Enable** exam-reading in hub.
+      **Verify**: Full flow, timer works, auto-submit works, score saved.
+
+- [ ] 6.3 — Create `data/exam-reading-d.js`: 2 SFI D-style tests, longer texts
+      (~200-300w), argumentative/informational. B1-B1+ vocab. timeMinutes: 45.
+      Topics: integration policy debate, education comparison, workplace culture,
+      environmental opinion. Some questions: "What is the author's main argument?"
+      **Verify**: 2 exams, D-level complexity.
+
+- [ ] 6.4 — Create `data/exam-listening-c.js`: 2 SFI C-style listening tests, each
+      with 3-4 passages (~60-80 spoken words), replays: 2. Everyday situations: phone
+      calls, announcements, short conversations. A2-B1 level.
+      **Verify**: 2 exams with passages and questions.
+
+- [ ] 6.5 — Create `exam-listening.html` + `exam-listening.js`: Same pattern as
+      exam-reading but with TTS audio. "▶ Spela" plays transcript, replay counter
+      "2 uppspelningar kvar" (decrements). Questions visible but locked until audio
+      played once. Speed fixed at 1.0 (exam mode). Results same as reading exam.
+      **Enable** exam-listening in hub.
+      **Verify**: Full flow with TTS, replay counter, score saved.
+
+- [ ] 6.6 — Create `data/exam-listening-d.js`: 2 SFI D-style listening tests, longer
+      passages (~100-120w), societal/abstract topics, replays: 1. Topics: radio
+      interview on immigration, workplace meeting, news on climate, public lecture.
+      **Verify**: 2 exams, D-level, replays: 1.
+
+- [ ] 6.7 — Exam history: on exam selection screen, show past attempts under each card
+      ("Senaste: 80% 2026-06-17") from `Store.get("progress.exams")`. Add "📊 Historik"
+      table: Date | Exam | Level | Score. Highlight improvement trends.
+      **Verify**: Take exam twice, both scores appear.
+
+- [ ] 6.8 — Polish exams: instructions screen before start, timer pulse at <5 min +
+      red at <2 min + Sfx.tick at <1 min, per-text/passage result breakdown with
+      green/red, "Focus areas" suggestions from missed question types. Mobile scroll
+      with fixed timer.
+      **Verify**: Full polished flow both modes, mobile responsive.
 
 ---
 
 ## Milestone 7: Content expansion & polish
-- [ ] 7.1 — Add 10 more A2 stories (total 20).
-- [ ] 7.2 — Add 10 more B1 stories (total 15).
-- [ ] 7.3 — Add 5 B1+ stories.
-- [ ] 7.4 — Add 5 more news articles per level.
-- [ ] 7.5 — Add 5 more listening passages per level.
-- [ ] 7.6 — Cross-link: after finishing a story, suggest related SwedishGames drills
-      for weak vocabulary.
-- [ ] 7.7 — Add "study plan" feature: recommended daily routine combining CI +
-      SwedishGames activities.
-- [ ] 7.8 — Final polish pass: all modes tested, no console errors, responsive on
-      mobile, good reading experience.
+
+### Implementation reference for M7
+> All new content MUST follow the EXACT existing data schemas. Check existing data files
+> for the precise shape. Stories: `{id, title, titleEn, level, theme, wordCount, text,
+> glossary, questions[{type, q, qEn, options, correct}]}`. Questions: 4 for A2, 5 for B1/B1+.
+> News: same + `{headline, lead, body, source, textType}`.
+> Listening: same + `{transcript}`.
+>
+> New stories can go in new data files (e.g. `data/stories-a2-extra.js`) as long as
+> they register into the SAME `window.SvCI_STORIES` array (push/concat). Or append
+> to existing files. Either works.
+
+- [ ] 7.1 — Add 10 more A2 stories (total 20). Topics: library visit, cooking, park
+      walk, neighbor chat, birthday, laundry, gym, train trip, supermarket, pet.
+      60-100 words each, 4 questions each.
+- [ ] 7.2 — Add 10 more B1 stories (total 15). Topics: job interview followup, school
+      meeting, recycling debate, moving house, Swedish holidays deeper, healthcare
+      system, bank visit, friendship, volunteer work, news discussion. 150-250w, 5 Qs.
+- [ ] 7.3 — Add 5 B1+ stories (250-350w). Topics: democracy/voting, work-life balance
+      debate, immigration perspectives, allemansrätten, digital privacy. 5 Qs each.
+- [ ] 7.4 — Add 5 more news articles per level (B1 + B1+). Follow news schema exactly.
+- [ ] 7.5 — Add 5 more listening passages per level (A2 + B1). Follow listening schema.
+- [ ] 7.6 — Cross-link: after story/news completion, check which glossary words are
+      still "new"/"met" status. Show card: "Öva dessa ord i SwedishGames" with relative
+      link `../SwedishGames/index.html`. Simple suggestion, no deep integration.
+- [ ] 7.7 — Study plan: new section on hub (index.html) below mode grid. Conditional
+      based on stats: <10 texts → "Start with 2 Reader stories/day"; 10-30 → "Add News
+      + Listening"; >30 → "Try Exam simulators + Collocations". Simple rendering.
+- [ ] 7.8 — Final polish: all .html opens by double-click with no console errors, all
+      modes linked from hub, mobile responsive (test 375px), touch targets ≥44px,
+      keyboard nav, localStorage persists across modes, reading experience font ≥1.1rem
+      line-height ≥1.7.
 
 ---
 
