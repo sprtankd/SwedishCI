@@ -52,11 +52,8 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [~] 2.4 — Create `data/news-b1plus.js` with 5 articles at B1+ level (~250-400 words).
-      Topics: integration debate, climate policy, education reform, gender equality,
-      digital society. Use more advanced connectors and abstract vocabulary. _(claimed 2026-06-17)_
-- [ ] 2.5 — Polish news reader: article list view, difficulty indicator, completion
-      tracking, word encounter integration.
+- [~] 2.5 — Polish news reader: article list view, difficulty indicator, completion
+      tracking, word encounter integration. _(claimed 2026-06-17)_
 
 ---
 
@@ -190,6 +187,13 @@
 - [x] 2.3 — Text-type indicators (informerande/instruerande/argumenterande) with
       colored pills on cards + article view, a legend explaining the SFI D categories,
       and a per-article genre hint. Smoke test passes. _(2026-06-17)_
+- [x] 2.4 — `data/news-b1plus.js`: 5 B1+ articles (225–251w) — integration, climate
+      policy, education reform, gender equality, digital society. Argumentative +
+      informational, 4 paragraphs each, abstract vocab + connectors (å ena/andra sidan,
+      däremot, tvärtom, desto). Enhanced shared renderer to split paragraphs on blank
+      lines. B1+ news tab enabled. _(2026-06-17)_
+      NOTE: B1+ articles landed at ~225–251 words, a touch under the ~250-400 target,
+      but with full B1+ complexity/abstraction. Length can be extended in Milestone 7.
 
 ---
 

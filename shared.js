@@ -487,21 +487,26 @@
   function renderGlossedText(host, text, glossary, opts) {
     opts = opts || {};
     var gm = buildGlossMap(glossary);
-    var p = el("p");
-    splitSentences(text).forEach(function (sentence) {
-      var sentSpan = el("span", { class: "sentence" });
-      var play = el("span", { class: "sent-play", text: "🔊", title: "Lyssna på meningen" });
-      play.addEventListener("click", function (e) {
-        e.stopPropagation();
-        if (opts.onInteract) opts.onInteract();
-        highlightSentence(sentSpan);
-        Speech.say(sentence.trim(), { onend: function () { sentSpan.classList.remove("speaking"); } });
+    // double newlines separate paragraphs; each becomes its own <p>
+    var paragraphs = String(text).split(/\n\s*\n/);
+    paragraphs.forEach(function (para) {
+      if (!para.trim()) return;
+      var p = el("p");
+      splitSentences(para).forEach(function (sentence) {
+        var sentSpan = el("span", { class: "sentence" });
+        var play = el("span", { class: "sent-play", text: "🔊", title: "Lyssna på meningen" });
+        play.addEventListener("click", function (e) {
+          e.stopPropagation();
+          if (opts.onInteract) opts.onInteract();
+          highlightSentence(sentSpan);
+          Speech.say(sentence.trim(), { onend: function () { sentSpan.classList.remove("speaking"); } });
+        });
+        sentSpan.appendChild(play);
+        renderGlossedInto(sentSpan, sentence, gm, opts.onInteract);
+        p.appendChild(sentSpan);
       });
-      sentSpan.appendChild(play);
-      renderGlossedInto(sentSpan, sentence, gm, opts.onInteract);
-      p.appendChild(sentSpan);
+      host.appendChild(p);
     });
-    host.appendChild(p);
   }
 
   // Factory: a read-aloud controller that speaks every .sentence inside `textSel`
