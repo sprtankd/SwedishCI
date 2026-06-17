@@ -163,9 +163,7 @@
 > they register into the SAME `window.SvCI_STORIES` array (push/concat). Or append
 > to existing files. Either works.
 
-- [ ] 7.1 — Add 10 more A2 stories (total 20). Topics: library visit, cooking, park
-      walk, neighbor chat, birthday, laundry, gym, train trip, supermarket, pet.
-      60-100 words each, 4 questions each.
+<!-- Completed chunks moved to Done -->
 - [ ] 7.2 — Add 10 more B1 stories (total 15). Topics: job interview followup, school
       meeting, recycling debate, moving house, Swedish holidays deeper, healthcare
       system, bank visit, friendship, volunteer work, news discussion. 150-250w, 5 Qs.
@@ -173,12 +171,7 @@
       debate, immigration perspectives, allemansrätten, digital privacy. 5 Qs each.
 - [ ] 7.4 — Add 5 more news articles per level (B1 + B1+). Follow news schema exactly.
 - [ ] 7.5 — Add 5 more listening passages per level (A2 + B1). Follow listening schema.
-- [ ] 7.6 — Cross-link: after story/news completion, check which glossary words are
-      still "new"/"met" status. Show card: "Öva dessa ord i SwedishGames" with relative
-      link `../SwedishGames/index.html`. Simple suggestion, no deep integration.
-- [ ] 7.7 — Study plan: new section on hub (index.html) below mode grid. Conditional
-      based on stats: <10 texts → "Start with 2 Reader stories/day"; 10-30 → "Add News
-      + Listening"; >30 → "Try Exam simulators + Collocations". Simple rendering.
+<!-- Completed chunks moved to Done -->
 - [ ] 7.8 — Final polish: all .html opens by double-click with no console errors, all
       modes linked from hub, mobile responsive (test 375px), touch targets ≥44px,
       keyboard nav, localStorage persists across modes, reading experience font ≥1.1rem
@@ -298,6 +291,9 @@
 - [x] 6.6 — Create `data/exam-listening-d.js`: 2 SFI D-style listening tests with 1 replay. _(2026-06-17)_
 - [x] 6.7 — Exam history: show past attempts under cards and render comprehensive Historik history table. _(2026-06-17)_
 - [x] 6.8 — Polish exams: timer warning style at <5 min, danger pulse at <2 min, audio tick at <1 min, per-passage breakdown, focus area recommendations, and trend indicators. _(2026-06-17)_
+- [x] 7.1 — Add 10 more A2 stories (5 low A2, 5 high A2, total 20 A2 stories) to reader data. _(2026-06-17)_
+- [x] 7.6 — Cross-link completed stories and news articles to SwedishGames to study new/met glossary words. _(2026-06-17)_
+- [x] 7.7 — Add dynamic Study Plan recommendation card to the hub page. _(2026-06-17)_
 
 
 ---
