@@ -55,10 +55,8 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [~] 3.2 — Create `data/listening-a2.js` with 5 short listening passages (transcripts
-      + questions). Generate audio via TTS integration. _(claimed 2026-06-17)_
-- [ ] 3.3 — Implement listen-first flow: play audio → answer questions → reveal
-      transcript with glosses → re-listen while reading.
+- [~] 3.3 — Implement listen-first flow: play audio → answer questions → reveal
+      transcript with glosses → re-listen while reading. _(claimed 2026-06-17)_
 - [ ] 3.4 — Add speed controls (0.75x / 1.0x / 1.1x) and repeat controls.
 - [ ] 3.5 — Create `data/listening-b1.js` with 5 passages at B1 level. Longer,
       more complex topics.
@@ -197,6 +195,10 @@
       list with empty-state, listen view with TTS player (play/stop/replay), questions
       view, transcript-reveal view (glossed + re-listen via shared engine). Listen-first
       flow wired; empty-data smoke test passes with no console errors. _(2026-06-17)_
+- [x] 3.2 — `data/listening-a2.js`: 5 A2 listening passages (50–68 spoken words) —
+      voicemail, shop dialogue, station announcement, day-off monologue, booking call.
+      Audio via TTS from transcript. Glossaries + 4 questions each. Registers into
+      `window.SvCI_LISTENING`. Full flow smoke test passes. _(2026-06-17)_
 
 ---
 
