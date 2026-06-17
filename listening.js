@@ -42,10 +42,45 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  // ---- Speed control (0.75 / 1.0 / 1.1) -----------------------------------
+  // The chosen rate drives both the listen-view player and the transcript
+  // re-listen (via the shared Speech rate). Persisted across sessions.
+  var SPEEDS = [
+    { rate: 0.75, label: "0,75× Långsam" },
+    { rate: 1.0, label: "1× Normal" },
+    { rate: 1.1, label: "1,1× Snabb" }
+  ];
+  var currentRate = parseFloat(S.Store.get("progress.listening.rate", 1.0)) || 1.0;
+  S.Speech.rate = currentRate;
+
+  function setRate(r) {
+    currentRate = r;
+    S.Speech.rate = r;
+    Player.rate = r;
+    var store = S.Store.load();
+    store.progress.listening.rate = r;
+    S.Store.save();
+    renderSpeedControls("#speed-listen");
+    renderSpeedControls("#speed-transcript");
+  }
+
+  function renderSpeedControls(sel) {
+    var host = S.$(sel);
+    if (!host) return;
+    host.innerHTML = "";
+    SPEEDS.forEach(function (s) {
+      host.appendChild(S.el("button", {
+        class: "level-tab" + (Math.abs(s.rate - currentRate) < 0.001 ? " active" : ""),
+        text: s.label,
+        onclick: function () { setRate(s.rate); }
+      }));
+    });
+  }
+
   // ---- Simple TTS player for the listen view ------------------------------
   var Player = {
     playing: false,
-    rate: 1.0,
+    rate: currentRate,
     plays: 0,
     play: function () {
       if (!state.passage) return;
@@ -277,6 +312,8 @@
   S.$("#relisten-btn").addEventListener("click", function () { Relisten.toggle(); });
 
   // ---- Init ---------------------------------------------------------------
+  renderSpeedControls("#speed-listen");
+  renderSpeedControls("#speed-transcript");
   renderList();
   show("list");
 

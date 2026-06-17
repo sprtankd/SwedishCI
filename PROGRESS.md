@@ -55,9 +55,8 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [~] 3.4 — Add speed controls (0.75x / 1.0x / 1.1x) and repeat controls. _(claimed 2026-06-17)_
-- [ ] 3.5 — Create `data/listening-b1.js` with 5 passages at B1 level. Longer,
-      more complex topics.
+- [~] 3.5 — Create `data/listening-b1.js` with 5 passages at B1 level. Longer,
+      more complex topics. _(claimed 2026-06-17)_
 - [ ] 3.6 — Polish: smooth transitions, progress tracking, mobile audio controls.
 
 ---
@@ -201,6 +200,9 @@
       först") until the learner has played the audio at least once; transcript revealed
       only after answering; re-listen with glosses. Hub Listening card enabled. Smoke
       test passes. _(2026-06-17)_
+- [x] 3.4 — Speed controls (0,75× / 1× / 1,1×) on the listen view and transcript
+      re-listen, applied via shared Speech rate, persisted in localStorage and restored
+      on reload; replay button repeats audio. Smoke test passes. _(2026-06-17)_
 
 ---
 
