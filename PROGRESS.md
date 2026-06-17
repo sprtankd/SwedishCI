@@ -150,7 +150,7 @@
 > **TTS for listening exams**: Use `SvCI.Speech.say(transcript)` at rate 1.0 (no speed
 > controls in exam mode — it's a test).
 
-- [ ] 6.1 — Create `data/exam-reading-c.js`: 2 SFI C-style reading tests, each with
+- [~] 6.1 — Create `data/exam-reading-c.js`: 2 SFI C-style reading tests, each with (Started 2026-06-17)
       2-3 short practical texts (~100w) + 5 questions. Topics: rental ad, work schedule,
       health clinic info, bus timetable, store return policy. A2-high/B1 vocab.
       Questions test factual understanding.
