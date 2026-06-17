@@ -107,6 +107,8 @@
 
   function isDone(id) { return !!S.Store.get("progress.news.completed." + id, false); }
   function scoreFor(id) { return S.Store.get("progress.news.scores." + id, null); }
+  // estimated reading time for a learner (~100 words/min)
+  function readMinutes(words) { return Math.max(1, Math.round(words / 100)); }
 
   function renderList() {
     renderTabs();
@@ -140,9 +142,10 @@
         ]),
         S.el("h3", { text: a.title }),
         S.el("p", { text: a.titleEn }),
-        S.el("div", { class: "row", style: "gap:6px;margin-top:4px;" }, [
+        S.el("div", { class: "row", style: "gap:6px;margin-top:4px;flex-wrap:wrap;" }, [
           S.el("span", { class: "pill " + tt.cls, text: tt.label }),
-          S.el("span", { class: "pill faint", text: a.theme })
+          S.el("span", { class: "pill", text: a.level }),
+          S.el("span", { class: "pill faint", text: "⏱ ~" + readMinutes(a.wordCount) + " min" })
         ])
       ]);
       host.appendChild(card);
@@ -157,7 +160,7 @@
     S.$("#article-title").textContent = article.title;
     S.$("#article-titleEn").textContent = article.titleEn;
     S.$("#article-source").textContent = "Källa: " + (article.source || "Svenska CI") +
-      " · " + article.wordCount + " ord";
+      " · " + article.wordCount + " ord · ~" + readMinutes(article.wordCount) + " min läsning";
 
     var tags = S.$("#article-tags");
     tags.innerHTML = "";

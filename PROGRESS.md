@@ -52,14 +52,11 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [~] 2.5 — Polish news reader: article list view, difficulty indicator, completion
-      tracking, word encounter integration. _(claimed 2026-06-17)_
-
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [ ] 3.1 — Create `listening.html` skeleton: audio player controls, question panel,
-      transcript reveal area. Wire up from hub.
+- [~] 3.1 — Create `listening.html` skeleton: audio player controls, question panel,
+      transcript reveal area. Wire up from hub. _(claimed 2026-06-17)_
 - [ ] 3.2 — Create `data/listening-a2.js` with 5 short listening passages (transcripts
       + questions). Generate audio via TTS integration.
 - [ ] 3.3 — Implement listen-first flow: play audio → answer questions → reveal
@@ -194,6 +191,10 @@
       lines. B1+ news tab enabled. _(2026-06-17)_
       NOTE: B1+ articles landed at ~225–251 words, a touch under the ~250-400 target,
       but with full B1+ complexity/abstraction. Length can be extended in Milestone 7.
+- [x] 2.5 — News reader polish: difficulty indicator (text-type + level pills) and
+      estimated reading time (~100 wpm) on cards and in the article view. List view,
+      completion tracking and word-encounter integration verified. Milestone 2 complete.
+      _(2026-06-17)_
 
 ---
 
