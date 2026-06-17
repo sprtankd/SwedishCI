@@ -312,9 +312,9 @@
       st.progress.reader.completed[story.id] = true;
       S.Store.save();
       S.logSession();
+      // first completion → count every glossary word as one encounter for this story
+      onStoryComprehended(story, pct);
     }
-    // encounter tracking (full implementation in chunk 1.5)
-    onStoryComprehended(story, pct);
 
     var res = S.$("#questions-result");
     res.classList.remove("hidden");
@@ -338,8 +338,14 @@
     res.appendChild(nav);
   }
 
-  // hook for chunk 1.5 (word-encounter tracking); no-op stub for now
-  function onStoryComprehended(story, pct) { /* implemented in 1.5 */ }
+  // Word-encounter tracking (1.5). When a story is first completed, every glossary
+  // word/phrase is recorded as one encounter tied to this story. Counts accumulate
+  // across distinct stories, so words graduate new→met→familiar→known via repeated
+  // encounters in different texts (see SvCI.encounterStatus).
+  function onStoryComprehended(story, pct) {
+    var words = Object.keys(story.glossary || {});
+    if (words.length) S.recordEncounter(words, story.id);
+  }
 
   function nextStory(story) {
     var list = storiesAt(story.level);

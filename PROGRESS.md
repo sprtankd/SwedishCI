@@ -49,11 +49,8 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.5 — Implement word encounter tracking: when a reader reads a story, all glossary
-      words are marked as "encountered". Track encounter count per word across stories.
-      Words graduate: new (0) → met (1-2) → familiar (3-5) → known (6+). _(claimed 2026-06-17)_
-- [ ] 1.6 — Add audio playback for story text: "read aloud" button that speaks the full
-      story via TTS (Speech helper). Per-sentence playback on tap.
+- [~] 1.6 — Add audio playback for story text: "read aloud" button that speaks the full
+      story via TTS (Speech helper). Per-sentence playback on tap. _(claimed 2026-06-17)_
 - [ ] 1.7 — Polish reader UI: smooth transitions between stories, reading progress bar,
       celebration on completing a level's stories. Mobile responsive.
 - [ ] 1.8 — Create `data/stories-b1.js` with 5 stories at B1 level (~150-250 words).
@@ -181,6 +178,10 @@
       tracking (delivered in 1.1/1.3) plus last-level persistence so the reader
       resumes where the learner left off. Smoke test: level + completion survive
       reload. _(2026-06-17)_
+- [x] 1.5 — Word encounter tracking: on first story completion, every glossary
+      word/phrase is recorded as one encounter tied to that story (counts accumulate
+      across distinct stories; new→met→familiar→known). Smoke test: 30 words tracked
+      with contexts + correct status graduation. _(2026-06-17)_
 
 ---
 
