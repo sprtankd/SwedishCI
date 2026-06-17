@@ -46,10 +46,7 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [~] 0.4 — Create `data/stories-a2.js` with the first 5 graded reader stories at
-      A2-low level (~80-100 words each). Topics: daily routine, shopping, at the café,
-      the weather, my family. Include glossaries and comprehension questions.
-- [ ] 0.5 — Create `data/stories-a2-high.js` with 5 stories at A2-high level
+- [~] 0.5 — Create `data/stories-a2-high.js` with 5 stories at A2-high level
       (~100-150 words each). Topics: job interview, visiting the doctor, apartment
       hunting, taking the bus, swedish holidays.
 - [ ] 0.6 — Initial commit of scaffold: hub + data files + shared assets. Verify
@@ -175,6 +172,9 @@
 - [x] 0.3 — `index.html` hub: hero, progress dashboard (words met/known, texts done,
       sessions, streak, word-knowledge bar), 8 mode cards (only Reader enabled).
       jsdom smoke test passes, no console errors. _(2026-06-17)_
+- [x] 0.4 — `data/stories-a2.js`: 5 A2-low stories (81–90w each) — daily routine,
+      shopping, café, weather, family. Registry pattern into `window.SvCI_STORIES`;
+      glossaries + 4 questions each, validated. _(2026-06-17)_
 
 ---
 
