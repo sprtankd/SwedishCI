@@ -49,10 +49,6 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.8 — Create `data/stories-b1.js` with 5 stories at B1 level (~150-250 words).
-      Topics: workplace culture, healthcare system, environmental issues, Swedish
-      traditions, immigrant experiences. _(claimed 2026-06-17)_
-
 ---
 
 ## Milestone 2: News Reader (📰)
@@ -185,6 +181,10 @@
 - [x] 1.7 — Reader polish: view-enter fade transitions, fixed in-story reading
       progress bar (fills on scroll), level-complete celebration banner + toast when
       all of a level's stories are done. Mobile responsive tweaks. Smoke test passes. _(2026-06-17)_
+- [x] 1.8 — `data/stories-b1.js`: 5 B1 stories (174–187w) — workplace culture, healthcare,
+      environment/climate, traditions, immigrant experience. Connectors + BIFF; 20–23
+      gloss words & 5 questions each. B1 tab now enabled (15 stories total). Milestone 1
+      complete. _(2026-06-17)_
 
 ---
 
