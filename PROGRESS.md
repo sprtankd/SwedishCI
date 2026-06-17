@@ -49,11 +49,9 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.4 — Implement story progression: level selector (A2-low / A2-high / B1 / B1+),
-      story list within each level, completion tracking in localStorage. _(claimed 2026-06-17)_
-- [ ] 1.5 — Implement word encounter tracking: when a reader reads a story, all glossary
+- [~] 1.5 — Implement word encounter tracking: when a reader reads a story, all glossary
       words are marked as "encountered". Track encounter count per word across stories.
-      Words graduate: new (0) → met (1-2) → familiar (3-5) → known (6+).
+      Words graduate: new (0) → met (1-2) → familiar (3-5) → known (6+). _(claimed 2026-06-17)_
 - [ ] 1.6 — Add audio playback for story text: "read aloud" button that speaks the full
       story via TTS (Speech helper). Per-sentence playback on tap.
 - [ ] 1.7 — Polish reader UI: smooth transitions between stories, reading progress bar,
@@ -179,6 +177,10 @@
       styling, Sfx feedback, per-question explanations, score panel (best score +
       completion saved to localStorage, session logged), "next text" navigation.
       Smoke test: 100% scored & persisted. _(2026-06-17)_
+- [x] 1.4 — Story progression: level selector + per-level story lists + completion
+      tracking (delivered in 1.1/1.3) plus last-level persistence so the reader
+      resumes where the learner left off. Smoke test: level + completion survive
+      reload. _(2026-06-17)_
 
 ---
 

@@ -28,8 +28,13 @@
     story: null
   };
 
-  // pick first level that has stories
-  state.level = (LEVELS.find(function (l) { return storiesAt(l.id).length; }) || LEVELS[0]).id;
+  // restore last-selected level (if it still has stories), else first non-empty
+  var savedLevel = S.Store.get("progress.reader.lastLevel", null);
+  if (savedLevel && storiesAt(savedLevel).length) {
+    state.level = savedLevel;
+  } else {
+    state.level = (LEVELS.find(function (l) { return storiesAt(l.id).length; }) || LEVELS[0]).id;
+  }
 
   // ---- View switching -----------------------------------------------------
   var views = {
@@ -74,6 +79,11 @@
 
   function renderList() {
     renderTabs();
+    // persist the chosen level so the reader resumes here next time
+    var store = S.Store.load();
+    store.progress.reader.lastLevel = state.level;
+    S.Store.save();
+
     var list = storiesAt(state.level);
     var host = S.$("#story-list");
     host.innerHTML = "";
