@@ -89,7 +89,7 @@
 >
 > **CSS**: Add new selectors to `shared.css` (never separate CSS files).
 
-- [ ] 4.2 — Create `collocations.html` + `collocations.js`: Collocation Cards mode.
+- [~] 4.2 — Create `collocations.html` + `collocations.js`: Collocation Cards mode. (Started 2026-06-17)
       **Data**: `data/collocations.js` already has 65 entries with schema:
       `{id, collocation, collocationEn, type("particle-verb"|"preposition"), level("A2"|"B1"),
       blank, options[3], correct(index), examples[{sentence(with "___"), sentenceEn}]}`.
