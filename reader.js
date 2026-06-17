@@ -41,6 +41,7 @@
     Object.keys(views).forEach(function (k) {
       views[k].classList.toggle("hidden", k !== name);
     });
+    if (window.SvCI_Reader && window.SvCI_Reader.hideTip) window.SvCI_Reader.hideTip();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -123,14 +124,120 @@
     show("read");
   }
 
-  // 1.1 renders the story text as plain paragraphs. Chunk 1.2 upgrades this to
-  // tappable glossed words.
+  // ---- Glossing engine (1.2) ----------------------------------------------
+  // Build a lookup of normalized glossary phrases -> { sv, en }. Glossary keys
+  // may be multi-word phrases ("stiger upp"), so we record the max phrase length.
+  function buildGlossMap(glossary) {
+    var map = {}, maxLen = 1;
+    Object.keys(glossary || {}).forEach(function (k) {
+      var norm = k.split(/\s+/).map(S.normalizeWord).filter(Boolean).join(" ");
+      if (!norm) return;
+      map[norm] = { sv: k, en: glossary[k] };
+      var n = norm.split(" ").length;
+      if (n > maxLen) maxLen = n;
+    });
+    return { map: map, maxLen: maxLen };
+  }
+
+  // Render the story text into tappable spans. Glossary words/phrases get the
+  // dotted underline and show an English translation; every other word is still
+  // tappable to hear its pronunciation.
   function renderStoryText(story) {
     var host = S.$("#story-text");
     host.innerHTML = "";
-    var p = S.el("p", { text: story.text });
+    var gm = buildGlossMap(story.glossary);
+    var tokens = S.tokenize(story.text);
+    var p = S.el("p");
+
+    var i = 0;
+    while (i < tokens.length) {
+      var tok = tokens[i];
+      if (!tok.isWord) {
+        p.appendChild(document.createTextNode(tok.word));
+        i++;
+        continue;
+      }
+      // try to match the longest glossary phrase starting at this word
+      var collected = [], j = i, bestEntry = null, bestEnd = i;
+      while (collected.length < gm.maxLen && j < tokens.length) {
+        if (tokens[j].isWord) {
+          collected.push(S.normalizeWord(tokens[j].word));
+          var cand = collected.join(" ");
+          if (gm.map[cand]) { bestEntry = gm.map[cand]; bestEnd = j; }
+          j++;
+        } else if (/^\s+$/.test(tokens[j].word)) {
+          j++; // allow whitespace between phrase words
+        } else {
+          break; // punctuation breaks a phrase
+        }
+      }
+      if (bestEntry) {
+        var raw = "";
+        for (var k = i; k <= bestEnd; k++) raw += tokens[k].word;
+        p.appendChild(makeWordSpan(raw, bestEntry));
+        i = bestEnd + 1;
+      } else {
+        p.appendChild(makeWordSpan(tok.word, null));
+        i++;
+      }
+    }
     host.appendChild(p);
   }
+
+  function makeWordSpan(text, entry) {
+    var span = S.el("span", {
+      class: entry ? "gloss" : "word",
+      text: text
+    });
+    span.addEventListener("click", function (e) {
+      e.stopPropagation();
+      Tooltip.show(span, text.replace(/[.,!?;:"'’“”()\[\]…—–]/g, "").trim(), entry);
+    });
+    return span;
+  }
+
+  // ---- Gloss tooltip controller -------------------------------------------
+  var Tooltip = {
+    node: null,
+    anchor: null,
+    get el() { return this.node || (this.node = S.$("#gloss-tip")); },
+    show: function (anchor, word, entry) {
+      var tip = this.el;
+      if (this.anchor) this.anchor.classList.remove("active");
+      this.anchor = anchor;
+      anchor.classList.add("active");
+
+      tip.innerHTML = "";
+      tip.appendChild(S.el("span", { class: "sv", text: word }));
+      if (entry && entry.en) tip.appendChild(S.el("span", { class: "en", text: entry.en }));
+      var play = S.el("span", { class: "play", text: "🔊 Lyssna" });
+      play.addEventListener("click", function (e) { e.stopPropagation(); S.Speech.say(word); });
+      tip.appendChild(play);
+
+      // position above the word, clamped to viewport
+      tip.classList.add("show");
+      tip.setAttribute("aria-hidden", "false");
+      var r = anchor.getBoundingClientRect();
+      var tr = tip.getBoundingClientRect();
+      var left = Math.min(Math.max(8, r.left), window.innerWidth - tr.width - 8);
+      var top = r.top - tr.height - 8;
+      if (top < 8) top = r.bottom + 8; // flip below if no room above
+      tip.style.left = left + "px";
+      tip.style.top = top + "px";
+
+      // speak the word on tap (CI: hear the pronunciation)
+      S.Speech.say(word);
+    },
+    hide: function () {
+      var tip = this.el;
+      tip.classList.remove("show");
+      tip.setAttribute("aria-hidden", "true");
+      if (this.anchor) { this.anchor.classList.remove("active"); this.anchor = null; }
+    }
+  };
+  // dismiss tooltip on outside click / scroll
+  document.addEventListener("click", function () { Tooltip.hide(); });
+  window.addEventListener("scroll", function () { Tooltip.hide(); }, true);
 
   // ---- Questions view (skeleton; interactive scoring lands in 1.3) --------
   function renderQuestions(story) {
@@ -169,5 +276,8 @@
   show("list");
 
   // expose for later chunks / debugging
-  window.SvCI_Reader = { state: state, renderList: renderList, openStory: openStory };
+  window.SvCI_Reader = {
+    state: state, renderList: renderList, openStory: openStory,
+    hideTip: function () { Tooltip.hide(); }
+  };
 })();

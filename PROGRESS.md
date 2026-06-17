@@ -49,11 +49,8 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.2 — Implement glossed text rendering: parse story text, make each word tappable,
-      show English gloss + pronunciation on tap/hover. Use a tooltip or inline reveal.
-      _(claimed 2026-06-17)_
-- [ ] 1.3 — Implement comprehension questions panel: show questions after reading,
-      multiple choice, score tracking, explanations on answer.
+- [~] 1.3 — Implement comprehension questions panel: show questions after reading,
+      multiple choice, score tracking, explanations on answer. _(claimed 2026-06-17)_
 - [ ] 1.4 — Implement story progression: level selector (A2-low / A2-high / B1 / B1+),
       story list within each level, completion tracking in localStorage.
 - [ ] 1.5 — Implement word encounter tracking: when a reader reads a story, all glossary
@@ -176,6 +173,10 @@
 - [x] 1.1 — `reader.html` + `reader.js` skeleton: level tabs (A2-low/high/B1/B1+),
       per-level progress bar, story list cards, reading view, questions view, view
       switching. Wired from hub. jsdom smoke test passes. _(2026-06-17)_
+- [x] 1.2 — Glossing engine: tokenizes story text, wraps glossary words/phrases
+      (incl. multi-word like "stiger upp") in tappable spans with dotted underline;
+      every other word tappable for pronunciation. Tooltip shows sv + en + 🔊 listen
+      via Speech. Dismiss on outside click/scroll. Smoke test passes. _(2026-06-17)_
 
 ---
 
