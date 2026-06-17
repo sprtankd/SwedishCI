@@ -356,6 +356,203 @@
     mount.appendChild(header);
   }
 
+  /* ----------------------------------------------- Glossing engine (shared) */
+  // Used by both the Graded Reader and the News Reader. Renders Swedish text into
+  // tappable, glossed spans, wraps sentences for per-sentence audio, and drives a
+  // shared tooltip. Multi-word glossary phrases (e.g. "stiger upp") are supported.
+
+  function buildGlossMap(glossary) {
+    var map = {}, maxLen = 1;
+    Object.keys(glossary || {}).forEach(function (k) {
+      var norm = k.split(/\s+/).map(normalizeWord).filter(Boolean).join(" ");
+      if (!norm) return;
+      map[norm] = { sv: k, en: glossary[k] };
+      var n = norm.split(" ").length;
+      if (n > maxLen) maxLen = n;
+    });
+    return { map: map, maxLen: maxLen };
+  }
+
+  function splitSentences(text) {
+    var re = /[^.!?]*[.!?]+["'’”)]*\s*|[^.!?]+$/g;
+    var out = text.match(re) || [text];
+    return out.filter(function (s) { return s.trim().length; });
+  }
+
+  function highlightSentence(node) {
+    $$(".sentence.speaking").forEach(function (n) { n.classList.remove("speaking"); });
+    if (node) node.classList.add("speaking");
+  }
+
+  // Shared tooltip controller (uses a single #gloss-tip element; created if absent).
+  var GlossTooltip = {
+    node: null,
+    anchor: null,
+    _wired: false,
+    get el() {
+      if (!this.node) {
+        this.node = document.getElementById("gloss-tip");
+        if (!this.node) {
+          this.node = el("div", { id: "gloss-tip", class: "gloss-tip" });
+          document.body.appendChild(this.node);
+        }
+      }
+      this._wire();
+      return this.node;
+    },
+    _wire: function () {
+      if (this._wired) return;
+      this._wired = true;
+      var self = this;
+      document.addEventListener("click", function () { self.hide(); });
+      window.addEventListener("scroll", function () { self.hide(); }, true);
+    },
+    show: function (anchor, word, entry) {
+      var tip = this.el;
+      if (this.anchor) this.anchor.classList.remove("active");
+      this.anchor = anchor;
+      anchor.classList.add("active");
+      tip.innerHTML = "";
+      tip.appendChild(el("span", { class: "sv", text: word }));
+      if (entry && entry.en) tip.appendChild(el("span", { class: "en", text: entry.en }));
+      var play = el("span", { class: "play", text: "🔊 Lyssna" });
+      play.addEventListener("click", function (e) { e.stopPropagation(); Speech.say(word); });
+      tip.appendChild(play);
+
+      tip.classList.add("show");
+      tip.setAttribute("aria-hidden", "false");
+      var r = anchor.getBoundingClientRect();
+      var tr = tip.getBoundingClientRect();
+      var left = Math.min(Math.max(8, r.left), global.innerWidth - tr.width - 8);
+      var top = r.top - tr.height - 8;
+      if (top < 8) top = r.bottom + 8;
+      tip.style.left = left + "px";
+      tip.style.top = top + "px";
+      Speech.say(word);
+    },
+    hide: function () {
+      if (!this.node) return;
+      this.node.classList.remove("show");
+      this.node.setAttribute("aria-hidden", "true");
+      if (this.anchor) { this.anchor.classList.remove("active"); this.anchor = null; }
+    }
+  };
+
+  function stripWord(text) {
+    return text.replace(/[.,!?;:"'’“”()\[\]…—–]/g, "").trim();
+  }
+
+  function makeWordSpan(text, entry, onInteract) {
+    var span = el("span", { class: entry ? "gloss" : "word", text: text });
+    span.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (onInteract) onInteract();
+      GlossTooltip.show(span, stripWord(text), entry);
+    });
+    return span;
+  }
+
+  // Render glossed word/phrase spans for a chunk of text into `container`.
+  function renderGlossedInto(container, text, gm, onInteract) {
+    var tokens = tokenize(text);
+    var i = 0;
+    while (i < tokens.length) {
+      var tok = tokens[i];
+      if (!tok.isWord) { container.appendChild(document.createTextNode(tok.word)); i++; continue; }
+      var collected = [], j = i, bestEntry = null, bestEnd = i;
+      while (collected.length < gm.maxLen && j < tokens.length) {
+        if (tokens[j].isWord) {
+          collected.push(normalizeWord(tokens[j].word));
+          var cand = collected.join(" ");
+          if (gm.map[cand]) { bestEntry = gm.map[cand]; bestEnd = j; }
+          j++;
+        } else if (/^\s+$/.test(tokens[j].word)) { j++; }
+        else { break; }
+      }
+      if (bestEntry) {
+        var raw = "";
+        for (var k = i; k <= bestEnd; k++) raw += tokens[k].word;
+        container.appendChild(makeWordSpan(raw, bestEntry, onInteract));
+        i = bestEnd + 1;
+      } else {
+        container.appendChild(makeWordSpan(tok.word, null, onInteract));
+        i++;
+      }
+    }
+  }
+
+  // Render a block of text into `host` as glossed, sentence-wrapped paragraphs.
+  // opts.onInteract() is called whenever the user taps a word/sentence (so callers
+  // can stop any running read-aloud). Returns nothing.
+  function renderGlossedText(host, text, glossary, opts) {
+    opts = opts || {};
+    var gm = buildGlossMap(glossary);
+    var p = el("p");
+    splitSentences(text).forEach(function (sentence) {
+      var sentSpan = el("span", { class: "sentence" });
+      var play = el("span", { class: "sent-play", text: "🔊", title: "Lyssna på meningen" });
+      play.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (opts.onInteract) opts.onInteract();
+        highlightSentence(sentSpan);
+        Speech.say(sentence.trim(), { onend: function () { sentSpan.classList.remove("speaking"); } });
+      });
+      sentSpan.appendChild(play);
+      renderGlossedInto(sentSpan, sentence, gm, opts.onInteract);
+      p.appendChild(sentSpan);
+    });
+    host.appendChild(p);
+  }
+
+  // Factory: a read-aloud controller that speaks every .sentence inside `textSel`
+  // sequentially, highlighting the current one and toggling the button at `btnSel`.
+  function makeReadAloud(textSel, btnSel) {
+    var ctrl = {
+      playing: false,
+      idx: 0,
+      btn: function () { return $(btnSel); },
+      start: function () {
+        var nodes = $$(textSel + " .sentence");
+        if (!nodes.length || !Speech.available()) {
+          toast("Uppläsning stöds inte i den här webbläsaren.", "err");
+          return;
+        }
+        this.playing = true;
+        this.idx = 0;
+        var b = this.btn();
+        if (b) { b.textContent = "⏹ Stoppa"; b.classList.add("active"); }
+        this._next(nodes);
+      },
+      _next: function (nodes) {
+        var self = this;
+        if (!self.playing || self.idx >= nodes.length) { self.stop(); return; }
+        var node = nodes[self.idx];
+        highlightSentence(node);
+        if (node.scrollIntoView) node.scrollIntoView({ block: "center", behavior: "smooth" });
+        var txt = node.textContent.replace(/^🔊/, "").trim();
+        Speech.say(txt, { onend: function () { self.idx++; self._next(nodes); } });
+      },
+      stop: function () {
+        this.playing = false;
+        Speech.stop();
+        highlightSentence(null);
+        var b = this.btn();
+        if (b) { b.textContent = "🔊 Läs upp"; b.classList.remove("active"); }
+      },
+      toggle: function () { this.playing ? this.stop() : this.start(); }
+    };
+    return ctrl;
+  }
+
+  var Gloss = {
+    buildMap: buildGlossMap,
+    splitSentences: splitSentences,
+    renderInto: renderGlossedInto,
+    renderText: renderGlossedText,
+    Tooltip: GlossTooltip,
+    hideTip: function () { GlossTooltip.hide(); }
+  };
+
   /* --------------------------------------------------------- bootstrap */
   function boot(opts) {
     auroraBackground();
@@ -374,6 +571,9 @@
     gameHeader: gameHeader,
     toast: toast,
     boot: boot,
+    // glossing engine (shared by Reader & News)
+    Gloss: Gloss,
+    makeReadAloud: makeReadAloud,
     // encounter / progress
     recordEncounter: recordEncounter,
     encounterStatus: encounterStatus,

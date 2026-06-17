@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>📰 News Reader — Svenska CI</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div id="read-progress" class="hidden"><span></span></div>
+<div id="header"></div>
+
+<main class="wrap">
+
+  <!-- ============ LIST VIEW ============ -->
+  <section id="view-list">
+    <div class="hero">
+      <h1>📰 Nyheter</h1>
+      <p class="lead">Förenklade nyhetsartiklar om livet i Sverige. Bra lästräning inför
+        SFI D, med ordförklaringar och frågor.</p>
+    </div>
+
+    <div class="level-tabs" id="level-tabs" role="tablist"></div>
+
+    <div class="row between mb-8">
+      <span class="muted" id="level-progress-label" style="font-size:.9rem;"></span>
+      <span class="muted" id="level-progress-pct" style="font-size:.9rem;"></span>
+    </div>
+    <div class="progress mb-24"><span id="level-progress-bar"></span></div>
+
+    <div id="news-list" class="mode-grid"></div>
+  </section>
+
+  <!-- ============ ARTICLE VIEW ============ -->
+  <section id="view-read" class="hidden">
+    <button class="btn btn-ghost btn-sm" id="back-btn">← Tillbaka till listan</button>
+
+    <article class="card mt-16">
+      <div class="row mt-8" id="article-tags" style="gap:8px;"></div>
+      <h1 id="article-title" style="margin:12px 0 6px;font-size:1.7rem;line-height:1.2;"></h1>
+      <div class="muted" id="article-titleEn" style="font-size:.95rem;"></div>
+
+      <div class="row mt-16" id="read-controls" style="gap:10px;">
+        <button class="btn btn-blue btn-sm" id="read-aloud-btn">🔊 Läs upp</button>
+        <span class="muted" style="font-size:.82rem;">Tryck på en mening för att höra den, eller på ett ord för översättning.</span>
+      </div>
+
+      <p class="reading mt-16" id="article-lead" style="font-weight:600;"></p>
+      <div class="reading" id="article-body"></div>
+
+      <div class="faint mt-16" id="article-source" style="font-size:.82rem;"></div>
+
+      <div class="row mt-24" style="gap:10px;">
+        <button class="btn btn-primary" id="to-questions-btn">Svara på frågor →</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ QUESTIONS VIEW ============ -->
+  <section id="view-questions" class="hidden">
+    <button class="btn btn-ghost btn-sm" id="back-to-read-btn">← Tillbaka till artikeln</button>
+    <article class="card mt-16">
+      <h2 style="margin-top:0;">Frågor <span class="faint" style="font-size:1rem;">· Comprehension</span></h2>
+      <div id="questions-host"></div>
+      <div id="questions-result" class="hidden"></div>
+    </article>
+  </section>
+
+</main>
+
+<div id="gloss-tip" class="gloss-tip" aria-hidden="true"></div>
+
+<script src="shared.js"></script>
+<script src="data/news-b1.js"></script>
+<script src="news.js"></script>
+</body>
+</html>

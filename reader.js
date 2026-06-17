@@ -157,190 +157,17 @@
     show("read");
   }
 
-  // ---- Glossing engine (1.2) ----------------------------------------------
-  // Build a lookup of normalized glossary phrases -> { sv, en }. Glossary keys
-  // may be multi-word phrases ("stiger upp"), so we record the max phrase length.
-  function buildGlossMap(glossary) {
-    var map = {}, maxLen = 1;
-    Object.keys(glossary || {}).forEach(function (k) {
-      var norm = k.split(/\s+/).map(S.normalizeWord).filter(Boolean).join(" ");
-      if (!norm) return;
-      map[norm] = { sv: k, en: glossary[k] };
-      var n = norm.split(" ").length;
-      if (n > maxLen) maxLen = n;
-    });
-    return { map: map, maxLen: maxLen };
-  }
+  // ---- Glossed story text (uses the shared glossing engine) ----------------
+  var ReadAloud = S.makeReadAloud("#story-text", "#read-aloud-btn");
 
-  // Split text into sentences, keeping trailing punctuation/space with each one.
-  function splitSentences(text) {
-    var re = /[^.!?]*[.!?]+["'’”)]*\s*|[^.!?]+$/g;
-    var out = text.match(re) || [text];
-    return out.filter(function (s) { return s.trim().length; });
-  }
-
-  // Render glossed word/phrase spans for a chunk of text into `container`.
-  function renderGlossedInto(container, text, gm) {
-    var tokens = S.tokenize(text);
-    var i = 0;
-    while (i < tokens.length) {
-      var tok = tokens[i];
-      if (!tok.isWord) {
-        container.appendChild(document.createTextNode(tok.word));
-        i++;
-        continue;
-      }
-      var collected = [], j = i, bestEntry = null, bestEnd = i;
-      while (collected.length < gm.maxLen && j < tokens.length) {
-        if (tokens[j].isWord) {
-          collected.push(S.normalizeWord(tokens[j].word));
-          var cand = collected.join(" ");
-          if (gm.map[cand]) { bestEntry = gm.map[cand]; bestEnd = j; }
-          j++;
-        } else if (/^\s+$/.test(tokens[j].word)) {
-          j++;
-        } else {
-          break;
-        }
-      }
-      if (bestEntry) {
-        var raw = "";
-        for (var k = i; k <= bestEnd; k++) raw += tokens[k].word;
-        container.appendChild(makeWordSpan(raw, bestEntry));
-        i = bestEnd + 1;
-      } else {
-        container.appendChild(makeWordSpan(tok.word, null));
-        i++;
-      }
-    }
-  }
-
-  // Render the story text. Each sentence is wrapped so it can be played on tap;
-  // glossary words/phrases are tappable for translation, other words for audio.
   function renderStoryText(story) {
     ReadAloud.stop();
     var host = S.$("#story-text");
     host.innerHTML = "";
-    var gm = buildGlossMap(story.glossary);
-    var p = S.el("p");
-
-    splitSentences(story.text).forEach(function (sentence) {
-      var sentSpan = S.el("span", { class: "sentence" });
-      var play = S.el("span", { class: "sent-play", text: "🔊", title: "Lyssna på meningen" });
-      play.addEventListener("click", function (e) {
-        e.stopPropagation();
-        ReadAloud.stop();
-        highlightSentence(sentSpan);
-        S.Speech.say(sentence.trim(), { onend: function () { sentSpan.classList.remove("speaking"); } });
-      });
-      sentSpan.appendChild(play);
-      renderGlossedInto(sentSpan, sentence, gm);
-      p.appendChild(sentSpan);
+    S.Gloss.renderText(host, story.text, story.glossary, {
+      onInteract: function () { ReadAloud.stop(); }
     });
-    host.appendChild(p);
   }
-
-  function highlightSentence(node) {
-    S.$$(".sentence.speaking").forEach(function (n) { n.classList.remove("speaking"); });
-    if (node) node.classList.add("speaking");
-  }
-
-  // ---- Read-aloud engine (1.6) --------------------------------------------
-  // Speaks the whole story sentence-by-sentence, highlighting the current one.
-  var ReadAloud = {
-    playing: false,
-    sentences: [],
-    idx: 0,
-    btn: function () { return S.$("#read-aloud-btn"); },
-    start: function () {
-      var nodes = S.$$("#story-text .sentence");
-      if (!nodes.length || !S.Speech.available()) {
-        S.toast("Uppläsning stöds inte i den här webbläsaren.", "err");
-        return;
-      }
-      this.playing = true;
-      this.idx = 0;
-      this.btn().textContent = "⏹ Stoppa";
-      this.btn().classList.add("active");
-      this._speakNext(nodes);
-    },
-    _speakNext: function (nodes) {
-      var self = this;
-      if (!self.playing || self.idx >= nodes.length) { self.stop(); return; }
-      var node = nodes[self.idx];
-      highlightSentence(node);
-      node.scrollIntoView({ block: "center", behavior: "smooth" });
-      var text = node.textContent.replace(/^🔊/, "").trim();
-      S.Speech.say(text, { onend: function () {
-        self.idx++;
-        self._speakNext(nodes);
-      } });
-    },
-    stop: function () {
-      this.playing = false;
-      S.Speech.stop();
-      highlightSentence(null);
-      var b = this.btn();
-      if (b) { b.textContent = "🔊 Läs upp"; b.classList.remove("active"); }
-    },
-    toggle: function () { this.playing ? this.stop() : this.start(); }
-  };
-
-  function makeWordSpan(text, entry) {
-    var span = S.el("span", {
-      class: entry ? "gloss" : "word",
-      text: text
-    });
-    span.addEventListener("click", function (e) {
-      e.stopPropagation();
-      ReadAloud.stop();
-      Tooltip.show(span, text.replace(/[.,!?;:"'’“”()\[\]…—–]/g, "").trim(), entry);
-    });
-    return span;
-  }
-
-  // ---- Gloss tooltip controller -------------------------------------------
-  var Tooltip = {
-    node: null,
-    anchor: null,
-    get el() { return this.node || (this.node = S.$("#gloss-tip")); },
-    show: function (anchor, word, entry) {
-      var tip = this.el;
-      if (this.anchor) this.anchor.classList.remove("active");
-      this.anchor = anchor;
-      anchor.classList.add("active");
-
-      tip.innerHTML = "";
-      tip.appendChild(S.el("span", { class: "sv", text: word }));
-      if (entry && entry.en) tip.appendChild(S.el("span", { class: "en", text: entry.en }));
-      var play = S.el("span", { class: "play", text: "🔊 Lyssna" });
-      play.addEventListener("click", function (e) { e.stopPropagation(); S.Speech.say(word); });
-      tip.appendChild(play);
-
-      // position above the word, clamped to viewport
-      tip.classList.add("show");
-      tip.setAttribute("aria-hidden", "false");
-      var r = anchor.getBoundingClientRect();
-      var tr = tip.getBoundingClientRect();
-      var left = Math.min(Math.max(8, r.left), window.innerWidth - tr.width - 8);
-      var top = r.top - tr.height - 8;
-      if (top < 8) top = r.bottom + 8; // flip below if no room above
-      tip.style.left = left + "px";
-      tip.style.top = top + "px";
-
-      // speak the word on tap (CI: hear the pronunciation)
-      S.Speech.say(word);
-    },
-    hide: function () {
-      var tip = this.el;
-      tip.classList.remove("show");
-      tip.setAttribute("aria-hidden", "true");
-      if (this.anchor) { this.anchor.classList.remove("active"); this.anchor = null; }
-    }
-  };
-  // dismiss tooltip on outside click / scroll
-  document.addEventListener("click", function () { Tooltip.hide(); });
-  window.addEventListener("scroll", function () { Tooltip.hide(); }, true);
 
   // ---- Comprehension questions (1.3) --------------------------------------
   function renderQuestions(story) {
@@ -484,6 +311,6 @@
   // expose for later chunks / debugging
   window.SvCI_Reader = {
     state: state, renderList: renderList, openStory: openStory,
-    hideTip: function () { Tooltip.hide(); }
+    hideTip: function () { S.Gloss.hideTip(); }
   };
 })();

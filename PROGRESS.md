@@ -52,11 +52,8 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [~] 2.2 — Create `news.html` with news article layout: headline, lead paragraph,
-      body text with glossing, source attribution. Reuse glossing engine from reader.
-      _(claimed 2026-06-17)_
-- [ ] 2.3 — Add "text type" indicators (informational, argumentative, instructional)
-      matching SFI D text categories.
+- [~] 2.3 — Add "text type" indicators (informational, argumentative, instructional)
+      matching SFI D text categories. _(claimed 2026-06-17)_
 - [ ] 2.4 — Create `data/news-b1plus.js` with 5 articles at B1+ level (~250-400 words).
       Topics: integration debate, climate policy, education reform, gender equality,
       digital society. Use more advanced connectors and abstract vocabulary.
@@ -187,6 +184,11 @@
       job market, health advice, technology/payments. Headline+lead+body+source+textType
       (informational/instructional), glossaries + 5 questions each. Registers into
       `window.SvCI_NEWS`. Validated. _(2026-06-17)_
+- [x] 2.2 — Refactored the glossing engine + read-aloud into shared.js (`SvCI.Gloss`,
+      `SvCI.makeReadAloud`) so Reader & News share one engine (reader smoke tests still
+      pass). Built `news.html` + `news.js`: headline, lead, glossed body, source
+      attribution, questions, encounter tracking, level tabs. Hub card enabled.
+      Smoke test passes. _(2026-06-17)_
 
 ---
 
