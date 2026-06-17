@@ -89,37 +89,7 @@
 >
 > **CSS**: Add new selectors to `shared.css` (never separate CSS files).
 
-- [~] 4.3 — Create `data/connectors.js` with 30+ discourse connectors. (Started 2026-06-17)
-      **Schema**:
-      ```js
-      window.SvCI_CONNECTORS = [{
-        id: "conn-dessutom",
-        connector: "dessutom",
-        connectorEn: "furthermore, besides",
-        category: "addition",  // addition|contrast|cause|consequence|concession|time|example
-        level: "B1",
-        exercises: [{
-          text: "Hon pluggar svenska. ___ lär hon sig engelska.",
-          textEn: "She studies Swedish. Furthermore, she is learning English.",
-          options: ["dessutom", "däremot", "alltså"],
-          correct: 0,
-          explanation: "'Dessutom' adds information — she does BOTH things."
-        }]
-      }];
-      ```
-      **Required connectors by category**:
-      Addition: dessutom, även, också, förutom, inte bara…utan även
-      Contrast: däremot, å andra sidan, tvärtom, dock, ändå, trots det
-      Cause: eftersom, därför att, på grund av (att), nämligen
-      Consequence: alltså, därför, följaktligen, det innebär att
-      Concession: trots att, även om, fastän, visserligen…men
-      Time/Order: sedan, därefter, slutligen, först…sedan, medan
-      Example: till exempel, bland annat, det vill säga
-      Each needs 2 exercises with B1-level short texts (2-3 sentences). Options = 3
-      connectors from DIFFERENT categories (plausible but distinguishable).
-      **Verify**: File loads, `window.SvCI_CONNECTORS` populated, ≥30 entries.
-
-- [ ] 4.4 — Create `connectors.html` + `connectors.js`: Connector Challenge mode.
+- [~] 4.4 — Create `connectors.html` + `connectors.js`: Connector Challenge mode. (Started 2026-06-17)
       Same IIFE pattern as collocations. Category filter pills at top (All/Addition/
       Contrast/Cause/etc.). Shuffle connectors, one exercise at a time. Show: category
       pill, text with highlighted gap, 3 option buttons. On answer: always show
@@ -406,6 +376,7 @@
       + 15 adjective/verb preposition pairs) with schema `{id, collocation, collocationEn,
       type, level, blank, options, correct, examples}`. Ported from divergent branch. _(2026-06-17)_
 - [x] 4.2 — `collocations.html` + `collocations.js` created: Collocation Cards mode with level filtering, shuffled cards, automatic correct/incorrect styling/Sfx, dynamic progress tracking, and local persistence of scores/mistakes. _(2026-06-17)_
+- [x] 4.3 — `data/connectors.js` created with 31 discourse connectors across 7 semantic categories, each populated with 2 custom B1-level exercises, English translations, and detailed explanations. _(2026-06-17)_
 
 
 ---
