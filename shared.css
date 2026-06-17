@@ -998,3 +998,187 @@ h2.section-title { font-size: 1.4rem; margin: 28px 0 8px; }
   }
 }
 
+/* ---- Exam Simulator styles ---- */
+.timer-widget {
+  position: fixed;
+  top: 18px;
+  right: 24px;
+  z-index: 190;
+  background: rgba(19, 24, 38, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--stroke-strong);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-family: monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+.timer-widget.warning {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.timer-widget.danger {
+  border-color: var(--err);
+  color: var(--err);
+  animation: timerPulse 1s infinite alternate;
+}
+@keyframes timerPulse {
+  from { transform: scale(1); box-shadow: 0 0 10px rgba(242, 120, 140, 0.2); }
+  to { transform: scale(1.05); box-shadow: 0 0 20px rgba(242, 120, 140, 0.6); }
+}
+
+/* Exam layout */
+.exam-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 20px;
+}
+.exam-passage-card {
+  padding: 24px;
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  animation: viewFade 0.35s ease both;
+}
+.exam-passage-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  border-left: 4px solid var(--blue);
+  padding-left: 10px;
+}
+.exam-passage-text {
+  font-size: 1.12rem;
+  line-height: 1.8;
+  color: var(--ink);
+  margin-bottom: 24px;
+  white-space: pre-line;
+}
+.exam-question-block {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--stroke);
+}
+.exam-question-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+.exam-options-grid {
+  display: grid;
+  gap: 8px;
+}
+.exam-option-pill {
+  text-align: left;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-sm);
+  color: var(--ink-dim);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.exam-option-pill:hover:not(.disabled) {
+  background: var(--glass-2);
+  border-color: var(--stroke-strong);
+  color: var(--ink);
+}
+.exam-option-pill.selected {
+  background: rgba(109, 179, 242, 0.15);
+  border-color: var(--blue);
+  color: var(--blue);
+  font-weight: 600;
+}
+.exam-option-pill.correct-ans {
+  background: rgba(95, 208, 160, 0.15);
+  border-color: var(--ok);
+  color: var(--ok);
+  font-weight: 600;
+}
+.exam-option-pill.wrong-ans {
+  background: rgba(242, 120, 140, 0.15);
+  border-color: var(--err);
+  color: var(--err);
+  font-weight: 600;
+}
+.exam-option-indicator {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--stroke-strong);
+  display: inline-block;
+  flex-shrink: 0;
+  position: relative;
+}
+.exam-option-pill.selected .exam-option-indicator {
+  border-color: var(--blue);
+  background: var(--blue);
+}
+.exam-option-pill.correct-ans .exam-option-indicator {
+  border-color: var(--ok);
+  background: var(--ok);
+}
+.exam-option-pill.wrong-ans .exam-option-indicator {
+  border-color: var(--err);
+  background: var(--err);
+}
+.exam-explanation-box {
+  margin-top: 10px;
+  padding: 12px;
+  border-left: 3px solid var(--gold);
+  background: rgba(244, 201, 93, 0.06);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.88rem;
+  color: var(--ink-dim);
+}
+
+/* History table */
+.history-table-container {
+  overflow-x: auto;
+  margin-top: 16px;
+}
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+.history-table th, .history-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--stroke);
+}
+.history-table th {
+  color: var(--ink-faint);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+.history-table tr:hover td {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+@media (max-width: 560px) {
+  .timer-widget {
+    top: auto;
+    bottom: 20px;
+    right: 20px;
+    font-size: 1rem;
+    padding: 6px 12px;
+  }
+}
+
+

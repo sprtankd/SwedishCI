@@ -64,8 +64,8 @@
     "collocations":  { desc: "Partikelverb och prepositioner — alltid i meningar.", enabled: true },
     "connectors":    { desc: "Bindeord (dessutom, däremot, alltså…) i lucktexter.", enabled: true },
     "tracker":       { desc: "Översikt över alla ord efter hur väl du känner dem.", enabled: true },
-    "exam-reading":  { desc: "Tidsbestämda SFI C/D läsförståelseprov.", enabled: false },
-    "exam-listening":{ desc: "Tidsbestämda SFI C/D hörförståelseprov.", enabled: false }
+    "exam-reading":  { desc: "Tidsbestämda SFI C/D läsförståelseprov.", enabled: true },
+    "exam-listening":{ desc: "Tidsbestämda SFI C/D hörförståelseprov.", enabled: true }
   };
 
   var grid = S.$("#modes");
@@ -87,10 +87,22 @@
         var comp = Object.keys(S.Store.get("progress.news.completed", {})).length;
         progressText = comp + " klara";
       } else if (m.id === "listening") {
-        var comp = Object.keys(S.Store.get("progress.listening.completed", {})).length;
+        var comp = Object.keys(S.Store.get("progress.listening.completed", {})).filter(function (k) {
+          return k.indexOf("exam-l") !== 0;
+        }).length;
         progressText = comp + " klara";
       } else if (m.id === "tracker") {
         progressText = S.wordStats().total + " ord";
+      } else if (m.id === "exam-reading") {
+        var comp = Object.keys(S.Store.get("progress.reader.completed", {})).filter(function (k) {
+          return k.indexOf("exam-rc-") === 0 || k.indexOf("exam-rd-") === 0;
+        }).length;
+        progressText = comp + " klara";
+      } else if (m.id === "exam-listening") {
+        var comp = Object.keys(S.Store.get("progress.listening.completed", {})).filter(function (k) {
+          return k.indexOf("exam-lc-") === 0 || k.indexOf("exam-ld-") === 0;
+        }).length;
+        progressText = comp + " klara";
       }
     }
 

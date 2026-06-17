@@ -105,11 +105,7 @@
 > `stories-a2.js`, `stories-a2-high.js`, `stories-b1.js`, `news-b1.js`, `news-b1plus.js`,
 > `listening-a2.js`, `listening-b1.js`.
 
-- [x] 5.1 — Create `tracker.html` + `tracker.js` with word grid. _(2026-06-17)_
-- [x] 5.2 — Add filters: Status pills (All/New/Met/Familiar/Known) + Sort dropdown. _(2026-06-17)_
-- [x] 5.3 — Word detail view: click a pill → overlay panel showing metadata, context resolution and speech synth. _(2026-06-17)_
-- [x] 5.4 — Readiness score: estimate CEFR level from word knowledge distribution. _(2026-06-17)_
-- [x] 5.5 — Polish: responsive grid, staggered animations, CSV exporting, and keyboard nav. _(2026-06-17)_
+<!-- Completed chunks moved to Done -->
 
 ---
 
@@ -150,51 +146,7 @@
 > **TTS for listening exams**: Use `SvCI.Speech.say(transcript)` at rate 1.0 (no speed
 > controls in exam mode — it's a test).
 
-- [x] 6.1 — Create `data/exam-reading-c.js`: 2 SFI C-style reading tests. _(2026-06-17)_
-
-- [~] 6.2 — Create `exam-reading.html` + `exam-reading.js`: Exam selection screen (Started 2026-06-17)
-      (C/D level tabs, "30 min" timer badge). Exam flow: start → timer (countdown
-      mm:ss, top-right, red at <5 min, pulse at <2 min) → all texts+questions in
-      scrollable view → "Lämna in" submit or auto-submit on timeout. Results: score
-      X/Y (%), per-text breakdown (green/red), correct answers + explanations, save to
-      `Store progress.exams`. Instructions screen before start: "Du har X minuter."
-      **CSS**: `.timer` (fixed top-right), `.timer.warning` (red pulse), `.exam-text`,
-      `.exam-submit-btn`. **Enable** exam-reading in hub.
-      **Verify**: Full flow, timer works, auto-submit works, score saved.
-
-- [ ] 6.3 — Create `data/exam-reading-d.js`: 2 SFI D-style tests, longer texts
-      (~200-300w), argumentative/informational. B1-B1+ vocab. timeMinutes: 45.
-      Topics: integration policy debate, education comparison, workplace culture,
-      environmental opinion. Some questions: "What is the author's main argument?"
-      **Verify**: 2 exams, D-level complexity.
-
-- [ ] 6.4 — Create `data/exam-listening-c.js`: 2 SFI C-style listening tests, each
-      with 3-4 passages (~60-80 spoken words), replays: 2. Everyday situations: phone
-      calls, announcements, short conversations. A2-B1 level.
-      **Verify**: 2 exams with passages and questions.
-
-- [ ] 6.5 — Create `exam-listening.html` + `exam-listening.js`: Same pattern as
-      exam-reading but with TTS audio. "▶ Spela" plays transcript, replay counter
-      "2 uppspelningar kvar" (decrements). Questions visible but locked until audio
-      played once. Speed fixed at 1.0 (exam mode). Results same as reading exam.
-      **Enable** exam-listening in hub.
-      **Verify**: Full flow with TTS, replay counter, score saved.
-
-- [ ] 6.6 — Create `data/exam-listening-d.js`: 2 SFI D-style listening tests, longer
-      passages (~100-120w), societal/abstract topics, replays: 1. Topics: radio
-      interview on immigration, workplace meeting, news on climate, public lecture.
-      **Verify**: 2 exams, D-level, replays: 1.
-
-- [ ] 6.7 — Exam history: on exam selection screen, show past attempts under each card
-      ("Senaste: 80% 2026-06-17") from `Store.get("progress.exams")`. Add "📊 Historik"
-      table: Date | Exam | Level | Score. Highlight improvement trends.
-      **Verify**: Take exam twice, both scores appear.
-
-- [ ] 6.8 — Polish exams: instructions screen before start, timer pulse at <5 min +
-      red at <2 min + Sfx.tick at <1 min, per-text/passage result breakdown with
-      green/red, "Focus areas" suggestions from missed question types. Mobile scroll
-      with fixed timer.
-      **Verify**: Full polished flow both modes, mobile responsive.
+<!-- Completed chunks moved to Done -->
 
 ---
 
@@ -333,6 +285,19 @@
 - [x] 4.3 — `data/connectors.js` created with 31 discourse connectors across 7 semantic categories, each populated with 2 custom B1-level exercises, English translations, and detailed explanations. _(2026-06-17)_
 - [x] 4.4 — `connectors.html` + `connectors.js` created: Connector Challenge mode with category tabs, shuffled exercises, inline explanation panels showing after answer selection, correct/incorrect visual/Sfx cues, and local persistence of scores/mistakes. _(2026-06-17)_
 - [x] 4.5 — Polish & integration complete for both modes: A2-to-B1 level locking (unlocks at >=70%), "Granska fel" review mode, animated entry transitions, and responsive mobile-first grid controls. _(2026-06-17)_
+- [x] 5.1 — Create `tracker.html` + `tracker.js` with word grid. _(2026-06-17)_
+- [x] 5.2 — Add filters: Status pills (All/New/Met/Familiar/Known) + Sort dropdown. _(2026-06-17)_
+- [x] 5.3 — Word detail view: click a pill → overlay panel showing metadata, context resolution and speech synth. _(2026-06-17)_
+- [x] 5.4 — Readiness score: estimate CEFR level from word knowledge distribution. _(2026-06-17)_
+- [x] 5.5 — Polish: responsive grid, staggered animations, CSV exporting, and keyboard nav. _(2026-06-17)_
+- [x] 6.1 — Create `data/exam-reading-c.js`: 2 SFI C-style reading tests. _(2026-06-17)_
+- [x] 6.2 — Create `exam-reading.html` + `exam-reading.js`: Exam selection screen, instructions, timer widget, submit flow, and grading. _(2026-06-17)_
+- [x] 6.3 — Create `data/exam-reading-d.js`: 2 SFI D-style reading tests with longer texts. _(2026-06-17)_
+- [x] 6.4 — Create `data/exam-listening-c.js`: 2 SFI C-style listening tests with passages and questions. _(2026-06-17)_
+- [x] 6.5 — Create `exam-listening.html` + `exam-listening.js`: Timed listening simulator with TTS player, locked questions, and replay limits. _(2026-06-17)_
+- [x] 6.6 — Create `data/exam-listening-d.js`: 2 SFI D-style listening tests with 1 replay. _(2026-06-17)_
+- [x] 6.7 — Exam history: show past attempts under cards and render comprehensive Historik history table. _(2026-06-17)_
+- [x] 6.8 — Polish exams: timer warning style at <5 min, danger pulse at <2 min, audio tick at <1 min, per-passage breakdown, focus area recommendations, and trend indicators. _(2026-06-17)_
 
 
 ---

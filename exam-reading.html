@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>📝 Läsförståelseprov — Svenska CI</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div id="header"></div>
+
+<main class="wrap">
+
+  <!-- ============ SETUP VIEW ============ -->
+  <section id="view-setup" class="view-enter">
+    <div class="hero">
+      <h1>📝 Läsförståelseprov</h1>
+      <p class="lead">Simulera nationella prov i läsförståelse för SFI Kurs C &amp; D under tidspress.</p>
+    </div>
+
+    <div class="level-tabs" id="level-tabs" role="tablist">
+      <button class="level-tab active" data-level="C" role="tab" aria-selected="true">SFI Kurs C (A2/B1)</button>
+      <button class="level-tab" data-level="D" role="tab" aria-selected="false">SFI Kurs D (B1/B1+)</button>
+    </div>
+
+    <div id="exam-list" class="mode-grid"></div>
+
+    <div class="card mt-24">
+      <h2 style="margin-top:0;">📊 Historik över prov · Attempt History</h2>
+      <div class="history-table-container">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Datum · Date</th>
+              <th>Prov · Exam</th>
+              <th>Nivå · Level</th>
+              <th>Resultat · Score</th>
+              <th>Procent · Pct</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="history-rows">
+            <tr>
+              <td colspan="6" class="muted center" style="padding:20px;">Inga prov genomförda än.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INSTRUCTIONS VIEW ============ -->
+  <section id="view-instructions" class="card mt-24 hidden view-enter">
+    <button class="btn btn-ghost btn-sm" id="instructions-back-btn">← Tillbaka</button>
+    <div style="margin-top:20px;">
+      <h1 id="instructions-title" style="margin:0 0 8px;">Läsförståelse C — Prov 1</h1>
+      <span class="pill blue" id="instructions-level-pill" style="font-weight:700;">KURS C</span>
+      <span class="pill gold" id="instructions-time-pill" style="font-weight:700;margin-left:8px;">30 MINUTER</span>
+      
+      <h2 class="mt-24">Instruktioner · Instructions</h2>
+      <p>Det här är en simulering av ett nationellt prov i läsförståelse för SFI.</p>
+      <ul>
+        <li>Du har en tidsgräns på <strong id="instructions-time-text">30 minuter</strong>.</li>
+        <li>Tidtagaren visas i det övre högra hörnet när provet börjar.</li>
+        <li>När tiden tar slut lämnas provet in automatiskt och dina svar rättas.</li>
+        <li>Du kan klicka på "Lämna in" när du är klar för att avsluta provet tidigare.</li>
+        <li>Ingen ordbok eller glossing-hjälp är tillgänglig under själva provet.</li>
+      </ul>
+      
+      <div class="row mt-24" style="gap:12px;">
+        <button class="btn btn-primary btn-lg" id="instructions-start-btn">Starta provet · Start Exam</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EXAM VIEW ============ -->
+  <section id="view-exam" class="hidden">
+    <!-- Floating timer widget -->
+    <div class="timer-widget" id="timer-widget" aria-live="polite">
+      <span>⏱️</span> <span id="timer-display">30:00</span>
+    </div>
+
+    <div class="row between mb-16" style="align-items: flex-end;">
+      <div>
+        <h2 id="exam-title" style="margin:0;">Läsförståelse C — Prov 1</h2>
+        <span class="pill blue" id="exam-level-pill" style="margin-top:4px;display:inline-block;font-weight:700;">Kurs C</span>
+      </div>
+    </div>
+
+    <!-- Active passages & questions -->
+    <div id="exam-content" class="exam-layout"></div>
+
+    <div class="row mt-24 center" style="justify-content: center; gap: 12px; margin-bottom: 40px;">
+      <button class="btn btn-primary btn-lg" id="exam-submit-btn">Lämna in provet · Submit Exam</button>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS VIEW ============ -->
+  <section id="view-results" class="hidden view-enter">
+    <div class="card center" style="padding:30px 20px;">
+      <span id="results-icon" style="font-size:3.5rem;display:block;margin-bottom:12px;">🏆</span>
+      <h1 id="results-heading" style="margin:0 0 6px;">Prov avslutat!</h1>
+      <p class="lead" id="results-score-text">Du fick 4 av 5 rätt (80%).</p>
+      <div class="row center" style="justify-content:center;gap:10px;margin-top:16px;">
+        <span class="pill" id="results-status-pill" style="font-size:0.95rem;font-weight:700;padding:6px 16px;">GODKÄND (G)</span>
+      </div>
+      <p class="muted mt-16" id="results-note" style="max-width:500px;margin:16px auto 0;font-size:0.9rem;line-height:1.45;"></p>
+      <div id="results-suggestions" class="mt-16" style="max-width:500px;margin:16px auto 0;text-align:left;"></div>
+      <button class="btn btn-primary mt-24" id="results-done-btn">Klar, återvänd till provlistan</button>
+    </div>
+
+    <h2 class="section-title mt-24">Genomgång · Review Answers</h2>
+    <div id="results-review-content" class="exam-layout"></div>
+  </section>
+
+</main>
+
+<script src="shared.js"></script>
+<script src="data/exam-reading-c.js"></script>
+<script src="data/exam-reading-d.js"></script>
+<script src="exam-reading.js"></script>
+</body>
+</html>
