@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>🧩 Connector Challenge — Svenska CI</title>
+<meta name="description" content="Träna på svenska bindeord (dessutom, däremot, alltså...) i lucktexter för SFI D.">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div id="header"></div>
+
+<main class="wrap">
+  <!-- ============ SETUP VIEW ============ -->
+  <section id="view-setup" class="view-enter">
+    <div class="hero">
+      <h1>🧩 Bindeordsutmaningen</h1>
+      <p class="lead">Träna på diskursiva bindeord (dessutom, däremot, alltså…) i meningar. Lär dig hur man bygger flyt och sammanhang i svenskan.</p>
+    </div>
+    
+    <div class="level-tabs" id="level-tabs" role="tablist" style="justify-content:center;">
+      <!-- Populated dynamically via connectors.js -->
+    </div>
+    
+    <div class="card center mt-24" id="setup-card" style="max-width:600px;margin-left:auto;margin-right:auto;">
+      <h2 id="setup-title" style="margin-top:0;">Starta utmaning</h2>
+      <p class="muted" id="setup-info">Välj en kategori ovan för att börja.</p>
+      <button class="btn btn-primary btn-lg mt-16" id="start-btn">Starta ▶</button>
+    </div>
+  </section>
+
+  <!-- ============ GAME VIEW ============ -->
+  <section id="view-game" class="hidden">
+    <button class="btn btn-ghost btn-sm" id="quit-btn" type="button">← Avbryt</button>
+    
+    <div class="row between mt-16 mb-8">
+      <span class="muted" id="game-progress-label">Fråga 1 av 10</span>
+      <span class="muted" id="game-score-label">Rätt: 0%</span>
+    </div>
+    <div class="progress mb-24"><span id="game-progress-bar"></span></div>
+
+    <!-- Active Exercise Card -->
+    <div class="card coll-card center mt-16">
+      <div class="row center mb-16" style="justify-content:center;gap:8px;">
+        <span class="pill blue" id="card-category-pill">Kategori</span>
+        <span class="pill" id="card-level-pill">B1</span>
+      </div>
+      
+      <p class="reading mt-24" id="card-sentence" style="font-size:1.3rem;line-height:1.8;text-align:left;"></p>
+      <p class="muted hidden mt-8" id="card-sentence-en" style="font-size:1.05rem;text-align:left;font-style:italic;"></p>
+
+      <div class="options mt-24" id="card-options" style="display:grid;grid-template-columns:1fr;gap:12px;">
+        <!-- Populated via connectors.js -->
+      </div>
+      
+      <!-- Explanation Panel -->
+      <div class="explanation-panel hidden" id="card-explanation">
+        <div class="header" id="explain-header">Varför stämmer detta bindeord?</div>
+        <div class="body" id="explain-body"></div>
+      </div>
+      
+      <button class="btn btn-primary btn-lg mt-24 hidden" id="next-btn" type="button">Nästa fråga →</button>
+    </div>
+  </section>
+
+  <!-- ============ SUMMARY VIEW ============ -->
+  <section id="view-summary" class="hidden">
+    <div class="card center mt-24" style="max-width:600px;margin-left:auto;margin-right:auto;">
+      <h2 style="font-size:2rem;margin-top:0;">Utmaning klar! 🎉</h2>
+      <div class="num mt-16" id="summary-score-pct" style="font-size:3.5rem;font-weight:800;background:linear-gradient(120deg, var(--purple), var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;">0%</div>
+      <p class="lead mt-16" id="summary-score-text">Du svarade rätt på 0 av 0 frågor.</p>
+      
+      <div id="summary-mistakes-info" class="mt-16 muted" style="font-size:0.95rem;"></div>
+      
+      <div class="row center mt-24" style="justify-content:center;gap:12px;">
+        <button class="btn btn-primary btn-lg" id="restart-btn" type="button">Öva igen</button>
+        <button class="btn btn-ghost btn-lg" id="summary-quit-btn" type="button">Tillbaka till start</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="gloss-tip" class="gloss-tip" aria-hidden="true"></div>
+
+<script src="shared.js"></script>
+<script src="data/connectors.js"></script>
+<script src="connectors.js"></script>
+</body>
+</html>

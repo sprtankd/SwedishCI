@@ -89,18 +89,7 @@
 >
 > **CSS**: Add new selectors to `shared.css` (never separate CSS files).
 
-- [~] 4.4 — Create `connectors.html` + `connectors.js`: Connector Challenge mode. (Started 2026-06-17)
-      Same IIFE pattern as collocations. Category filter pills at top (All/Addition/
-      Contrast/Cause/etc.). Shuffle connectors, one exercise at a time. Show: category
-      pill, text with highlighted gap, 3 option buttons. On answer: always show
-      explanation text (why this connector fits) + textEn. Track into
-      `Store progress.connectors.done/correct`. End: summary with score.
-      **Key difference from collocations**: the explanation text teaches WHY a connector
-      fits (semantic function). Always show it after answering.
-      **Enable** connectors in hub `index.html`.
-      **Verify**: Open by double-click, full flow, no console errors.
-
-- [ ] 4.5 — Polish both modes: difficulty progression (start A2, unlock B1 after ≥70%
+- [~] 4.5 — Polish both modes: difficulty progression (start A2, unlock B1 after ≥70% (Started 2026-06-17)
       on A2), progress tracking on hub cards ("X/65 klara"), review mode ("Granska fel"
       replays wrong answers — store mistake IDs in `progress.collocations.mistakes[]`
       and `progress.connectors.mistakes[]`). Smooth card entrance transitions.
@@ -377,6 +366,7 @@
       type, level, blank, options, correct, examples}`. Ported from divergent branch. _(2026-06-17)_
 - [x] 4.2 — `collocations.html` + `collocations.js` created: Collocation Cards mode with level filtering, shuffled cards, automatic correct/incorrect styling/Sfx, dynamic progress tracking, and local persistence of scores/mistakes. _(2026-06-17)_
 - [x] 4.3 — `data/connectors.js` created with 31 discourse connectors across 7 semantic categories, each populated with 2 custom B1-level exercises, English translations, and detailed explanations. _(2026-06-17)_
+- [x] 4.4 — `connectors.html` + `connectors.js` created: Connector Challenge mode with category tabs, shuffled exercises, inline explanation panels showing after answer selection, correct/incorrect visual/Sfx cues, and local persistence of scores/mistakes. _(2026-06-17)_
 
 
 ---
