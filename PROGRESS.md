@@ -46,14 +46,11 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [~] 0.6 — Initial commit of scaffold: hub + data files + shared assets. Verify
-      index.html opens cleanly with no console errors.
-
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [ ] 1.1 — Create `reader.html` skeleton: header, story display area, question panel,
-      progress indicators. Wire up navigation from hub.
+- [~] 1.1 — Create `reader.html` skeleton: header, story display area, question panel,
+      progress indicators. Wire up navigation from hub. _(claimed 2026-06-17)_
 - [ ] 1.2 — Implement glossed text rendering: parse story text, make each word tappable,
       show English gloss + pronunciation on tap/hover. Use a tooltip or inline reveal.
 - [ ] 1.3 — Implement comprehension questions panel: show questions after reading,
@@ -175,6 +172,8 @@
 - [x] 0.5 — `data/stories-a2-high.js`: 5 A2-high stories (106–118w) — job interview,
       doctor, apartment hunting, bus, Swedish holidays. Subordinate clauses introduced;
       glossaries + 5 questions each, validated. _(2026-06-17)_
+- [x] 0.6 — Scaffold verified: all shared assets + data files present, jsdom smoke
+      test of index.html passes with no console errors. Milestone 0 complete. _(2026-06-17)_
 
 ---
 
