@@ -263,6 +263,35 @@
     var next = nextArticle(article);
     if (next) nav.appendChild(S.el("button", { class: "btn btn-primary", text: "Nästa artikel →",
       onclick: function () { openArticle(next); } }));
+
+    // Check which glossary words are still new/met
+    var newOrMetWords = Object.keys(article.glossary || {}).filter(function (w) {
+      var norm = S.normalizeWord(w);
+      var count = S.Store.get("words." + norm + ".count", 0);
+      var status = S.encounterStatus(count);
+      return status === "new" || status === "met";
+    });
+
+    if (newOrMetWords.length > 0) {
+      var card = S.el("div", {
+        class: "card-tight mt-16",
+        style: "border:1px solid var(--stroke); border-radius:var(--radius-sm); padding: 12px; background: rgba(255, 255, 255, 0.02); text-align: left;"
+      }, [
+        S.el("span", { style: "display:block; font-weight:700; color:var(--gold); margin-bottom: 6px;", text: "🔗 Öva dessa ord i SwedishGames" }),
+        S.el("p", { style: "margin: 0 0 10px; font-size: 0.88rem; line-height: 1.4; color: var(--ink-dim);", text: "Du har stött på ord som du kan träna mer på aktivt:" }),
+        S.el("div", { style: "display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;" }, newOrMetWords.map(function (w) {
+          return S.el("span", { class: "pill faint", style: "font-size: 0.8rem;", text: w });
+        })),
+        S.el("a", {
+          href: "../SwedishGames/index.html",
+          class: "btn btn-sm btn-blue",
+          style: "display: inline-block; text-decoration: none;",
+          text: "Öppna SwedishGames"
+        })
+      ]);
+      res.appendChild(card);
+    }
+
     res.appendChild(nav);
   }
 
