@@ -55,10 +55,8 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [~] 3.1 — Create `listening.html` skeleton: audio player controls, question panel,
-      transcript reveal area. Wire up from hub. _(claimed 2026-06-17)_
-- [ ] 3.2 — Create `data/listening-a2.js` with 5 short listening passages (transcripts
-      + questions). Generate audio via TTS integration.
+- [~] 3.2 — Create `data/listening-a2.js` with 5 short listening passages (transcripts
+      + questions). Generate audio via TTS integration. _(claimed 2026-06-17)_
 - [ ] 3.3 — Implement listen-first flow: play audio → answer questions → reveal
       transcript with glosses → re-listen while reading.
 - [ ] 3.4 — Add speed controls (0.75x / 1.0x / 1.1x) and repeat controls.
@@ -195,6 +193,10 @@
       estimated reading time (~100 wpm) on cards and in the article view. List view,
       completion tracking and word-encounter integration verified. Milestone 2 complete.
       _(2026-06-17)_
+- [x] 3.1 — `listening.html` + `listening.js` skeleton: level tabs (A2/B1), passage
+      list with empty-state, listen view with TTS player (play/stop/replay), questions
+      view, transcript-reveal view (glossed + re-listen via shared engine). Listen-first
+      flow wired; empty-data smoke test passes with no console errors. _(2026-06-17)_
 
 ---
 

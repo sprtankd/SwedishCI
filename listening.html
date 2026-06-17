@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>🎧 Listening Lab — Svenska CI</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div id="header"></div>
+
+<main class="wrap">
+
+  <!-- ============ LIST VIEW ============ -->
+  <section id="view-list">
+    <div class="hero">
+      <h1>🎧 Lyssna</h1>
+      <p class="lead">Lyssna först, svara på frågor och avslöja sedan texten. Träna
+        hörförståelse i lugn takt inför SFI C och D.</p>
+    </div>
+
+    <div class="level-tabs" id="level-tabs" role="tablist"></div>
+
+    <div class="row between mb-8">
+      <span class="muted" id="level-progress-label" style="font-size:.9rem;"></span>
+      <span class="muted" id="level-progress-pct" style="font-size:.9rem;"></span>
+    </div>
+    <div class="progress mb-24"><span id="level-progress-bar"></span></div>
+
+    <div id="passage-list" class="mode-grid"></div>
+  </section>
+
+  <!-- ============ LISTEN VIEW ============ -->
+  <section id="view-listen" class="hidden">
+    <button class="btn btn-ghost btn-sm" id="back-btn">← Tillbaka till listan</button>
+
+    <article class="card mt-16 center">
+      <div class="row" id="listen-tags" style="gap:8px;justify-content:center;"></div>
+      <h1 id="passage-title" style="margin:14px 0 4px;font-size:1.5rem;"></h1>
+      <div class="muted" id="passage-titleEn" style="font-size:.95rem;"></div>
+
+      <div class="mt-24" style="font-size:3.4rem;line-height:1;">🎧</div>
+
+      <div class="row mt-16" style="gap:12px;justify-content:center;">
+        <button class="btn btn-blue btn-lg" id="play-btn">▶︎ Spela</button>
+        <button class="btn" id="replay-btn">↻ Lyssna igen</button>
+      </div>
+
+      <p class="muted mt-16" id="listen-hint" style="font-size:.9rem;">
+        Lyssna en eller flera gånger. Försök förstå det viktigaste — du behöver inte
+        förstå varje ord.</p>
+
+      <div class="row mt-24" style="gap:10px;justify-content:center;">
+        <button class="btn btn-primary" id="to-questions-btn">Jag har lyssnat — svara på frågor →</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ QUESTIONS VIEW ============ -->
+  <section id="view-questions" class="hidden">
+    <button class="btn btn-ghost btn-sm" id="back-to-listen-btn">← Lyssna igen</button>
+    <article class="card mt-16">
+      <h2 style="margin-top:0;">Frågor <span class="faint" style="font-size:1rem;">· Comprehension</span></h2>
+      <p class="muted" style="font-size:.88rem;">Svara utan att läsa texten. Texten visas efteråt.</p>
+      <div id="questions-host"></div>
+      <div id="questions-result" class="hidden"></div>
+    </article>
+  </section>
+
+  <!-- ============ TRANSCRIPT VIEW ============ -->
+  <section id="view-transcript" class="hidden">
+    <button class="btn btn-ghost btn-sm" id="back-to-questions-btn">← Tillbaka till frågorna</button>
+    <article class="card mt-16">
+      <div class="row between">
+        <h2 style="margin:0;">Text <span class="faint" style="font-size:1rem;">· Transcript</span></h2>
+        <button class="btn btn-blue btn-sm" id="relisten-btn">🔊 Lyssna och läs</button>
+      </div>
+      <p class="muted" style="font-size:.88rem;">Tryck på en mening för att höra den, eller på ett ord för översättning.</p>
+      <div class="reading mt-16" id="transcript-text"></div>
+      <div class="row mt-24" style="gap:10px;" id="transcript-nav"></div>
+    </article>
+  </section>
+
+</main>
+
+<div id="gloss-tip" class="gloss-tip" aria-hidden="true"></div>
+
+<script src="shared.js"></script>
+<script src="listening.js"></script>
+</body>
+</html>
