@@ -52,11 +52,9 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [~] 2.3 — Add "text type" indicators (informational, argumentative, instructional)
-      matching SFI D text categories. _(claimed 2026-06-17)_
-- [ ] 2.4 — Create `data/news-b1plus.js` with 5 articles at B1+ level (~250-400 words).
+- [~] 2.4 — Create `data/news-b1plus.js` with 5 articles at B1+ level (~250-400 words).
       Topics: integration debate, climate policy, education reform, gender equality,
-      digital society. Use more advanced connectors and abstract vocabulary.
+      digital society. Use more advanced connectors and abstract vocabulary. _(claimed 2026-06-17)_
 - [ ] 2.5 — Polish news reader: article list view, difficulty indicator, completion
       tracking, word encounter integration.
 
@@ -189,6 +187,9 @@
       pass). Built `news.html` + `news.js`: headline, lead, glossed body, source
       attribution, questions, encounter tracking, level tabs. Hub card enabled.
       Smoke test passes. _(2026-06-17)_
+- [x] 2.3 — Text-type indicators (informerande/instruerande/argumenterande) with
+      colored pills on cards + article view, a legend explaining the SFI D categories,
+      and a per-article genre hint. Smoke test passes. _(2026-06-17)_
 
 ---
 

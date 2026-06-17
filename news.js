@@ -14,12 +14,36 @@
     { id: "B1+", label: "B1+", sub: "SFI D" }
   ];
 
-  // Text-type labels (SFI D text categories)
+  // Text-type categories matching the SFI D text types the learner must recognise.
   var TEXT_TYPES = {
-    informational: { label: "Informerande", cls: "blue" },
-    instructional: { label: "Instruerande", cls: "green" },
-    argumentative: { label: "Argumenterande", cls: "pink" }
+    informational: { label: "Informerande", cls: "blue", icon: "ℹ️",
+      desc: "Ger fakta och förklarar hur något fungerar. Sök efter siffror, namn och orsaker.",
+      descEn: "Informational: gives facts and explains how things work." },
+    instructional: { label: "Instruerande", cls: "green", icon: "📋",
+      desc: "Ger råd eller steg att följa. Leta efter uppmaningar (gör, försök, undvik).",
+      descEn: "Instructional: gives advice or steps to follow." },
+    argumentative: { label: "Argumenterande", cls: "pink", icon: "💬",
+      desc: "Framför en åsikt och argument. Leta efter skribentens ståndpunkt och skäl.",
+      descEn: "Argumentative: puts forward an opinion with reasons." }
   };
+
+  // Legend explaining the three SFI D text categories.
+  function renderTypeLegend() {
+    var host = S.$("#type-legend");
+    if (!host) return;
+    host.innerHTML = "";
+    host.appendChild(S.el("div", { class: "muted mb-8", style: "font-size:.82rem;font-weight:700;",
+      text: "Texttyper · Text types (viktigt för SFI D)" }));
+    var row = S.el("div", { class: "row", style: "gap:14px;" });
+    Object.keys(TEXT_TYPES).forEach(function (k) {
+      var t = TEXT_TYPES[k];
+      row.appendChild(S.el("span", { class: "row", style: "gap:6px;align-items:flex-start;flex:1;min-width:180px;" }, [
+        S.el("span", { class: "pill " + t.cls, text: t.icon + " " + t.label }),
+        S.el("span", { class: "faint", style: "font-size:.78rem;", text: t.desc })
+      ]));
+    });
+    host.appendChild(row);
+  }
 
   var ALL = (window.SvCI_NEWS || []).slice();
   function articlesAt(level) {
@@ -86,6 +110,7 @@
 
   function renderList() {
     renderTabs();
+    renderTypeLegend();
     var store = S.Store.load();
     store.progress.news.lastLevel = state.level;
     S.Store.save();
@@ -136,10 +161,12 @@
 
     var tags = S.$("#article-tags");
     tags.innerHTML = "";
-    var tt = TEXT_TYPES[article.textType] || { label: article.textType || "", cls: "" };
-    tags.appendChild(S.el("span", { class: "pill " + tt.cls, text: "📄 " + tt.label }));
+    var tt = TEXT_TYPES[article.textType] || { label: article.textType || "", cls: "", icon: "📄", desc: "" };
+    tags.appendChild(S.el("span", { class: "pill " + tt.cls, text: (tt.icon || "📄") + " " + tt.label }));
     tags.appendChild(S.el("span", { class: "pill", text: article.level }));
     tags.appendChild(S.el("span", { class: "pill", text: article.theme }));
+
+    S.$("#article-typehint").textContent = tt.desc || "";
 
     var lead = S.$("#article-lead");
     lead.innerHTML = "";
