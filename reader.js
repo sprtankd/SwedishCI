@@ -239,22 +239,102 @@
   document.addEventListener("click", function () { Tooltip.hide(); });
   window.addEventListener("scroll", function () { Tooltip.hide(); }, true);
 
-  // ---- Questions view (skeleton; interactive scoring lands in 1.3) --------
+  // ---- Comprehension questions (1.3) --------------------------------------
   function renderQuestions(story) {
     var host = S.$("#questions-host");
     host.innerHTML = "";
-    (story.questions || []).forEach(function (q, idx) {
-      var block = S.el("div", { class: "question" }, [
-        S.el("div", { class: "q-text", text: (idx + 1) + ". " + q.q }),
-        S.el("div", { class: "q-en", text: q.qEn || "" })
-      ]);
+    S.$("#questions-result").classList.add("hidden");
+
+    var questions = story.questions || [];
+    var answered = 0, correct = 0;
+
+    questions.forEach(function (q, idx) {
+      var block = S.el("div", { class: "question" });
+      block.appendChild(S.el("div", { class: "q-text", text: (idx + 1) + ". " + q.q }));
+      if (q.qEn) block.appendChild(S.el("div", { class: "q-en", text: q.qEn }));
+
       var opts = S.el("div", { class: "options" });
-      (q.options || []).forEach(function (o) {
-        opts.appendChild(S.el("button", { class: "option", type: "button", text: o }));
+      var optButtons = [];
+      var done = false;
+
+      (q.options || []).forEach(function (o, oi) {
+        var btn = S.el("button", { class: "option", type: "button", text: o });
+        btn.addEventListener("click", function () {
+          if (done) return;
+          done = true;
+          var isRight = oi === q.correct;
+          optButtons.forEach(function (b, bi) {
+            b.disabled = true;
+            if (bi === q.correct) b.classList.add("correct");
+            if (bi === oi && !isRight) b.classList.add("wrong");
+          });
+          if (isRight) { correct++; S.Sfx.correct(); }
+          else { S.Sfx.wrong(); }
+
+          if (q.explain) {
+            block.appendChild(S.el("div", { class: "explain",
+              text: (isRight ? "✓ Rätt! " : "✗ ") + q.explain }));
+          }
+          answered++;
+          if (answered === questions.length) showResult(story, correct, questions.length);
+        });
+        optButtons.push(btn);
+        opts.appendChild(btn);
       });
       block.appendChild(opts);
       host.appendChild(block);
     });
+  }
+
+  function showResult(story, correct, total) {
+    var pct = Math.round((correct / total) * 100);
+
+    // persist best score + completion
+    var prevBest = S.Store.get("progress.reader.scores." + story.id, null);
+    if (prevBest == null || pct > prevBest) {
+      var s = S.Store.load();
+      s.progress.reader.scores[story.id] = pct;
+      S.Store.save();
+    }
+    var wasDone = S.Store.get("progress.reader.completed." + story.id, false);
+    if (!wasDone) {
+      var st = S.Store.load();
+      st.progress.reader.completed[story.id] = true;
+      S.Store.save();
+      S.logSession();
+    }
+    // encounter tracking (full implementation in chunk 1.5)
+    onStoryComprehended(story, pct);
+
+    var res = S.$("#questions-result");
+    res.classList.remove("hidden");
+    res.innerHTML = "";
+
+    var msg = pct >= 80 ? "Utmärkt! 🌟" : pct >= 60 ? "Bra jobbat! 👍" : "Fortsätt öva 💪";
+    res.appendChild(S.el("div", { class: "card-tight center",
+      style: "border:1px solid var(--stroke);border-radius:var(--radius-sm);margin-top:8px;" }, [
+      S.el("div", { class: "num", style: "font-size:2.2rem;font-weight:800;", text: pct + "%" }),
+      S.el("div", { class: "muted", text: correct + " av " + total + " rätt · " + msg })
+    ]));
+
+    var nav = S.el("div", { class: "row mt-16", style: "gap:10px;" });
+    nav.appendChild(S.el("button", { class: "btn", text: "← Till listan",
+      onclick: function () { renderList(); show("list"); } }));
+    var next = nextStory(story);
+    if (next) {
+      nav.appendChild(S.el("button", { class: "btn btn-primary", text: "Nästa text →",
+        onclick: function () { openStory(next); } }));
+    }
+    res.appendChild(nav);
+  }
+
+  // hook for chunk 1.5 (word-encounter tracking); no-op stub for now
+  function onStoryComprehended(story, pct) { /* implemented in 1.5 */ }
+
+  function nextStory(story) {
+    var list = storiesAt(story.level);
+    var idx = list.findIndex(function (s) { return s.id === story.id; });
+    return (idx >= 0 && idx + 1 < list.length) ? list[idx + 1] : null;
   }
 
   // ---- Wire buttons -------------------------------------------------------

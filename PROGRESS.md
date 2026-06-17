@@ -49,10 +49,8 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.3 — Implement comprehension questions panel: show questions after reading,
-      multiple choice, score tracking, explanations on answer. _(claimed 2026-06-17)_
-- [ ] 1.4 — Implement story progression: level selector (A2-low / A2-high / B1 / B1+),
-      story list within each level, completion tracking in localStorage.
+- [~] 1.4 — Implement story progression: level selector (A2-low / A2-high / B1 / B1+),
+      story list within each level, completion tracking in localStorage. _(claimed 2026-06-17)_
 - [ ] 1.5 — Implement word encounter tracking: when a reader reads a story, all glossary
       words are marked as "encountered". Track encounter count per word across stories.
       Words graduate: new (0) → met (1-2) → familiar (3-5) → known (6+).
@@ -177,6 +175,10 @@
       (incl. multi-word like "stiger upp") in tappable spans with dotted underline;
       every other word tappable for pronunciation. Tooltip shows sv + en + 🔊 listen
       via Speech. Dismiss on outside click/scroll. Smoke test passes. _(2026-06-17)_
+- [x] 1.3 — Interactive comprehension questions: multiple choice with correct/wrong
+      styling, Sfx feedback, per-question explanations, score panel (best score +
+      completion saved to localStorage, session logged), "next text" navigation.
+      Smoke test: 100% scored & persisted. _(2026-06-17)_
 
 ---
 
