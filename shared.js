@@ -241,40 +241,133 @@
   }
 
   /* ------------------------------------------------------------ Speech */
-  // Swedish TTS via the Web Speech API, with graceful fallback if unavailable.
+  // Swedish Speech utility with offline audio file support, neural voice preference,
+  // and dynamic online TTS fallback (Google Translate) to completely avoid English voice distortion.
   var Speech = {
     _voice: null,
     _ready: false,
+    _cache: {},
+    _now: null,
     rate: 1.0,
     init: function () {
+      // Load audio-map.js dynamically if not already present
+      if (!document.querySelector('script[src="audio-map.js"]')) {
+        var s = document.createElement("script");
+        s.src = "audio-map.js";
+        document.head.appendChild(s);
+      }
+
       if (!("speechSynthesis" in global)) return;
       var pick = function () {
         var voices = global.speechSynthesis.getVoices();
-        Speech._voice =
-          voices.find(function (v) { return /sv(-|_)/i.test(v.lang); }) ||
-          voices.find(function (v) { return /^sv/i.test(v.lang); }) || null;
+        // Rank voices to prefer Edge/Safari natural neural voices
+        var rank = function (v) {
+          if (!/^sv/i.test(v.lang)) return -1;
+          var score = 1;
+          if (/natural|neural|online/i.test(v.name)) score += 2;
+          if (/microsoft/i.test(v.name)) score += 1;
+          return score;
+        };
+        var svVoices = voices.filter(function (v) { return /^sv/i.test(v.lang); });
+        svVoices.sort(function (a, b) { return rank(b) - rank(a); });
+        Speech._voice = svVoices[0] || null;
         Speech._ready = true;
       };
       pick();
       global.speechSynthesis.onvoiceschanged = pick;
     },
-    available: function () { return "speechSynthesis" in global; },
+    fileFor: function (text) {
+      if (typeof AUDIO_FILES === "undefined" || !AUDIO_FILES) return null;
+      var key = String(text || "").toLowerCase().trim();
+      if (AUDIO_FILES[key]) return AUDIO_FILES[key];
+      // strip common punctuation/quotes
+      key = key.replace(/^[„“”"']+/g, "").replace(/[.!?,„“”"']+$/g, "").trim();
+      if (AUDIO_FILES[key]) return AUDIO_FILES[key];
+      var bare = key.replace(/^(en|ett|att)\s+/g, "");
+      return AUDIO_FILES[bare] || null;
+    },
+    playFile: function (f, rate, onend) {
+      this.stop();
+      var a = this._cache[f] || (this._cache[f] = new Audio("audio/" + f));
+      a.onended = onend || null;
+      a.currentTime = 0;
+      a.playbackRate = rate && rate < 0.85 ? 0.75 : 1.0;
+      this._now = a;
+      var p = a.play();
+      if (p && p.catch) {
+        p.catch(function () {
+          if (onend) onend();
+        });
+      }
+      return true;
+    },
+    available: function () { return true; },
     say: function (text, opts) {
       opts = opts || {};
-      if (!("speechSynthesis" in global)) return false;
-      try {
-        global.speechSynthesis.cancel();
-        var u = new global.SpeechSynthesisUtterance(text);
-        if (this._voice) u.voice = this._voice;
-        u.lang = "sv-SE";
-        u.rate = opts.rate || this.rate;
-        u.pitch = opts.pitch || 1.0;
-        if (opts.onend) u.onend = opts.onend;
-        global.speechSynthesis.speak(u);
-        return true;
-      } catch (e) { return false; }
+      var f = this.fileFor(text);
+      if (f) {
+        return this.playFile(f, opts.rate, opts.onend);
+      }
+      
+      // Fallback 1: Web Speech API TTS (if a Swedish voice is available)
+      if ("speechSynthesis" in global) {
+        try {
+          this.stop();
+          var u = new global.SpeechSynthesisUtterance(text);
+          if (this._voice) {
+            u.voice = this._voice;
+          } else {
+            // Fallback 2: Google Translate TTS (online)
+            if (global.navigator && global.navigator.onLine) {
+              var gUrl = "https://translate.google.com/translate_tts?ie=UTF-8&tl=sv&client=tw-ob&q=" + encodeURIComponent(text);
+              this._now = new Audio(gUrl);
+              this._now.onended = opts.onend || null;
+              var p = this._now.play();
+              if (p && p.catch) {
+                p.catch(function () {
+                  if (opts.onend) opts.onend();
+                });
+              }
+              return true;
+            } else {
+              // Fallback 3: No voice & offline -> Warn the user to prevent English pronunciation
+              Speech.warn();
+              if (opts.onend) {
+                setTimeout(opts.onend, 600);
+              }
+              return false;
+            }
+          }
+          u.lang = "sv-SE";
+          u.rate = opts.rate || this.rate;
+          u.pitch = opts.pitch || 1.0;
+          if (opts.onend) u.onend = opts.onend;
+          global.speechSynthesis.speak(u);
+          return true;
+        } catch (e) {
+          if (opts.onend) setTimeout(opts.onend, 100);
+          return false;
+        }
+      } else {
+        if (opts.onend) setTimeout(opts.onend, 100);
+        return false;
+      }
     },
-    stop: function () { if ("speechSynthesis" in global) global.speechSynthesis.cancel(); }
+    stop: function () {
+      if (this._now) {
+        try { this._now.pause(); } catch (e) {}
+        this._now = null;
+      }
+      if ("speechSynthesis" in global) {
+        try { global.speechSynthesis.cancel(); } catch (e) {}
+      }
+    },
+    _warned: false,
+    warn: function () {
+      if (this._warned) return;
+      this._warned = true;
+      toast("🔇 <b>Ingen svensk röst hittades offline</b>.<br>Koppla upp dig för att spela nya meningar, eller använd Microsoft Edge.", "err", 8000);
+    }
   };
 
   /* --------------------------------------------------------------- Sfx */

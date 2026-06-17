@@ -43,6 +43,25 @@
   <h2 class="section-title">Lägen <span class="faint" style="font-size:1rem;">· Modes</span></h2>
   <div class="mode-grid" id="modes"></div>
 
+  <!-- Offline audio card -->
+  <section class="card mt-24" id="offline-audio-container" aria-label="Offline Audio">
+    <div class="row between mb-8">
+      <h2 style="margin:0;font-size:1.2rem;">Ljud offline <span class="faint" style="font-size:.85rem;">· Offline audio</span></h2>
+      <span id="audio-status-pill" class="pill faint">Kontrollerar...</span>
+    </div>
+    <p class="muted" style="margin: 0 0 16px 0; font-size: 0.88rem; line-height: 1.45;">
+      Ladda ner alla ljudfiler till din webbläsare så att du kan höra korrekt svenskt uttal även på flyget eller utan internet. (Storlek: ~30 MB)
+    </p>
+    <div id="download-progress-box" class="hidden" style="margin-bottom: 16px;">
+      <div class="row between mb-4" style="font-size: 0.85rem;">
+        <span class="muted" id="download-text">Förbereder...</span>
+        <span class="muted" id="download-pct">0%</span>
+      </div>
+      <div class="progress"><span id="download-bar" style="width: 0%;"></span></div>
+    </div>
+    <button class="btn btn-blue btn-sm" id="download-audio-btn" disabled>▶ Ladda ner allt ljud · Download all</button>
+  </section>
+
   <!-- Study plan card -->
   <section class="card mt-24" id="study-plan-container" aria-label="Study Plan">
     <h2 style="margin-top:0;font-size:1.2rem;">Din studieplan <span class="faint" style="font-size:.85rem;">· Study plan</span></h2>
@@ -200,6 +219,157 @@
       ])
     ]));
   }
+
+  // ---- Offline Audio Manager ----
+  var downloading = false;
+  
+  function checkAudioCacheStatus() {
+    if (typeof AUDIO_FILES === "undefined" || !AUDIO_FILES) {
+      setTimeout(checkAudioCacheStatus, 100);
+      return;
+    }
+    
+    var files = Object.keys(AUDIO_FILES).map(function(k) { return AUDIO_FILES[k]; });
+    var cacheName = "svci-v1";
+    var btn = S.$("#download-audio-btn");
+    var pill = S.$("#audio-status-pill");
+    
+    if (!btn || !pill || !('caches' in window)) {
+      if (pill) {
+        pill.textContent = "Offline ej tillgängligt";
+      }
+      return;
+    }
+    
+    window.caches.open(cacheName).then(function(cache) {
+      var matches = 0;
+      var batchSize = 100;
+      
+      var checkNext = function(idx) {
+        if (idx >= files.length) {
+          btn.disabled = false;
+          if (matches === files.length) {
+            pill.textContent = "Sparat offline";
+            pill.className = "pill green";
+            btn.textContent = "✅ Nedladdad · Downloaded";
+            btn.disabled = true;
+            btn.className = "btn btn-green btn-sm";
+          } else if (matches > 0) {
+            pill.textContent = "Delvis sparad (" + Math.round((matches/files.length)*100) + "%)";
+            pill.className = "pill blue";
+            btn.textContent = "▶ Fortsätt hämta · Resume download";
+          } else {
+            pill.textContent = "Ej hämtad";
+            pill.className = "pill faint";
+            btn.textContent = "▶ Ladda ner allt ljud · Download all";
+          }
+          return;
+        }
+        
+        var batch = [];
+        for (var i = idx; i < Math.min(idx + batchSize, files.length); i++) {
+          batch.push(
+            cache.match("audio/" + files[i]).then(function(res) {
+              if (res) matches++;
+            })
+          );
+        }
+        Promise.all(batch).then(function() {
+          checkNext(idx + batchSize);
+        });
+      };
+      
+      checkNext(0);
+    });
+  }
+  
+  function startAudioDownload() {
+    if (downloading || typeof AUDIO_FILES === "undefined" || !AUDIO_FILES) return;
+    downloading = true;
+    
+    var btn = S.$("#download-audio-btn");
+    var progressBox = S.$("#download-progress-box");
+    var prgBar = S.$("#download-bar");
+    var prgText = S.$("#download-text");
+    var prgPct = S.$("#download-pct");
+    var pill = S.$("#audio-status-pill");
+    
+    btn.disabled = true;
+    btn.textContent = "Laddar ner...";
+    progressBox.classList.remove("hidden");
+    
+    var files = Object.keys(AUDIO_FILES).map(function(k) { return AUDIO_FILES[k]; });
+    var total = files.length;
+    
+    window.caches.open("svci-v1").then(function(cache) {
+      var queue = files.slice();
+      var active = 0;
+      var completed = 0;
+      var concurrency = 8;
+      
+      var updateProgress = function() {
+        var pct = Math.round((completed / total) * 100);
+        prgBar.style.width = pct + "%";
+        prgPct.textContent = pct + "%";
+        prgText.textContent = "Hämtar: " + completed + " / " + total;
+      };
+      
+      var downloadNext = function() {
+        if (queue.length === 0 && active === 0) {
+          downloading = false;
+          progressBox.classList.add("hidden");
+          btn.textContent = "✅ Klar! · Downloaded";
+          btn.disabled = true;
+          btn.className = "btn btn-green btn-sm";
+          pill.textContent = "Sparat offline";
+          pill.className = "pill green";
+          S.toast("Alla ljudfiler sparades offline! 🎉", "ok", 4000);
+          return;
+        }
+        
+        while (active < concurrency && queue.length > 0) {
+          var file = queue.shift();
+          var url = "audio/" + file;
+          active++;
+          
+          (function(fileUrl) {
+            cache.match(fileUrl).then(function(res) {
+              if (res) {
+                active--;
+                completed++;
+                updateProgress();
+                downloadNext();
+              } else {
+                fetch(fileUrl).then(function(netRes) {
+                  if (netRes.ok) {
+                    cache.put(fileUrl, netRes.clone());
+                  }
+                  active--;
+                  completed++;
+                  updateProgress();
+                  downloadNext();
+                }).catch(function() {
+                  active--;
+                  completed++;
+                  updateProgress();
+                  downloadNext();
+                });
+              }
+            });
+          })(url);
+        }
+      };
+      
+      downloadNext();
+    });
+  }
+  
+  var dlBtn = S.$("#download-audio-btn");
+  if (dlBtn) {
+    dlBtn.addEventListener("click", startAudioDownload);
+  }
+  
+  checkAudioCacheStatus();
 })();
 </script>
 <script>

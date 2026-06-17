@@ -20,6 +20,7 @@ var FILES_TO_CACHE = [
   "./exam-listening.html",
   "./shared.css",
   "./shared.js",
+  "./audio-map.js",
   "./gate.js",
   "./reader.js",
   "./news.js",

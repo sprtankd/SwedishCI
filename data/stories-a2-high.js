@@ -240,6 +240,14 @@
         "högtider är ett fint sätt att träffa familj och vänner.",
       glossary: {
         "högtider": "holidays / celebrations",
+        "firas": "is celebrated",
+        "majstång": "maypole",
+        "tomten": "Santa Claus / the gnome",
+        "klappar": "presents / gifts",
+        "lucia": "Lucia",
+        "pepparkakor": "gingerbread cookies"
+      },
+      questions: [
         { type: "gist", q: "Vad handlar texten om?", qEn: "What is the text about?",
           options: ["Svenska högtider", "Svensk mat", "Det svenska vädret"], correct: 0,
           explain: "Texten beskriver flera svenska högtider: midsommar, jul och lucia." },
