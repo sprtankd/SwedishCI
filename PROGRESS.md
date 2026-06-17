@@ -89,11 +89,7 @@
 >
 > **CSS**: Add new selectors to `shared.css` (never separate CSS files).
 
-- [~] 4.5 — Polish both modes: difficulty progression (start A2, unlock B1 after ≥70% (Started 2026-06-17)
-      on A2), progress tracking on hub cards ("X/65 klara"), review mode ("Granska fel"
-      replays wrong answers — store mistake IDs in `progress.collocations.mistakes[]`
-      and `progress.connectors.mistakes[]`). Smooth card entrance transitions.
-      **Verify**: Full flow of both, progress persists, review only shows mistakes.
+
 
 ---
 
@@ -367,6 +363,7 @@
 - [x] 4.2 — `collocations.html` + `collocations.js` created: Collocation Cards mode with level filtering, shuffled cards, automatic correct/incorrect styling/Sfx, dynamic progress tracking, and local persistence of scores/mistakes. _(2026-06-17)_
 - [x] 4.3 — `data/connectors.js` created with 31 discourse connectors across 7 semantic categories, each populated with 2 custom B1-level exercises, English translations, and detailed explanations. _(2026-06-17)_
 - [x] 4.4 — `connectors.html` + `connectors.js` created: Connector Challenge mode with category tabs, shuffled exercises, inline explanation panels showing after answer selection, correct/incorrect visual/Sfx cues, and local persistence of scores/mistakes. _(2026-06-17)_
+- [x] 4.5 — Polish & integration complete for both modes: A2-to-B1 level locking (unlocks at >=70%), "Granska fel" review mode, animated entry transitions, and responsive mobile-first grid controls. _(2026-06-17)_
 
 
 ---
