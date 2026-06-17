@@ -8,6 +8,12 @@
 > **IMPORTANT:** Tasks below are split into many small chunks. Each chunk ≈ 15-30 min of
 > work. Commit + push after EACH chunk. This way, if your session runs out of tokens,
 > at most ONE small chunk is lost — not an entire mode.
+> [!IMPORTANT]
+> **CRITICAL: CHECK PRs AND BRANCHES BEFORE STARTING WORK**
+> To avoid repeating work in parallel, you **MUST** run the following checks at the start of your session:
+> 1. Check all local and remote branches: `git branch -a`
+> 2. Check for open Pull Requests: `gh pr list`
+> 3. If there is an active PR or branch containing work-in-progress, **do not** branch off `main`. Checkout that branch or resume from it. Only start a new branch from `main` if all previous PRs are merged and you are starting the next pending task.
 
 ## Crash-safe build loop (follow exactly)
 
@@ -58,8 +64,6 @@
 ---
 
 ## Milestone 4: Collocation & Connector Activities (🔗 🧩)
-- [ ] 4.1 — Create `data/collocations.js` with 50+ particle verb / preposition
-      collocations, each with 2-3 example sentences showing usage in context.
 - [ ] 4.2 — Create `collocations.html`: read a mini-context paragraph, fill in the
       correct particle/preposition from choices. NOT flashcards — always in context.
 - [ ] 4.3 — Create `data/connectors.js` with 30+ discourse connectors (dessutom,
@@ -205,6 +209,9 @@
 - [x] 3.6 — Listening polish: view-enter transitions, per-level progress tracking,
       level-complete celebration banner + toast, touch-friendly mobile audio controls
       (wrapping play/replay + speed tabs). Smoke test passes. Milestone 3 complete. _(2026-06-17)_
+- [x] 4.1 — `data/collocations.js` created with 65 collocation entries (50 particle verbs
+      + 15 adjective/verb preposition pairs) with schema `{id, collocation, collocationEn,
+      type, level, blank, options, correct, examples}`. Ported from divergent branch. _(2026-06-17)_
 
 ---
 
