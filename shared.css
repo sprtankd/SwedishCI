@@ -484,6 +484,42 @@ body::after {
 h2.section-title { font-size: 1.4rem; margin: 28px 0 8px; }
 
 /* ---- Responsive --------------------------------------------------------- */
+/* ---- View enter transition ---------------------------------------------- */
+.view-enter { animation: viewFade 0.34s ease both; }
+@keyframes viewFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---- In-story reading progress bar (fixed top) -------------------------- */
+#read-progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 40;
+  background: rgba(255,255,255,0.05);
+}
+#read-progress > span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--gold), var(--green));
+  transition: width 0.1s linear;
+}
+
+/* ---- Level-complete celebration banner ---------------------------------- */
+.level-banner {
+  margin-top: 8px;
+  padding: 18px;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(244, 201, 93, 0.5);
+  background: linear-gradient(120deg, rgba(244,201,93,0.14), rgba(95,208,160,0.12));
+  animation: viewFade 0.4s ease both;
+}
+.level-banner .big { font-size: 1.6rem; font-weight: 800; }
+.level-banner .sub { color: var(--ink-dim); margin-top: 4px; }
+
 @media (max-width: 560px) {
   .wrap { padding: 0 14px 60px; }
   .site-header { padding: 16px 14px 12px; }

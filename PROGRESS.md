@@ -49,11 +49,9 @@
 ---
 
 ## Milestone 1: Graded Reader (📖)
-- [~] 1.7 — Polish reader UI: smooth transitions between stories, reading progress bar,
-      celebration on completing a level's stories. Mobile responsive. _(claimed 2026-06-17)_
-- [ ] 1.8 — Create `data/stories-b1.js` with 5 stories at B1 level (~150-250 words).
+- [~] 1.8 — Create `data/stories-b1.js` with 5 stories at B1 level (~150-250 words).
       Topics: workplace culture, healthcare system, environmental issues, Swedish
-      traditions, immigrant experiences.
+      traditions, immigrant experiences. _(claimed 2026-06-17)_
 
 ---
 
@@ -184,6 +182,9 @@
       via sv-SE TTS, highlighting + scrolling to the current sentence; per-sentence
       🔊 tap plays one sentence; word tap plays the word. Sentences wrapped in spans.
       Smoke test: 12 sentences chained + reset. _(2026-06-17)_
+- [x] 1.7 — Reader polish: view-enter fade transitions, fixed in-story reading
+      progress bar (fills on scroll), level-complete celebration banner + toast when
+      all of a level's stories are done. Mobile responsive tweaks. Smoke test passes. _(2026-06-17)_
 
 ---
 

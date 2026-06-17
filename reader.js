@@ -47,8 +47,31 @@
       views[k].classList.toggle("hidden", k !== name);
     });
     if (window.SvCI_Reader && window.SvCI_Reader.hideTip) window.SvCI_Reader.hideTip();
+    // smooth enter transition on the newly-shown view
+    var v = views[name];
+    v.classList.remove("view-enter");
+    void v.offsetWidth; // force reflow so the animation restarts
+    v.classList.add("view-enter");
+    // reading progress bar only visible while reading
+    S.$("#read-progress").classList.toggle("hidden", name !== "read");
+    if (name === "read") updateReadProgress();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+
+  // ---- In-story reading progress bar (1.7) --------------------------------
+  function updateReadProgress() {
+    var bar = S.$("#read-progress > span");
+    var text = S.$("#story-text");
+    if (!bar || !text) return;
+    var rect = text.getBoundingClientRect();
+    var total = rect.height || 1;
+    var seen = Math.min(Math.max(window.innerHeight - rect.top, 0), total);
+    bar.style.width = Math.round((seen / total) * 100) + "%";
+  }
+  window.addEventListener("scroll", function () {
+    if (!S.$("#view-read").classList.contains("hidden")) updateReadProgress();
+  }, { passive: true });
+  window.addEventListener("resize", updateReadProgress);
 
   // ---- Level tabs ---------------------------------------------------------
   function renderTabs() {
@@ -396,6 +419,21 @@
       S.el("div", { class: "num", style: "font-size:2.2rem;font-weight:800;", text: pct + "%" }),
       S.el("div", { class: "muted", text: correct + " av " + total + " rätt · " + msg })
     ]));
+
+    // celebration when every story in this level is now complete
+    var levelList = storiesAt(story.level);
+    var allDone = levelList.length && levelList.every(function (s) {
+      return S.Store.get("progress.reader.completed." + s.id, false);
+    });
+    if (allDone) {
+      var levelLabel = (LEVELS.find(function (l) { return l.id === story.level; }) || {}).label || story.level;
+      res.appendChild(S.el("div", { class: "level-banner" }, [
+        S.el("div", { class: "big", text: "🎉 Nivå klar!" }),
+        S.el("div", { class: "sub",
+          text: "Du har läst alla " + levelList.length + " texter på nivå " + levelLabel + "." })
+      ]));
+      S.toast("Nivå " + levelLabel + " klar! 🎉", "ok", 3000);
+    }
 
     var nav = S.el("div", { class: "row mt-16", style: "gap:10px;" });
     nav.appendChild(S.el("button", { class: "btn", text: "← Till listan",
