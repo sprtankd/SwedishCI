@@ -6,6 +6,7 @@
 <title>🔗 Collocation Cards — Svenska CI</title>
 <meta name="description" content="Träna på partikelverb och prepositioner i naturliga svenska sammanhang för SFI C &amp; D.">
 <link rel="stylesheet" href="shared.css">
+<script src="gate.js"></script>
 </head>
 <body>
 <div id="header"></div>
@@ -81,5 +82,10 @@
 <script src="shared.js"></script>
 <script src="data/collocations.js"></script>
 <script src="collocations.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+</script>
 </body>
 </html>

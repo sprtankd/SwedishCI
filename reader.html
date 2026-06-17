@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>📖 Graded Reader — Svenska CI</title>
 <link rel="stylesheet" href="shared.css">
+<script src="gate.js"></script>
 </head>
 <body>
 <div id="read-progress" class="hidden"><span></span></div>
@@ -78,5 +79,10 @@
 <script src="data/stories-a2-high.js"></script>
 <script src="data/stories-b1.js"></script>
 <script src="reader.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+</script>
 </body>
 </html>

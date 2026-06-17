@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>📝 Läsförståelseprov — Svenska CI</title>
 <link rel="stylesheet" href="shared.css">
+<script src="gate.js"></script>
 </head>
 <body>
 <div id="header"></div>
@@ -119,5 +120,10 @@
 <script src="data/exam-reading-c.js"></script>
 <script src="data/exam-reading-d.js"></script>
 <script src="exam-reading.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+</script>
 </body>
 </html>

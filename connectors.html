@@ -6,6 +6,7 @@
 <title>🧩 Connector Challenge — Svenska CI</title>
 <meta name="description" content="Träna på svenska bindeord (dessutom, däremot, alltså...) i lucktexter för SFI D.">
 <link rel="stylesheet" href="shared.css">
+<script src="gate.js"></script>
 </head>
 <body>
 <div id="header"></div>
@@ -85,5 +86,10 @@
 <script src="shared.js"></script>
 <script src="data/connectors.js"></script>
 <script src="connectors.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+</script>
 </body>
 </html>
