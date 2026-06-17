@@ -279,11 +279,15 @@
   }
 
   function updateLabels() {
-    S.$("#game-progress-label").textContent = "Fråga " + (state.index + 1) + " av " + state.queue.length;
-    var currentPct = state.index ? Math.round((state.score / state.index) * 100) : 0;
+    var totalQuestions = state.queue.length;
+    var currentQuestionNum = Math.min(state.index + 1, totalQuestions);
+    S.$("#game-progress-label").textContent = "Fråga " + currentQuestionNum + " av " + totalQuestions;
+    
+    var answeredCount = state.index + (S.$("#next-btn").classList.contains("hidden") ? 0 : 1);
+    var currentPct = answeredCount ? Math.round((state.score / answeredCount) * 100) : 0;
     S.$("#game-score-label").textContent = "Rätt: " + currentPct + "%";
 
-    var barPct = Math.round(((state.index) / state.queue.length) * 100);
+    var barPct = Math.round((answeredCount / totalQuestions) * 100);
     S.$("#game-progress-bar").style.width = barPct + "%";
   }
 

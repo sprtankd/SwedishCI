@@ -105,7 +105,7 @@
 > `stories-a2.js`, `stories-a2-high.js`, `stories-b1.js`, `news-b1.js`, `news-b1plus.js`,
 > `listening-a2.js`, `listening-b1.js`.
 
-- [ ] 5.1 — Create `tracker.html` + `tracker.js` with word grid.
+- [~] 5.1 — Create `tracker.html` + `tracker.js` with word grid. (Started 2026-06-17)
       Read Store.load().words → build array of {word, count, status, firstSeen, lastSeen, contexts}.
       Render grid of small word pills color-coded: new=#555 dim, met=var(--status-met) blue,
       familiar=var(--status-familiar) amber, known=var(--status-known) green.

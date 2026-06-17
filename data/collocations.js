@@ -920,6 +920,7 @@ const COLLOCATIONS = [
       { sentence: "Läraren var imponerad ___ elevens framsteg.", sentenceEn: "The teacher was impressed by the student's progress." },
       { sentence: "Jag blev verkligen imponerad ___ hur snabbt huset byggdes.", sentenceEn: "I was really impressed by how quickly the house was built." },
     ],
+  },
 ];
 
 window.SvCI_COLLOCATIONS = COLLOCATIONS;

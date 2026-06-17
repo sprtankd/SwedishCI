@@ -39,7 +39,7 @@
   // Calculate A2 collocation correctness
   function getA2Progress() {
     var a2Colls = ALL.filter(function (c) { return c.level === "A2"; });
-    if (!a2Colls.length) return 100;
+    if (!a2Colls.length) return { count: 0, total: 0, pct: 100 };
     var correctMap = S.Store.get("progress.collocations.correct_items", {});
     var a2CorrectCount = a2Colls.filter(function (c) { return !!correctMap[c.id]; }).length;
     return {
@@ -268,11 +268,15 @@
   }
 
   function updateLabels() {
-    S.$("#game-progress-label").textContent = "Kort " + (state.index + 1) + " av " + state.queue.length;
-    var currentPct = state.index ? Math.round((state.score / state.index) * 100) : 0;
+    var totalCards = state.queue.length;
+    var currentCardNum = Math.min(state.index + 1, totalCards);
+    S.$("#game-progress-label").textContent = "Kort " + currentCardNum + " av " + totalCards;
+    
+    var answeredCount = state.index + (S.$("#next-btn").classList.contains("hidden") ? 0 : 1);
+    var currentPct = answeredCount ? Math.round((state.score / answeredCount) * 100) : 0;
     S.$("#game-score-label").textContent = "Rätt: " + currentPct + "%";
 
-    var barPct = Math.round(((state.index) / state.queue.length) * 100);
+    var barPct = Math.round((answeredCount / totalCards) * 100);
     S.$("#game-progress-bar").style.width = barPct + "%";
   }
 
