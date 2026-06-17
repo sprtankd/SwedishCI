@@ -152,7 +152,7 @@
 
 - [x] 6.1 — Create `data/exam-reading-c.js`: 2 SFI C-style reading tests. _(2026-06-17)_
 
-- [ ] 6.2 — Create `exam-reading.html` + `exam-reading.js`: Exam selection screen
+- [~] 6.2 — Create `exam-reading.html` + `exam-reading.js`: Exam selection screen (Started 2026-06-17)
       (C/D level tabs, "30 min" timer badge). Exam flow: start → timer (countdown
       mm:ss, top-right, red at <5 min, pulse at <2 min) → all texts+questions in
       scrollable view → "Lämna in" submit or auto-submit on timeout. Results: score
