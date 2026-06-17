@@ -535,3 +535,69 @@ h2.section-title { font-size: 1.4rem; margin: 28px 0 8px; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ---- Collocation & Connector modes ---- */
+.coll-card {
+  max-width: 600px;
+  margin: 24px auto 0;
+}
+.gap {
+  color: var(--gold);
+  font-weight: 700;
+  border-bottom: 2px solid var(--gold);
+  padding: 0 4px;
+}
+.option-btn {
+  text-align: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border-radius: 999px; /* pill-style */
+  border: 1px solid var(--stroke);
+  background: var(--glass);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 1.05rem;
+  font-weight: 600;
+  transition: all 0.15s ease, transform 0.1s ease;
+  width: 100%;
+}
+.option-btn:hover:not(:disabled) {
+  background: var(--glass-2);
+  border-color: var(--stroke-strong);
+  transform: translateY(-1px);
+}
+.option-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+.option-btn.correct {
+  border-color: var(--ok);
+  background: rgba(95,208,160,0.15);
+  color: var(--ok);
+}
+.option-btn.wrong {
+  border-color: var(--err);
+  background: rgba(242,120,140,0.15);
+  color: var(--err);
+}
+.option-btn:disabled {
+  cursor: default;
+}
+.explanation-panel {
+  margin-top: 20px;
+  padding: 14px;
+  border-left: 4px solid var(--blue);
+  background: rgba(255,255,255,0.03);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  text-align: left;
+  animation: viewFade 0.3s ease both;
+}
+.explanation-panel .header {
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 4px;
+}
+.explanation-panel .body {
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+}
+

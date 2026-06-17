@@ -61,7 +61,7 @@
     "reader":        { desc: "Korta berättelser på A2–B1+ med ordförklaringar, ljud och frågor.", enabled: true },
     "news":          { desc: "Förenklade nyhetsartiklar för SFI D-läsning.", enabled: true },
     "listening":     { desc: "Ljudpassager med frågor, transkript och hastighetskontroll.", enabled: true },
-    "collocations":  { desc: "Partikelverb och prepositioner — alltid i meningar.", enabled: false },
+    "collocations":  { desc: "Partikelverb och prepositioner — alltid i meningar.", enabled: true },
     "connectors":    { desc: "Bindeord (dessutom, däremot, alltså…) i lucktexter.", enabled: false },
     "tracker":       { desc: "Översikt över alla ord efter hur väl du känner dem.", enabled: false },
     "exam-reading":  { desc: "Tidsbestämda SFI C/D läsförståelseprov.", enabled: false },
@@ -71,14 +71,40 @@
   var grid = S.$("#modes");
   S.MODES.forEach(function (m) {
     var info = MODE_INFO[m.id] || { desc: "", enabled: false };
+    
+    var progressText = "";
+    if (info.enabled) {
+      if (m.id === "collocations") {
+        var comp = Object.keys(S.Store.get("progress.collocations.completed", {})).length;
+        progressText = comp + " / 65 klara";
+      } else if (m.id === "connectors") {
+        var comp = Object.keys(S.Store.get("progress.connectors.completed", {})).length;
+        progressText = comp + " / 30 klara";
+      } else if (m.id === "reader") {
+        var comp = Object.keys(S.Store.get("progress.reader.completed", {})).length;
+        progressText = comp + " klara";
+      } else if (m.id === "news") {
+        var comp = Object.keys(S.Store.get("progress.news.completed", {})).length;
+        progressText = comp + " klara";
+      } else if (m.id === "listening") {
+        var comp = Object.keys(S.Store.get("progress.listening.completed", {})).length;
+        progressText = comp + " klara";
+      }
+    }
+
+    var cardChildren = [
+      S.el("span", { class: "icon", text: m.icon }),
+      S.el("div", { class: "row between", style: "align-items: center; width: 100%; margin: 4px 0 0;" }, [
+        S.el("h3", { text: m.name, style: "margin:0;" }),
+        progressText ? S.el("span", { class: "pill", style: "font-size:.7rem;padding:2px 8px;", text: progressText }) : null
+      ].filter(Boolean)),
+      S.el("p", { text: info.desc, style: "margin-top:6px;" })
+    ];
+
     var card = S.el("a", {
       href: info.enabled ? m.file : "javascript:void(0)",
       class: "mode-card" + (info.enabled ? "" : " soon")
-    }, [
-      S.el("span", { class: "icon", text: m.icon }),
-      S.el("h3", { text: m.name }),
-      S.el("p", { text: info.desc })
-    ]);
+    }, cardChildren);
     grid.appendChild(card);
   });
 

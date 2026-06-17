@@ -89,23 +89,7 @@
 >
 > **CSS**: Add new selectors to `shared.css` (never separate CSS files).
 
-- [~] 4.2 — Create `collocations.html` + `collocations.js`: Collocation Cards mode. (Started 2026-06-17)
-      **Data**: `data/collocations.js` already has 65 entries with schema:
-      `{id, collocation, collocationEn, type("particle-verb"|"preposition"), level("A2"|"B1"),
-      blank, options[3], correct(index), examples[{sentence(with "___"), sentenceEn}]}`.
-      Register as `window.SvCI_COLLOCATIONS = COLLOCATIONS;` at end of data file.
-      **UI flow**: Level filter tabs (A2/B1/All) → shuffled queue → main card shows:
-      collocation header "tycka ___" + English + type pill + context sentence with
-      highlighted gap (___) + 3 option buttons. On correct: green, Sfx.correct(),
-      show sentenceEn + "Nästa" btn. On wrong: red on picked, green on correct,
-      Sfx.wrong(), show sentenceEn. Progress bar "12/65". Track into
-      `Store progress.collocations.done/correct`. End: summary card with score + restart.
-      **CSS additions** in shared.css: `.coll-card`, `.gap` (gold highlight for blank),
-      `.option-btn` (pill-style), `.option-btn.correct/.wrong` (green/red feedback).
-      **Enable** collocations in hub `index.html`.
-      **Verify**: Open by double-click, full flow, no console errors, Store persists.
-
-- [ ] 4.3 — Create `data/connectors.js` with 30+ discourse connectors.
+- [~] 4.3 — Create `data/connectors.js` with 30+ discourse connectors. (Started 2026-06-17)
       **Schema**:
       ```js
       window.SvCI_CONNECTORS = [{
@@ -421,6 +405,8 @@
 - [x] 4.1 — `data/collocations.js` created with 65 collocation entries (50 particle verbs
       + 15 adjective/verb preposition pairs) with schema `{id, collocation, collocationEn,
       type, level, blank, options, correct, examples}`. Ported from divergent branch. _(2026-06-17)_
+- [x] 4.2 — `collocations.html` + `collocations.js` created: Collocation Cards mode with level filtering, shuffled cards, automatic correct/incorrect styling/Sfx, dynamic progress tracking, and local persistence of scores/mistakes. _(2026-06-17)_
+
 
 ---
 
