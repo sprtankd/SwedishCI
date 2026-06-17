@@ -1,0 +1,390 @@
+/* ============================================================================
+   Swedish CI — shared.js
+   Shared utilities for every mode. Adapted from the SwedishGames infrastructure:
+   Store (namespaced localStorage), Speech (TTS), Sfx, auroraBackground, gameHeader,
+   toast, encounter tracking, and small DOM/text helpers.
+
+   No external libraries. Works offline. localStorage is namespaced under
+   `svenska_ci_v1` so it never collides with SwedishGames.
+   ========================================================================== */
+(function (global) {
+  "use strict";
+
+  /* -------------------------------------------------------------- Store -- */
+  var STORE_KEY = "svenska_ci_v1";
+  var _cache = null;
+
+  function _defaults() {
+    return {
+      version: 1,
+      created: Date.now(),
+      // encounter tracking: { word(lowercase): { count, firstSeen, lastSeen, contexts:[storyId] } }
+      words: {},
+      // per-mode progress, keyed by mode name
+      progress: {
+        reader:   { completed: {}, scores: {} },   // completed[storyId]=true, scores[storyId]=pct
+        news:     { completed: {}, scores: {} },
+        listening:{ completed: {}, scores: {} },
+        collocations: { done: 0, correct: 0 },
+        connectors:   { done: 0, correct: 0 },
+        exams: []   // [{id, kind, level, score, total, date}]
+      },
+      // reading session log for streaks/stats
+      sessions: [],         // [{date:'YYYY-MM-DD', count}]
+      streak: { current: 0, best: 0, lastDay: null }
+    };
+  }
+
+  var Store = {
+    load: function () {
+      if (_cache) return _cache;
+      try {
+        var raw = localStorage.getItem(STORE_KEY);
+        _cache = raw ? Object.assign(_defaults(), JSON.parse(raw)) : _defaults();
+      } catch (e) {
+        _cache = _defaults();
+      }
+      // ensure nested shape after merge
+      var d = _defaults();
+      _cache.words = _cache.words || d.words;
+      _cache.progress = Object.assign(d.progress, _cache.progress || {});
+      _cache.sessions = _cache.sessions || d.sessions;
+      _cache.streak = _cache.streak || d.streak;
+      return _cache;
+    },
+    save: function () {
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(this.load())); }
+      catch (e) { /* quota / private mode — ignore */ }
+    },
+    get: function (path, fallback) {
+      var o = this.load(), parts = path.split(".");
+      for (var i = 0; i < parts.length; i++) {
+        if (o == null) return fallback;
+        o = o[parts[i]];
+      }
+      return o === undefined ? fallback : o;
+    },
+    reset: function () {
+      _cache = _defaults();
+      this.save();
+    }
+  };
+
+  /* --------------------------------------------------- Encounter tracking */
+  // Mark that a set of words was "encountered" while reading `storyId`.
+  // Words graduate: new(0) -> met(1-2) -> familiar(3-5) -> known(6+).
+  function recordEncounter(words, storyId) {
+    var s = Store.load();
+    var now = Date.now();
+    (words || []).forEach(function (w) {
+      var key = normalizeWord(w);
+      if (!key) return;
+      var rec = s.words[key];
+      if (!rec) {
+        rec = { count: 0, firstSeen: now, lastSeen: now, contexts: [] };
+        s.words[key] = rec;
+      }
+      rec.count += 1;
+      rec.lastSeen = now;
+      if (storyId && rec.contexts.indexOf(storyId) === -1) rec.contexts.push(storyId);
+    });
+    Store.save();
+  }
+
+  function encounterStatus(count) {
+    if (!count || count <= 0) return "new";
+    if (count <= 2) return "met";
+    if (count <= 5) return "familiar";
+    return "known";
+  }
+
+  function wordStats() {
+    var s = Store.load(), out = { new: 0, met: 0, familiar: 0, known: 0, total: 0 };
+    Object.keys(s.words).forEach(function (k) {
+      out[encounterStatus(s.words[k].count)]++;
+      out.total++;
+    });
+    return out;
+  }
+
+  /* ------------------------------------------------------ Session/streak */
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" +
+      String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
+  }
+
+  // Call when the learner completes a reading/listening session.
+  function logSession() {
+    var s = Store.load(), today = todayStr();
+    var entry = s.sessions.find(function (e) { return e.date === today; });
+    if (entry) entry.count++;
+    else s.sessions.push({ date: today, count: 1 });
+
+    // streak update
+    var st = s.streak;
+    if (st.lastDay !== today) {
+      var y = new Date(); y.setDate(y.getDate() - 1);
+      var yStr = y.getFullYear() + "-" + String(y.getMonth() + 1).padStart(2, "0") +
+        "-" + String(y.getDate()).padStart(2, "0");
+      st.current = (st.lastDay === yStr) ? st.current + 1 : 1;
+      st.lastDay = today;
+      if (st.current > st.best) st.best = st.current;
+    }
+    Store.save();
+  }
+
+  function sessionCount() {
+    return Store.load().sessions.reduce(function (a, e) { return a + e.count; }, 0);
+  }
+
+  /* ------------------------------------------------------ Text utilities */
+  // Strip punctuation and lowercase for word-key normalization.
+  function normalizeWord(w) {
+    return String(w || "")
+      .toLowerCase()
+      .replace(/[.,!?;:"'’“”()\[\]…—–]/g, "")
+      .trim();
+  }
+
+  // Tokenize a Swedish text into tokens preserving whitespace/punctuation so the
+  // gloss renderer can wrap only real words.
+  function tokenize(text) {
+    // Matches words (incl. åäö and hyphen/apostrophe inside) OR non-word runs.
+    var re = /([A-Za-zÅÄÖåäö][A-Za-zÅÄÖåäö'’-]*)|([^A-Za-zÅÄÖåäö]+)/g;
+    var tokens = [], m;
+    while ((m = re.exec(text)) !== null) {
+      if (m[1] !== undefined) tokens.push({ word: m[1], isWord: true });
+      else tokens.push({ word: m[2], isWord: false });
+    }
+    return tokens;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  /* --------------------------------------------------------- DOM helpers */
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === "class") node.className = attrs[k];
+      else if (k === "html") node.innerHTML = attrs[k];
+      else if (k === "text") node.textContent = attrs[k];
+      else if (k.slice(0, 2) === "on" && typeof attrs[k] === "function")
+        node.addEventListener(k.slice(2).toLowerCase(), attrs[k]);
+      else if (attrs[k] != null) node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) {
+      if (c == null) return;
+      node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    });
+    return node;
+  }
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  /* ------------------------------------------------------------- Aurora */
+  // Animated aurora background drawn into a fixed <canvas id="aurora-bg">.
+  function auroraBackground(opts) {
+    opts = opts || {};
+    var canvas = document.getElementById("aurora-bg");
+    if (!canvas) {
+      canvas = document.createElement("canvas");
+      canvas.id = "aurora-bg";
+      document.body.insertBefore(canvas, document.body.firstChild);
+    }
+    var ctx = canvas.getContext("2d");
+    var reduce = global.matchMedia &&
+      global.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    var blobs = [
+      { c: [109, 179, 242], x: 0.2, y: 0.2, r: 0.5, dx: 0.00007, dy: 0.00005, p: 0 },
+      { c: [242, 155, 196], x: 0.8, y: 0.3, r: 0.45, dx: -0.00006, dy: 0.00008, p: 2 },
+      { c: [95, 208, 160], x: 0.5, y: 0.8, r: 0.55, dx: 0.00005, dy: -0.00006, p: 4 },
+      { c: [244, 201, 93], x: 0.3, y: 0.7, r: 0.4, dx: -0.00008, dy: -0.00004, p: 1 }
+    ];
+
+    function resize() {
+      var dpr = Math.min(global.devicePixelRatio || 1, 2);
+      canvas.width = global.innerWidth * dpr;
+      canvas.height = global.innerHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    global.addEventListener("resize", resize);
+
+    function draw(t) {
+      var w = global.innerWidth, h = global.innerHeight;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#0c1018";
+      ctx.fillRect(0, 0, w, h);
+      blobs.forEach(function (b) {
+        var bx = (b.x + Math.sin(t * 0.0002 + b.p) * 0.06) * w;
+        var by = (b.y + Math.cos(t * 0.00015 + b.p) * 0.06) * h;
+        var rad = b.r * Math.max(w, h);
+        var g = ctx.createRadialGradient(bx, by, 0, bx, by, rad);
+        g.addColorStop(0, "rgba(" + b.c[0] + "," + b.c[1] + "," + b.c[2] + ",0.22)");
+        g.addColorStop(1, "rgba(" + b.c[0] + "," + b.c[1] + "," + b.c[2] + ",0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+      });
+    }
+
+    if (reduce) { draw(0); return; }
+    var raf;
+    function loop(t) { draw(t); raf = global.requestAnimationFrame(loop); }
+    raf = global.requestAnimationFrame(loop);
+  }
+
+  /* ------------------------------------------------------------ Speech */
+  // Swedish TTS via the Web Speech API, with graceful fallback if unavailable.
+  var Speech = {
+    _voice: null,
+    _ready: false,
+    rate: 1.0,
+    init: function () {
+      if (!("speechSynthesis" in global)) return;
+      var pick = function () {
+        var voices = global.speechSynthesis.getVoices();
+        Speech._voice =
+          voices.find(function (v) { return /sv(-|_)/i.test(v.lang); }) ||
+          voices.find(function (v) { return /^sv/i.test(v.lang); }) || null;
+        Speech._ready = true;
+      };
+      pick();
+      global.speechSynthesis.onvoiceschanged = pick;
+    },
+    available: function () { return "speechSynthesis" in global; },
+    say: function (text, opts) {
+      opts = opts || {};
+      if (!("speechSynthesis" in global)) return false;
+      try {
+        global.speechSynthesis.cancel();
+        var u = new global.SpeechSynthesisUtterance(text);
+        if (this._voice) u.voice = this._voice;
+        u.lang = "sv-SE";
+        u.rate = opts.rate || this.rate;
+        u.pitch = opts.pitch || 1.0;
+        if (opts.onend) u.onend = opts.onend;
+        global.speechSynthesis.speak(u);
+        return true;
+      } catch (e) { return false; }
+    },
+    stop: function () { if ("speechSynthesis" in global) global.speechSynthesis.cancel(); }
+  };
+
+  /* --------------------------------------------------------------- Sfx */
+  // Tiny WebAudio blips for subtle feedback (no audio files needed).
+  var Sfx = {
+    _ctx: null,
+    _ac: function () {
+      if (!this._ctx) {
+        var AC = global.AudioContext || global.webkitAudioContext;
+        if (AC) this._ctx = new AC();
+      }
+      return this._ctx;
+    },
+    _tone: function (freq, dur, type) {
+      var ac = this._ac(); if (!ac) return;
+      var o = ac.createOscillator(), g = ac.createGain();
+      o.type = type || "sine"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.15, ac.currentTime + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
+      o.connect(g); g.connect(ac.destination);
+      o.start(); o.stop(ac.currentTime + dur);
+    },
+    correct: function () { this._tone(660, 0.12); var s = this; setTimeout(function () { s._tone(880, 0.14); }, 90); },
+    wrong:   function () { this._tone(180, 0.2, "sawtooth"); },
+    tick:    function () { this._tone(440, 0.05); }
+  };
+
+  /* ------------------------------------------------------------- Toast */
+  function toast(msg, kind, ms) {
+    var host = document.getElementById("toast-host");
+    if (!host) {
+      host = el("div", { id: "toast-host" });
+      document.body.appendChild(host);
+    }
+    var t = el("div", { class: "toast " + (kind || ""), text: msg });
+    host.appendChild(t);
+    requestAnimationFrame(function () { t.classList.add("show"); });
+    setTimeout(function () {
+      t.classList.remove("show");
+      setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 300);
+    }, ms || 2200);
+  }
+
+  /* ------------------------------------------------------ Header / nav */
+  // Modes available for the nav bar. `enabled:false` => not yet built.
+  var MODES = [
+    { id: "reader",       file: "reader.html",        icon: "📖", name: "Reader" },
+    { id: "news",         file: "news.html",          icon: "📰", name: "News" },
+    { id: "listening",    file: "listening.html",     icon: "🎧", name: "Listening" },
+    { id: "collocations", file: "collocations.html",  icon: "🔗", name: "Collocations" },
+    { id: "connectors",   file: "connectors.html",    icon: "🧩", name: "Connectors" },
+    { id: "tracker",      file: "tracker.html",        icon: "📊", name: "Tracker" },
+    { id: "exam-reading", file: "exam-reading.html",  icon: "📝", name: "Reading Exam" },
+    { id: "exam-listening", file: "exam-listening.html", icon: "🎙️", name: "Listening Exam" }
+  ];
+
+  // Render the shared header into `mountSel`. `active` = current mode id (or null for hub).
+  function gameHeader(mountSel, active, opts) {
+    opts = opts || {};
+    var mount = typeof mountSel === "string" ? $(mountSel) : mountSel;
+    if (!mount) return;
+    var links = (opts.modes || MODES).filter(function (m) { return m.enabled !== false; })
+      .map(function (m) {
+        return el("a", {
+          href: m.file,
+          class: m.id === active ? "active" : "",
+          html: m.icon + " " + escapeHtml(m.name)
+        });
+      });
+    var header = el("header", { class: "site-header" + (opts.wide ? " wide" : "") }, [
+      el("a", { href: "index.html", class: "brand" }, [
+        el("span", { class: "flag", text: "🇸🇪" }),
+        el("span", { class: "title", html: "Svenska CI<small>Comprehensible Input</small>" })
+      ]),
+      el("div", { class: "nav-spacer" }),
+      el("nav", { class: "nav-links" }, links)
+    ]);
+    mount.appendChild(header);
+  }
+
+  /* --------------------------------------------------------- bootstrap */
+  function boot(opts) {
+    auroraBackground();
+    Speech.init();
+    if (!document.getElementById("toast-host"))
+      document.body.appendChild(el("div", { id: "toast-host" }));
+  }
+
+  /* ----------------------------------------------------------- exports */
+  global.SvCI = {
+    Store: Store,
+    Speech: Speech,
+    Sfx: Sfx,
+    MODES: MODES,
+    auroraBackground: auroraBackground,
+    gameHeader: gameHeader,
+    toast: toast,
+    boot: boot,
+    // encounter / progress
+    recordEncounter: recordEncounter,
+    encounterStatus: encounterStatus,
+    wordStats: wordStats,
+    logSession: logSession,
+    sessionCount: sessionCount,
+    todayStr: todayStr,
+    // text/dom helpers
+    normalizeWord: normalizeWord,
+    tokenize: tokenize,
+    escapeHtml: escapeHtml,
+    el: el, $: $, $$: $$
+  };
+})(window);

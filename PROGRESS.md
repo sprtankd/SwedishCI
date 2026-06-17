@@ -46,10 +46,7 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [~] 0.2 — Create `shared.js` with shared utilities (adapted from SwedishGames:
-      Store, Speech, Sfx, auroraBackground, gameHeader, confetti, toast, base helpers).
-      Namespace the localStorage key as `svenska_ci_v1` to avoid collision.
-- [ ] 0.3 — Create `index.html` hub page with hero section, progress dashboard
+- [~] 0.3 — Create `index.html` hub page with hero section, progress dashboard
       (words encountered, reading sessions, streak), and mode cards grid. Initially
       all modes show as "Coming soon" except the first one.
 - [ ] 0.4 — Create `data/stories-a2.js` with the first 5 graded reader stories at
@@ -175,6 +172,9 @@
 (Completed chunks are moved here with a date and note.)
 - [x] 0.1 — `shared.css` base design system (aurora bg, glass cards, Nordic palette,
       glossing styles, mode grid, toast). _(2026-06-17)_
+- [x] 0.2 — `shared.js`: Store (namespaced `svenska_ci_v1`), Speech (sv-SE TTS), Sfx,
+      auroraBackground canvas, gameHeader nav, toast, encounter tracking, streaks,
+      tokenize/gloss helpers. _(2026-06-17)_
 
 ---
 
