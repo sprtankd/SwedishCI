@@ -46,10 +46,7 @@
 ---
 
 ## Milestone 0: Project scaffold
-- [~] 0.1 — Create `shared.css` with the base design system (copied/adapted from
-      SwedishGames shared.js inline styles, extracted to standalone CSS file)
-      _(claimed 2026-06-17)_
-- [ ] 0.2 — Create `shared.js` with shared utilities (adapted from SwedishGames:
+- [~] 0.2 — Create `shared.js` with shared utilities (adapted from SwedishGames:
       Store, Speech, Sfx, auroraBackground, gameHeader, confetti, toast, base helpers).
       Namespace the localStorage key as `svenska_ci_v1` to avoid collision.
 - [ ] 0.3 — Create `index.html` hub page with hero section, progress dashboard
@@ -176,6 +173,8 @@
 
 ## Done
 (Completed chunks are moved here with a date and note.)
+- [x] 0.1 — `shared.css` base design system (aurora bg, glass cards, Nordic palette,
+      glossing styles, mode grid, toast). _(2026-06-17)_
 
 ---
 
