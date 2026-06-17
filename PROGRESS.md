@@ -62,9 +62,6 @@
 ---
 
 ## Milestone 4: Collocation & Connector Activities (🔗 🧩)
-- [~] 4.1 — Create `data/collocations.js` with 50+ particle verb / preposition
-      collocations, each with 2-3 example sentences showing usage in context.
-      (started 2026-06-16)
 - [ ] 4.2 — Create `collocations.html`: read a mini-context paragraph, fill in the
       correct particle/preposition from choices. NOT flashcards — always in context.
 - [ ] 4.3 — Create `data/connectors.js` with 30+ discourse connectors (dessutom,
@@ -611,6 +608,34 @@
       mobile polish all verified. Full regression suite (25 files) re-run —
       all pass, zero console errors. `node --check` and HTML tag-balance
       clean. (2026-06-16)
+- [x] 4.1 — `data/collocations.js` created: 65 collocation entries (well
+      past the 50+ target), split 50 particle verbs (tycka om, ge upp,
+      hålla på med, ta hänsyn till, bero på, se fram emot, anpassa sig
+      till, kämpa för, etc.) and 15 adjective/verb + preposition pairs
+      (rädd för, intresserad av, nöjd med, van vid, stolt över, gift med,
+      besviken på, etc.) — both categories named in the chunk's "particle
+      verb / preposition collocations" wording. Schema: `{id, collocation,
+      collocationEn, type, level, blank, options, correct, examples}`.
+      Unlike the reading/listening data files, only a single word (the
+      particle/preposition itself) is blanked in each example sentence —
+      this matches 4.2's literal description ("fill in the correct
+      particle/preposition from choices"), not a full-collocation cloze;
+      `options`/`correct` follow the same shape as every other question
+      array in the codebase (reader/news/listening), with always-plausible
+      competing particles/prepositions as distractors (e.g. "rädd ___"
+      offers för/av/på, never random filler words). Each entry has exactly
+      2 example sentences in context with English translations, levelled
+      A2 (24) or B1 (41) by how idiomatic/abstract the collocation is.
+      Verified programmatically: zero duplicate ids, every `options` array
+      has exactly 3 entries with `options[correct] === blank`, every
+      example sentence contains exactly one `___` marker (caught and fixed
+      one example that had two blanks — "bra på ... men sämre ___
+      svenska" — by rewriting it to a single-blank sentence), and the
+      correct-index distribution across all 65 entries is balanced
+      (22/22/21 across options 0/1/2), same convention as every prior
+      question-bank chunk. No HTML file consumes this data yet (that's
+      4.2), so verification was structural/programmatic rather than
+      jsdom-based — `node --check` clean. (2026-06-17)
 
 ---
 
