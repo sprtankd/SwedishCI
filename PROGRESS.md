@@ -55,9 +55,7 @@
 ---
 
 ## Milestone 3: Listening Lab (🎧)
-- [~] 3.3 — Implement listen-first flow: play audio → answer questions → reveal
-      transcript with glosses → re-listen while reading. _(claimed 2026-06-17)_
-- [ ] 3.4 — Add speed controls (0.75x / 1.0x / 1.1x) and repeat controls.
+- [~] 3.4 — Add speed controls (0.75x / 1.0x / 1.1x) and repeat controls. _(claimed 2026-06-17)_
 - [ ] 3.5 — Create `data/listening-b1.js` with 5 passages at B1 level. Longer,
       more complex topics.
 - [ ] 3.6 — Polish: smooth transitions, progress tracking, mobile audio controls.
@@ -199,6 +197,10 @@
       voicemail, shop dialogue, station announcement, day-off monologue, booking call.
       Audio via TTS from transcript. Glossaries + 4 questions each. Registers into
       `window.SvCI_LISTENING`. Full flow smoke test passes. _(2026-06-17)_
+- [x] 3.3 — Listen-first flow completed: questions stay locked ("🔒 Spela ljudet
+      först") until the learner has played the audio at least once; transcript revealed
+      only after answering; re-listen with glosses. Hub Listening card enabled. Smoke
+      test passes. _(2026-06-17)_
 
 ---
 

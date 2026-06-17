@@ -46,11 +46,14 @@
   var Player = {
     playing: false,
     rate: 1.0,
+    plays: 0,
     play: function () {
       if (!state.passage) return;
       if (!S.Speech.available()) { S.toast("Ljud stöds inte i den här webbläsaren.", "err"); return; }
       this.playing = true;
+      this.plays++;
       this._setBtn(true);
+      unlockQuestions();
       var self = this;
       S.Speech.say(plainTranscript(state.passage), {
         rate: this.rate,
@@ -144,14 +147,30 @@
   }
 
   // ---- Listen view --------------------------------------------------------
+  // Listen-first pedagogy: the questions stay locked until the learner has played
+  // the audio at least once (so they answer from listening, not from reading).
+  function unlockQuestions() {
+    var btn = S.$("#to-questions-btn");
+    if (btn && btn.disabled) {
+      btn.disabled = false;
+      btn.textContent = "Jag har lyssnat — svara på frågor →";
+    }
+  }
+  function lockQuestions() {
+    var btn = S.$("#to-questions-btn");
+    if (btn) { btn.disabled = true; btn.textContent = "🔒 Spela ljudet först"; }
+  }
+
   function openPassage(p) {
     state.passage = p;
+    Player.plays = 0;
     S.$("#passage-title").textContent = p.title;
     S.$("#passage-titleEn").textContent = p.titleEn;
     var tags = S.$("#listen-tags");
     tags.innerHTML = "";
     tags.appendChild(S.el("span", { class: "pill blue", text: p.level }));
     tags.appendChild(S.el("span", { class: "pill", text: p.theme }));
+    lockQuestions();
     show("listen");
   }
 
