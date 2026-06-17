@@ -52,9 +52,9 @@
 ---
 
 ## Milestone 2: News Reader (📰)
-- [ ] 2.1 — Create `data/news-b1.js` with 5 simplified news-style articles at B1 level.
+- [~] 2.1 — Create `data/news-b1.js` with 5 simplified news-style articles at B1 level.
       Topics: weather report, local event, job market, health advice, technology.
-      Include glossaries and comprehension questions.
+      Include glossaries and comprehension questions. _(claimed 2026-06-17)_
 - [ ] 2.2 — Create `news.html` with news article layout: headline, lead paragraph,
       body text with glossing, source attribution. Reuse glossing engine from reader.
 - [ ] 2.3 — Add "text type" indicators (informational, argumentative, instructional)
